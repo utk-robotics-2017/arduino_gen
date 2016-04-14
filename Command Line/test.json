@@ -1,0 +1,11 @@
+[{
+	"type":"ultrasonic",
+	"pin":22,
+	"id": 1
+	},
+	{
+	"type":"ultrasonic",
+	"pin":23,
+	"id": 2
+	}
+	]
