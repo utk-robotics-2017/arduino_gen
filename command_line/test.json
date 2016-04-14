@@ -1,0 +1,24 @@
+[{
+	"type":"ultrasonic",
+	"pin":22,
+	"label": "front_ultrasonic"
+	},
+	{
+	"type":"linesensor",
+	"pin":2,
+	"label": "left_linesensor"
+	},
+	{
+	"type":"i2cencoder",
+	"pinA": 33,
+	"pinB": 34,
+	"label": "left_front_wheel_encoder",
+	"reverse": false,
+	"init_number": 1
+	},
+	{
+	"type":"ultrasonic",
+	"pin":23,
+	"label": "left_ultrasonic"
+	}
+	]
