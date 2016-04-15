@@ -8,8 +8,8 @@ class linesensors:
     def __init__(self):
         self.sensor_list = []
 
-    def add(self, label, pin):
-        self.sensor_list.append(linesensor(label, pin))
+    def add(self, json_item):
+        self.sensor_list.append(linesensor(json_item['label'], json_item['pin']))
 
     def get_include(self):
         return ""

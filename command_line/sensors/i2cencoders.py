@@ -11,8 +11,8 @@ class i2cencoders:
     def __init__(self):
         self.sensor_list = []
 
-    def add(self, label, pinA, pinB, reverse, init_number):
-        self.sensor_list.append(i2cencoder(label, pinA, pinB, reverse, init_number))
+    def add(self, json_item):
+        self.sensor_list.append(i2cencoder(json_item['label'], json_item['pinA'], json_item['pinB'], json_item['reverse'], json_item['init_number']))
         self.sensor_list.sort(key=lambda x: x.init_number, reverse=False)
 
 

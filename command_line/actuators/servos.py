@@ -8,8 +8,8 @@ class servos:
     def __init__(self):
         self.actuator_list = []
 
-    def add(self, label, pin):
-        self.actuator_list.append(servo(label, pin))
+    def add(self, json_item):
+        self.actuator_list.append(servo(json_item['label'], json_item['pin']))
 
     def get_include(self):
         return "#include \"Servo.h\";"

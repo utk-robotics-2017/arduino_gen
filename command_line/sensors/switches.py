@@ -9,8 +9,8 @@ class switches:
     def __init__(self):
         self.sensor_list = []
 
-    def add(self, label, pin, pullup):
-        self.sensor_list.append(switch(label, pin, pullup))
+    def add(self, json_item):
+        self.sensor_list.append(switch(json_item['label'], json_item['pin'], json_item['pullup']))
 
     def get_include(self):
         return ""

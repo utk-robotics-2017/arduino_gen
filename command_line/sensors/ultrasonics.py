@@ -9,8 +9,8 @@ class ultrasonics:
     def __init__(self):
         self.sensor_list = []
 
-    def add(self, label, pin):
-        self.sensor_list.append(ultrasonic(label, pin))
+    def add(self, json_item):
+        self.sensor_list.append(ultrasonic(json_item['label'], json_item['pin']))
 
     def get_include(self):
         return "#include \"NewPing.h\";"

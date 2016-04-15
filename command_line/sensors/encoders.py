@@ -9,8 +9,8 @@ class encoders:
     def __init__(self):
         self.sensor_list = []
 
-    def add(self, label, pinA, pinB):
-        self.sensor_list.append(encoder(label, pinA, pinB))
+    def add(self, json_item):
+        self.sensor_list.append(encoder(json_item['label'], json_item['pinA'], json_item['pinB']))
 
     def get_include(self):
         return "#include \"Encoder.h\";"

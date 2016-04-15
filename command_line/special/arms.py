@@ -12,8 +12,8 @@ class arms:
     def __init__(self):
         self.arm_list = []
 
-    def add(self, label, base_pin, shoulder_pin, elbow_pin, wrist_pin, wrist_rotate_pin):
-        self.arm_list.append(arm(label, base_pin, shoulder_pin, elbow_pin, wrist_pin, wrist_rotate_pin))
+    def add(self, json_item):
+        self.arm_list.append(arm(json_item['label'], json_item['base_pin'], json_item['shoulder_pin'], json_item['elbow_pin'], json_item['wrist_pin'], json_item['wrist_rotate_pin']))
 
     def get_include(self):
         return "#include \"Servo.h\";"
