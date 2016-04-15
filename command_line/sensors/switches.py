@@ -42,16 +42,17 @@ class switches:
         return rv
 
     def get_response_block(self):
-        rv = "    else if(args[0].equals(String(\"rs\"))){ // read switches\n"
-        rv = rv + "        if(numArgs == 2){\n"
-        rv = rv + "            int indexNum = args[1].toInt();\n"
-        rv = rv + "            if(indexNum > -1 && indexNum < %d){\n" % len(self.sensor_list)
-        rv = rv + "                Serial.println(digitalRead(switches[indexNum]));\n"
-        rv = rv + "            } else {\n"
-        rv = rv + "                Serial.println(\"Error: usage - rs [id]\");\n"
-        rv = rv + "            }\n"
-        rv = rv + "        } else {\n"
-        rv = rv + "            Serial.println(\"Error: usage - rs [id]\");\n"
-        rv = rv + "        }\n"
-        rv = rv + "    }\n"
+        rv = '''    else if(args[0].equals(String("rs"))){ // read switches
+        if(numArgs == 2){
+            int indexNum = args[1].toInt();
+            if(indexNum > -1 && indexNum < %d){
+                Serial.println(digitalRead(switches[indexNum]));
+            } else {
+                Serial.println("Error: usage - rs [id]");
+            }
+        } else {
+            Serial.println("Error: usage - rs [id]");
+        }
+    }
+''' % (len(self.sensor_list))
         return rv

@@ -34,19 +34,22 @@ class servos:
         rv = rv + "\n"
         return rv
 
+#TODO: add in attach and detach
+
     def get_response_block(self):
-        rv = "    else if(args[0].equals(String(\"ss\"))){ // set servo\n"
-        rv = rv + "        if(numArgs == 3){\n"
-        rv = rv + "            int indexNum = args[1].toInt();\n"
-        rv = rv + "            if(indexNum > -1 && indexNum < %d){\n" % len(self.actuator_list)
-        rv = rv + "                int value = args[2].toInt();\n"
-        rv = rv + "                servos[indexNum].write(value);\n"
-        rv = rv + "                Serial.println(\"ok\");\n"
-        rv = rv + "            } else {\n"
-        rv = rv + "                Serial.println(\"Error: usage - ss [id] [value]\");\n"
-        rv = rv + "            }\n"
-        rv = rv + "        } else {\n"
-        rv = rv + "            Serial.println(\"Error: usage - ss [id] [value]\");\n"
-        rv = rv + "        }\n"
-        rv = rv + "    }\n"
+        rv = '''    else if(args[0].equals(String("ss"))){ // set servo
+        if(numArgs == 3){
+            int indexNum = args[1].toInt();
+            if(indexNum > -1 && indexNum < %d){
+                int value = args[2].toInt();
+                servos[indexNum].write(value);
+                Serial.println("ok");
+            } else {
+                Serial.println("Error: usage - ss [id] [value]");
+            }
+        } else {
+            Serial.println("Error: usage - ss [id] [value]");
+        }
+    }
+''' % (len(self.actuator_list))
         return rv

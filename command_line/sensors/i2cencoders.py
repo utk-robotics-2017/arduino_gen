@@ -46,63 +46,61 @@ class i2cencoders:
         return rv
 
     def get_response_block(self):
-        rv = "    else if(args[0].equals(String(\"ep\"))){ // encoder position (in rotations)\n"
-        rv = rv + "        if(numArgs == 2){\n"
-        rv = rv + "            int indexNum = args[1].toInt();\n"
-        rv = rv + "            if(indexNum > -1 && indexNum < %d){\n" % len(self.sensor_list)
-        rv = rv + "                char dts[256];\n"
-        rv = rv + "                dtostrf(i2cencoders[indexNum].getPosition(), 0, 6, dts);\n"
-        rv = rv + "                Serial.println(dts);\n"
-        rv = rv + "            } else {\n"
-        rv = rv + "                Serial.println(\"Error: usage - ep [id]\");\n"
-        rv = rv + "            }\n"
-        rv = rv + "        } else {\n"
-        rv = rv + "            Serial.println(\"Error: usage - ep [id]\");\n"
-        rv = rv + "        }\n"
-        rv = rv + "    }\n"
-
-        rv = rv + "    else if(args[0].equals(String(\"erp\"))){ // i2c encoder raw position (in ticks)\n"
-        rv = rv + "        if(numArgs == 2){\n"
-        rv = rv + "            int indexNum = args[1].toInt();\n"
-        rv = rv + "            if(indexNum > -1 && indexNum < %d){\n" % len(self.sensor_list)
-        rv = rv + "                char dts[256];\n"
-        rv = rv + "                dtostrf(i2cencoders[indexNum].getRawPosition(), 0, 6, dts);\n"
-        rv = rv + "                Serial.println(dts);\n"
-        rv = rv + "            } else {\n"
-        rv = rv + "                Serial.println(\"Error: usage - erp [id]\");\n"
-        rv = rv + "            }\n"
-        rv = rv + "        } else {\n"
-        rv = rv + "            Serial.println(\"Error: usage - erp [id]\");\n"
-        rv = rv + "        }\n"
-        rv = rv + "    }\n"
-
-        rv = rv + "    else if(args[0].equals(String(\"es\"))){ // i2c encoder speed (in revolutions per minute)\n"
-        rv = rv + "        if(numArgs == 2){\n"
-        rv = rv + "            int indexNum = args[1].toInt();\n"
-        rv = rv + "            if(indexNum > -1 && indexNum < %d){\n" % len(self.sensor_list)
-        rv = rv + "                char dts[256];\n"
-        rv = rv + "                dtostrf(i2cencoders[indexNum].getSpeed(), 0, 6, dts);\n"
-        rv = rv + "                Serial.println(dts);\n"
-        rv = rv + "            } else {\n"
-        rv = rv + "                Serial.println(\"Error: usage - es [id]\");\n"
-        rv = rv + "            }\n"
-        rv = rv + "        } else {\n"
-        rv = rv + "            Serial.println(\"Error: usage - es [id]\");\n"
-        rv = rv + "        }\n"
-        rv = rv + "    }\n"
-
-        rv = rv + "    else if(args[0].equals(String(\"ez\"))){ // i2c encoder zero\n"
-        rv = rv + "        if(numArgs == 2){\n"
-        rv = rv + "            int indexNum = args[1].toInt();\n"
-        rv = rv + "            if(indexNum > -1 && indexNum < %d){\n" % len(self.sensor_list)
-        rv = rv + "                i2cencoders[indexNum].zero();\n"
-        rv = rv + "                Serial.println(\"ok\");\n"
-        rv = rv + "            } else {\n"
-        rv = rv + "                Serial.println(\"Error: usage - es [id]\");\n"
-        rv = rv + "            }\n"
-        rv = rv + "        } else {\n"
-        rv = rv + "            Serial.println(\"Error: usage - es [id]\");\n"
-        rv = rv + "        }\n"
-        rv = rv + "    }\n"
+        rv = '''    else if(args[0].equals(String("ep"))){ // i2c encoder position (in rotations)
+        if(numArgs == 2){
+            int indexNum = args[1].toInt();
+            if(indexNum > -1 && indexNum < %d){
+                char dts[256];
+                dtostrf(i2cencoders[indexNum].getPosition(), 0, 6, dts);
+                Serial.println(dts);
+            } else {
+                Serial.println("Error: usage - ep [id]");
+            }
+        } else {
+            Serial.println("Error: usage - ep [id]");
+        }
+    }
+    else if(args[0].equals(String("erp"))){ // i2c encoder raw position (in ticks)
+        if(numArgs == 2){
+            int indexNum = args[1].toInt();
+            if(indexNum > -1 && indexNum < %d){
+                char dts[256];
+                dtostrf(i2cencoders[indexNum].getRawPosition(), 0, 6, dts);
+                Serial.println(dts);
+            } else {
+                Serial.println("Error: usage - erp [id]");
+            }
+        } else {
+            Serial.println("Error: usage - erp [id]");
+        }
+    }
+    else if(args[0].equals(String("es"))){ // i2c encoder speed (in revolutions per minute)
+        if(numArgs == 2){
+            int indexNum = args[1].toInt();
+            if(indexNum > -1 && indexNum < %d){
+                char dts[256];
+                dtostrf(i2cencoders[indexNum].getSpeed(), 0, 6, dts);
+                Serial.println(dts);
+            } else {
+                Serial.println("Error: usage - es [id]");
+            }
+        } else {
+            Serial.println("Error: usage - es [id]");
+        }
+    }
+    else if(args[0].equals(String("ez"))){ // i2c encoder zero
+        if(numArgs == 2){
+            int indexNum = args[1].toInt();
+            if(indexNum > -1 && indexNum < %d){
+                i2cencoders[indexNum].zero();
+                Serial.println("ok");
+            } else {
+                Serial.println("Error: usage - es [id]");
+            }
+        } else {
+            Serial.println("Error: usage - es [id]");
+        }
+    }
+''' % (len(self.sensor_list), len(self.sensor_list), len(self.sensor_list), len(self.sensor_list))
 
         return rv

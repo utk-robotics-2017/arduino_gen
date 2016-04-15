@@ -6,7 +6,7 @@ class linesensor:
 
 class linesensors:
     def __init__(self):
-        self.linesensors_list = []
+        self.sensor_list = []
 
     def add(self, label, pin):
         self.sensor_list.append(linesensor(label, pin))
@@ -38,16 +38,17 @@ class linesensors:
         return ""
 
     def get_response_block(self):
-        rv = "    else if(args[0].equals(String(\"rls\"))){ // read linesensors\n"
-        rv = rv + "        if(numArgs == 2){\n"
-        rv = rv + "            int indexNum = args[1].toInt();\n"
-        rv = rv + "            if(indexNum > -1 && indexNum < %d){\n" % len(self.sensor_list)
-        rv = rv + "                Serial.println(analogRead(linesensors[indexNum]));\n"
-        rv = rv + "            } else {\n"
-        rv = rv + "                Serial.println(\"Error: usage - rls [id]\");\n"
-        rv = rv + "            }\n"
-        rv = rv + "        } else {\n"
-        rv = rv + "            Serial.println(\"Error: usage - rls [id]\");\n"
-        rv = rv + "        }\n"
-        rv = rv + "    }\n"
+        rv = '''    else if(args[0].equals(String("rls"))){ // read linesensors
+        if(numArgs == 2){
+            int indexNum = args[1].toInt();
+            if(indexNum > -1 && indexNum < %d){
+                Serial.println(analogRead(linesensors[indexNum]));
+            } else {
+                Serial.println("Error: usage - rls [id]");
+            }
+        } else {
+            Serial.println("Error: usage - rls [id]");
+        }
+    }
+''' % (len(self.sensor_list))
         return rv

@@ -34,10 +34,17 @@ const char left_ultrasonic_pin = 23;
 const char left_front_wheel_encoder_pinA = 33;
 const char left_front_wheel_encoder_pinB = 34;
 
+const char the_arm_base_pin = 12;
+const char the_arm_shoulder_pin = 13;
+const char the_arm_elbow_pin = 14;
+const char the_arm_wrist_pin = 15;
+const char the_arm_wrist_rotate_pin = 16;
+
 const char left_linesensor_pin = 2;
 
 
 // Constructors
+const char right_front_wheel_encoder_index = 0;
 Encoder encoders[1] = {
     Encoder(right_front_wheel_encoder_pinA, right_front_wheel_encoder_pinB)
 };
@@ -54,6 +61,8 @@ char switches[3] = {
     a_button_pin
 };
 
+const char front_ultrasonic_index = 0;
+const char left_ultrasonic_index = 1;
 NewPing ultrasonics[2] = {
     NewPing(front_ultrasonic_pin, front_ultrasonic_pin),
     NewPing(left_ultrasonic_pin, left_ultrasonic_pin)
@@ -61,6 +70,13 @@ NewPing ultrasonics[2] = {
 
 const char left_front_wheel_encoder_index = 0;
 I2CEncoder i2cencoders[1];
+
+const char the_arm_base_index = 0;
+const char the_arm_shoulder_index = 1;
+const char the_arm_elbow_index = 2;
+const char the_arm_wrist_index = 3;
+const char the_arm_wrist_rotate_index = 4;
+Servo arm_servos[5];
 
 char linesensors[1] = {
     left_linesensor_pin
@@ -80,6 +96,12 @@ void setup() {
     Wire.begin();
     i2cencoders[left_front_wheel_encoder_index].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
     i2cencoders[left_front_wheel_encoder_index].zero();
+
+    arm_servos[the_arm_base_index].attach(the_arm_base_pin);
+    arm_servos[the_arm_shoulder_index].attach(the_arm_shoulder_pin);
+    arm_servos[the_arm_elbow_index].attach(the_arm_elbow_pin);
+    arm_servos[the_arm_wrist_index].attach(the_arm_wrist_pin);
+    arm_servos[the_arm_wrist_rotate_index].attach(the_arm_wrist_rotate_pin);
 
     //Init Serial
     Serial.begin(115200);
@@ -256,7 +278,7 @@ void parseAndExecuteCommand(String command) {
             Serial.println("Error: usage - rus [id]");
         }
     }
-    else if(args[0].equals(String("ep"))){ // encoder position (in rotations)
+    else if(args[0].equals(String("ep"))){ // i2c encoder position (in rotations)
         if(numArgs == 2){
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < 1){
@@ -309,6 +331,52 @@ void parseAndExecuteCommand(String command) {
             }
         } else {
             Serial.println("Error: usage - es [id]");
+        }
+    }
+    else if(args[0].equals(String("sa"))) { // set arm
+        if(numArgs == 7) {
+            int indexNum = args[1].toInt();
+            if(indexNum > -1 && indexNum < 1){
+                int posbase = args[2].toInt();
+                int posshoulder = args[3].toInt();
+                int poselbow = args[4].toInt();
+                int poswrist = args[5].toInt();
+                int poswristrotate = args[6].toInt();
+                if (!arm_servos[indexNum * 5].attached()) {
+                    arm_servos[indexNum * 5].attach(3);
+                    arm_servos[indexNum * 5 + 1].attach(5);
+                    arm_servos[indexNum * 5 + 2].attach(6);
+                    arm_servos[indexNum * 5 + 3].attach(9);
+                    arm_servos[indexNum * 5 + 4].attach(11);
+                }
+                arm_servos[indexNum * 5].write(posbase);
+                arm_servos[indexNum * 5 + 1].write(posshoulder);
+                arm_servos[indexNum * 5 + 2].write(poselbow);
+                arm_servos[indexNum * 5 + 3].write(poswrist);
+                arm_servos[indexNum * 5 + 4].write(poswristrotate);
+                Serial.println("ok");
+            } else {
+                Serial.println("error: usage - 'sa [id] [base] [shoulder] [elbow] [wrist] [wristrotate]'");
+            }
+        } else {
+            Serial.println("error: usage - 'sa [id] [base] [shoulder] [elbow] [wrist] [wristrotate]'");
+        }
+    }
+    else if(args[0].equals(String("das"))) { // detach arm servos
+        if(numArgs == 2) {
+            int indexNum = args[1].toInt();
+            if(indexNum > -1 && indexNum < 1){
+                arm_servos[indexNum * 5].detach();
+                arm_servos[indexNum * 5 + 1].detach();
+                arm_servos[indexNum * 5 + 2].detach();
+                arm_servos[indexNum * 5 + 3].detach();
+                arm_servos[indexNum * 5 + 4].detach();
+                Serial.println("ok");
+            } else {
+                Serial.println("error: usage - 'ds [id]'");
+            }
+        } else {
+            Serial.println("error: usage - 'ds [id]'");
         }
     }
     else if(args[0].equals(String("rls"))){ // read linesensors

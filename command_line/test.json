@@ -49,5 +49,14 @@
 	"type":"servo",
 	"pin": 4,
 	"label": "test_servo"
+	},
+	{
+		"type":"arm",
+		"base_pin": 12,
+		"shoulder_pin":13,
+		"elbow_pin":14,
+		"wrist_pin":15,
+		"wrist_rotate_pin":16,
+		"label":"the_arm"
 	}
 	]

@@ -25,7 +25,7 @@ class ultrasonics:
         rv = ""
         for i in range(len(self.sensor_list)):
             rv = rv + "const char %s_index = %d;\n" % (self.sensor_list[i].label, i)
-        rv = "NewPing ultrasonics[%d] = {\n" % len(self.sensor_list)
+        rv = rv + "NewPing ultrasonics[%d] = {\n" % len(self.sensor_list)
 
         for sensor in self.sensor_list:
             rv = rv + "    NewPing(%s_pin, %s_pin),\n" % (sensor.label, sensor.label)
@@ -36,17 +36,18 @@ class ultrasonics:
         return ""
 
     def get_response_block(self):
-        rv = "    else if(args[0].equals(String(\"rus\"))){ // read ultrasonics\n"
-        rv = rv + "        if(numArgs == 2){\n"
-        rv = rv + "            int indexNum = args[1].toInt();\n"
-        rv = rv + "            if(indexNum > -1 && indexNum < %d){\n" % len(self.sensor_list)
-        rv = rv + "                unsigned int response = ultrasonics[indexNum].ping();\n"
-        rv = rv + "                Serial.println(response);\n"
-        rv = rv + "            } else {\n"
-        rv = rv + "                Serial.println(\"Error: usage - rus [id]\");\n"
-        rv = rv + "            }\n"
-        rv = rv + "        } else {\n"
-        rv = rv + "            Serial.println(\"Error: usage - rus [id]\");\n"
-        rv = rv + "        }\n"
-        rv = rv + "    }\n"
+        rv = '''    else if(args[0].equals(String("rus"))){ // read ultrasonics
+        if(numArgs == 2){
+            int indexNum = args[1].toInt();
+            if(indexNum > -1 && indexNum < %d){
+                unsigned int response = ultrasonics[indexNum].ping();
+                Serial.println(response);
+            } else {
+                Serial.println("Error: usage - rus [id]");
+            }
+        } else {
+            Serial.println("Error: usage - rus [id]");
+        }
+    }
+''' % (len(self.sensor_list))
         return rv
