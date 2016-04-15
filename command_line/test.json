@@ -44,5 +44,10 @@
 	"pin": 35,
 	"label": "a_button",
 	"pullup":true
+	},
+	{
+	"type":"servo",
+	"pin": 4,
+	"label": "test_servo"
 	}
 	]

@@ -5,6 +5,7 @@ from sensors.linesensors import linesensors
 from sensors.i2cencoders import i2cencoders
 from sensors.encoders import encoders
 from sensors.switches import switches
+from actuators.servos import servos
 from generator import generator
 import os
 
@@ -45,9 +46,13 @@ for json_item in json_data:
             sensor_dict['encoders'] = encoders()
         sensor_dict['encoders'].add_sensor(json_item['label'], json_item['pinA'], json_item['pinB'])
     elif json_item['type'] in ['switch', 'button', 'limit_switch']:
-        if not 'switches' in sensor_dict:
-            sensor_dict['switches'] = switches()
-        sensor_dict['switches'].add_sensor(json_item['label'], json_item['pin'], json_item['pullup'])
+        if not 'switch' in sensor_dict:
+            sensor_dict['switch'] = switches()
+        sensor_dict['switch'].add_sensor(json_item['label'], json_item['pin'], json_item['pullup'])
+    elif json_item['type'] == 'servo':
+        if not 'servo' in sensor_dict:
+            sensor_dict['servo'] = servos()
+        sensor_dict['servo'].add_actuator(json_item['label'], json_item['pin'])
 
 gen = generator(sensor_dict)
 
