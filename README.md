@@ -2,6 +2,15 @@
 Arduino Code Generator for the UTK IEEE General Robot Platform
 
 
+##Front End
+A web interface that allows the user to input what sensors, actuators, and systems they want connected to their arduino, what pins are being used, and any other information specific to the sensors, actuators, or systems selected. A configuration file (in json) is created based on the inputs.
+
+##Back End
+The configuration file is then used to autogenerate Arduino code that supports the command response system implemented by the UTK IEEE Robot Team's General Robot Platform.
+
+python ArduinoGen.py -i <config_file> [-o <output_file>]
+
+
 ## Sensors
 
 #### Linesensor

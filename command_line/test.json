@@ -66,5 +66,17 @@
 		"inB_pin": 12,
 		"pwm_pin": 12,
 		"reverse": true
+	},
+	{
+		"type":"linesensor_array",
+		"label":"analog",
+		"digital": false,
+		"pin_list": [1, 2, 3, 4, 5]
+	},
+	{
+		"type":"linesensor_array",
+		"label":"digital",
+		"digital": true,
+		"pin_list": [1, 2, 3, 4, 5]
 	}
 	]

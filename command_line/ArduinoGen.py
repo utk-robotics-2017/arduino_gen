@@ -9,6 +9,7 @@ from sensors.linesensors import linesensors
 from sensors.i2cencoders import i2cencoders
 from sensors.encoders import encoders
 from sensors.switches import switches
+from sensors.linesensor_arrays import linesensor_arrays
 
 # Actuator Includes
 from actuators.servos import servos
@@ -22,15 +23,20 @@ from generator import generator
 # Collect command line arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--input", required=True, help="Path to the config file for what is connected to the arduino")
+ap.add_argument("-o", "--output", required=False, help="Path to the output file that is the Arduino code")
 args = vars(ap.parse_args())
 
 # Set up the input and out files
 fi = open(args["input"], "r")
-dot = args["input"].find(".")
-fo_prefix = args["input"][:dot]
-if not os.path.exists(fo_prefix):
-    os.makedirs(fo_prefix)
-fo = open("%s/%s.ino" % (fo_prefix, fo_prefix), "w")
+
+if 'output' in args:
+    fo = open(args["output"], "w")
+else:
+    dot = args["input"].find(".")
+    fo_prefix = args["input"][:dot]
+    if not os.path.exists(fo_prefix):
+        os.makedirs(fo_prefix)
+    fo = open("%s/%s.ino" % (fo_prefix, fo_prefix), "w")
 
 # Read in json
 file_text = ""
@@ -47,7 +53,8 @@ device_type = {'ultrasonic': ultrasonics(),
                 'switch': switches(),
                 'servo': servos(),
                 'arm': arms(),
-                'monsterMotoMotor': monsterMotoMotors()}
+                'monsterMotoMotor': monsterMotoMotors(),
+                'linesensor_array': linesensor_arrays()}
 
 for json_item in json_data:
 
