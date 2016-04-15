@@ -17,8 +17,32 @@
 	"init_number": 1
 	},
 	{
+	"type":"encoder",
+	"pinA": 35,
+	"pinB": 36,
+	"label": "right_front_wheel_encoder"
+	},
+	{
 	"type":"ultrasonic",
 	"pin":23,
 	"label": "left_ultrasonic"
+	},
+	{
+	"type":"switch",
+	"pin": 35,
+	"label": "course_switch",
+	"pullup":true
+	},
+	{
+	"type":"limit_switch",
+	"pin": 35,
+	"label": "lift_switch",
+	"pullup":false
+	},
+	{
+	"type":"button",
+	"pin": 35,
+	"label": "a_button",
+	"pullup":true
 	}
 	]

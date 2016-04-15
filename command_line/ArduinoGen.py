@@ -2,6 +2,9 @@ import argparse
 import json
 from sensors.ultrasonics import ultrasonics
 from sensors.linesensors import linesensors
+from sensors.i2cencoders import i2cencoders
+from sensors.encoders import encoders
+from sensors.switches import switches
 from generator import generator
 import os
 
@@ -33,6 +36,18 @@ for json_item in json_data:
         if not 'linesensor' in sensor_dict:
             sensor_dict['linesensor'] = linesensors()
         sensor_dict['linesensor'].add_sensor(json_item['label'], json_item['pin'])
+    elif json_item['type'] == 'i2cencoder':
+        if not 'i2cencoder' in sensor_dict:
+            sensor_dict['i2cencoder'] = i2cencoders()
+        sensor_dict['i2cencoder'].add_sensor(json_item['label'], json_item['pinA'], json_item['pinB'], json_item['reverse'], json_item['init_number'])
+    elif json_item['type'] == 'encoder':
+        if not 'encoder' in sensor_dict:
+            sensor_dict['encoders'] = encoders()
+        sensor_dict['encoders'].add_sensor(json_item['label'], json_item['pinA'], json_item['pinB'])
+    elif json_item['type'] in ['switch', 'button', 'limit_switch']:
+        if not 'switches' in sensor_dict:
+            sensor_dict['switches'] = switches()
+        sensor_dict['switches'].add_sensor(json_item['label'], json_item['pin'], json_item['pullup'])
 
 gen = generator(sensor_dict)
 

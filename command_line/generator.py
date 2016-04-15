@@ -10,7 +10,9 @@ class generator:
 
         keys = self.sensor_dict.keys()
         for key in keys:
-            rv = rv + "#include \"%s\";\n" % self.sensor_dict[key].get_include()
+            include = self.sensor_dict[key].get_include()
+            if include != "":
+                rv = rv + "#include \"%s\";\n" % include
         rv = rv + "\n"
 
         rv = rv + "#define STR1(x)  #x\n"
@@ -33,11 +35,11 @@ class generator:
         return rv
 
     def add_setup(self):
-        rv = "void setup() {\n"
+        rv = "void setup() {\n    // Init LED pin\n    pinMode(LED, OUTPUT);"
         keys = self.sensor_dict.keys()
         for key in keys:
-            rv = rv + self.sensor_dict[key].get_setup() + "\n"
-        rv = rv + "    //Init Serial\n  Serial.begin(115200);\n}\n\n"
+            rv = rv + self.sensor_dict[key].get_setup()
+        rv = rv + "    //Init Serial\n    Serial.begin(115200);\n}\n\n"
         return rv
 
     def add_template(self, template_id):
