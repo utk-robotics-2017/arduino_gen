@@ -16,7 +16,7 @@ class ultrasonics:
         return "ultrasonic"
 
     def get_include(self):
-        return "NewPing.h"
+        return "#include \"NewPing.h\";"
 
     def get_pins(self):
         rv = ""
@@ -25,7 +25,15 @@ class ultrasonics:
         return rv
 
     def get_constructor(self):
-        return ""
+        rv = ""
+        for i in range(len(self.sensor_list)):
+            rv = rv + "const char %s_index = %d;\n" % (self.sensor_list[i].label, i)
+        rv = "NewPing ultrasonics[%d] = {\n" % len(self.sensor_list)
+
+        for sensor in self.sensor_list:
+            rv = rv + "    NewPing(%s_pin, %s_pin),\n" % (sensor.label, sensor.label)
+        rv = rv[:-2] + "\n};\n"
+        return rv
 
     def get_setup(self):
         return ""

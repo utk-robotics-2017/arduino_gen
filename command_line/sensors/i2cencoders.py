@@ -19,7 +19,7 @@ class i2cencoders:
         return "i2cencoder"
 
     def get_include(self):
-        return "I2CEncoder.h"
+        return "#include \"Wire.h\";\n#include \"I2CEncoder.h\";"
 
     def get_pins(self):
         rv = ""
@@ -29,9 +29,10 @@ class i2cencoders:
         return rv
 
     def get_constructor(self):
-        rv = "I2CEncoder i2cencoders[%d];\n" % (len(self.sensor_list))
+        rv = ""
         for i in range(len(self.sensor_list)):
             rv = rv + "const char %s_index = %d;\n" % (self.sensor_list[i].label, i)
+        rv = rv + "I2CEncoder i2cencoders[%d];\n" % (len(self.sensor_list))
         return rv
 
     def get_setup(self):

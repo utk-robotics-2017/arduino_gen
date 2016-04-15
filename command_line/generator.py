@@ -12,7 +12,7 @@ class generator:
         for key in keys:
             include = self.sensor_dict[key].get_include()
             if include != "":
-                rv = rv + "#include \"%s\";\n" % include
+                rv = rv + "%s\n" % include
         rv = rv + "\n"
 
         rv = rv + "#define STR1(x)  #x\n"
@@ -27,7 +27,7 @@ class generator:
         return rv
 
     def add_pins(self):
-        rv = "// Pin definitions\n"
+        rv = "// Pin definitions\nconst char LED = 13;\n"
         keys = self.sensor_dict.keys()
         for key in keys:
             rv = rv + self.sensor_dict[key].get_pins() + "\n"
@@ -35,7 +35,7 @@ class generator:
         return rv
 
     def add_setup(self):
-        rv = "void setup() {\n    // Init LED pin\n    pinMode(LED, OUTPUT);"
+        rv = "void setup() {\n    // Init LED pin\n    pinMode(LED, OUTPUT);\n\n"
         keys = self.sensor_dict.keys()
         for key in keys:
             rv = rv + self.sensor_dict[key].get_setup()

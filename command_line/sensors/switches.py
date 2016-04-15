@@ -25,20 +25,22 @@ class switches:
         return rv
 
     def get_constructor(self):
-        rv = "char switches[%d];\n" % (len(self.sensor_list))
+        rv = ""
         for i in range(len(self.sensor_list)):
             rv = rv + "const char %s_index = %d;\n" % (self.sensor_list[i].label, i)
+        rv = rv + "char switches[%d] = {\n" % (len(self.sensor_list))
         for sensor in self.sensor_list:
-            rv = rv + ("switches[%s_index] = %s_pin;\n") % (sensor.label, sensor.label)
+            rv = rv + ("    %s_pin,\n") % (sensor.label)
+        rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_setup(self):
         rv = ""
         for sensor in self.sensor_list:
             if sensor.pullup:
-                rv = rv + "    pinMode(%s_pin, INPUT_PULLUP);\n"
+                rv = rv + "    pinMode(%s_pin, INPUT_PULLUP);\n" % sensor.label
             else:
-                rv = rv + "    pinMode(%s_pin, INPUT);\n"
+                rv = rv + "    pinMode(%s_pin, INPUT);\n" % sensor.label
         rv = rv + "\n"
         return rv
 

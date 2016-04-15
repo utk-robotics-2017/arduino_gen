@@ -4,6 +4,7 @@ class encoder:
         self.pinA = pinA
         self.pinB = pinB
 
+
 class encoders:
     def __init__(self):
         self.sensor_list = []
@@ -15,7 +16,7 @@ class encoders:
         return "encoder"
 
     def get_include(self):
-        return "Encoder.h"
+        return "#include \"Encoder.h\";"
 
     def get_pins(self):
         rv = ""
@@ -25,11 +26,14 @@ class encoders:
         return rv
 
     def get_constructor(self):
-        rv = "Encoder encoders[%d];\n" % len(self.sensor_list)
+        rv = ""
         for i in range(len(self.sensor_list)):
             rv = rv + "const char %s_index = %d;\n" % (self.sensor_list[i].label, i)
+        rv = "Encoder encoders[%d] = {\n" % len(self.sensor_list)
+
         for sensor in self.sensor_list:
-            rv = rv + "encoders[%s_index] = new Encoder(%s_pinA, %s_pinB);\n" % (sensor.label, sensor.label, sensor.label)
+            rv = rv + "    Encoder(%s_pinA, %s_pinB),\n" % (sensor.label, sensor.label)
+        rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_setup(self):
@@ -43,7 +47,7 @@ class encoders:
         rv = rv + "        if(numArgs == 2){\n"
         rv = rv + "            int indexNum = args[1].toInt();\n"
         rv = rv + "            if(indexNum > -1 && indexNum < %d){\n" % len(self.sensor_list)
-        rv = rv + "                Serial.println(encoders[indexNum].read()));\n"
+        rv = rv + "                Serial.println(encoders[indexNum].read());\n"
         rv = rv + "            } else {\n"
         rv = rv + "                Serial.println(\"Error: usage - re [id]\");\n"
         rv = rv + "            }\n"

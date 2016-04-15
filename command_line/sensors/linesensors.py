@@ -24,11 +24,17 @@ class linesensors:
         return rv
 
     def get_constructor(self):
-        rv = "char linesensors[%d];\n" % (len(self.sensor_list))
+        rv = ""
+
         for i in range(len(self.sensor_list)):
             rv = rv + "const char %s_index = %d;\n" % (self.sensor_list[i].label, i)
+
+        rv = "char linesensors[%d] = {\n" % (len(self.sensor_list))
+
         for sensor in self.sensor_list:
-            rv = rv + ("linesensors[%s_index] = %s_pin;\n") % (sensor.label, sensor.label)
+            rv = rv + ("    %s_pin,\n") % (sensor.label)
+
+        rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_setup(self):
