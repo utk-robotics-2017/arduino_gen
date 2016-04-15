@@ -10,6 +10,8 @@ class generator:
 
         keys = self.sensor_dict.keys()
         for key in keys:
+            if key == 'arm' and 'servo' in keys:
+                continue
             include = self.sensor_dict[key].get_include()
             if include != "":
                 rv = rv + "%s\n" % include
@@ -58,7 +60,7 @@ class generator:
         rv = rv + "\n"
         return rv
 
-    def add_sensor_commands(self):
+    def add_commands(self):
         rv = ""
         keys = self.sensor_dict.keys()
         for key in keys:

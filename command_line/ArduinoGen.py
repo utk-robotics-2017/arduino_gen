@@ -32,27 +32,27 @@ for json_item in json_data:
     if json_item['type'] == 'ultrasonic':
         if not 'ultrasonic' in sensor_dict:
             sensor_dict['ultrasonic'] = ultrasonics()
-        sensor_dict['ultrasonic'].add_sensor(json_item['label'], json_item['pin'])
+        sensor_dict['ultrasonic'].add(json_item['label'], json_item['pin'])
     elif json_item['type'] == 'linesensor':
         if not 'linesensor' in sensor_dict:
             sensor_dict['linesensor'] = linesensors()
-        sensor_dict['linesensor'].add_sensor(json_item['label'], json_item['pin'])
+        sensor_dict['linesensor'].add(json_item['label'], json_item['pin'])
     elif json_item['type'] == 'i2cencoder':
         if not 'i2cencoder' in sensor_dict:
             sensor_dict['i2cencoder'] = i2cencoders()
-        sensor_dict['i2cencoder'].add_sensor(json_item['label'], json_item['pinA'], json_item['pinB'], json_item['reverse'], json_item['init_number'])
+        sensor_dict['i2cencoder'].add(json_item['label'], json_item['pinA'], json_item['pinB'], json_item['reverse'], json_item['init_number'])
     elif json_item['type'] == 'encoder':
         if not 'encoder' in sensor_dict:
             sensor_dict['encoders'] = encoders()
-        sensor_dict['encoders'].add_sensor(json_item['label'], json_item['pinA'], json_item['pinB'])
+        sensor_dict['encoders'].add(json_item['label'], json_item['pinA'], json_item['pinB'])
     elif json_item['type'] in ['switch', 'button', 'limit_switch']:
         if not 'switch' in sensor_dict:
             sensor_dict['switch'] = switches()
-        sensor_dict['switch'].add_sensor(json_item['label'], json_item['pin'], json_item['pullup'])
+        sensor_dict['switch'].add(json_item['label'], json_item['pin'], json_item['pullup'])
     elif json_item['type'] == 'servo':
         if not 'servo' in sensor_dict:
             sensor_dict['servo'] = servos()
-        sensor_dict['servo'].add_actuator(json_item['label'], json_item['pin'])
+        sensor_dict['servo'].add(json_item['label'], json_item['pin'])
 
 gen = generator(sensor_dict)
 
@@ -62,6 +62,6 @@ fo.write(gen.add_pins())
 fo.write(gen.add_constructors())
 fo.write(gen.add_setup())
 fo.write(gen.add_template(1))
-fo.write(gen.add_sensor_commands())
+fo.write(gen.add_commands())
 fo.write(gen.add_template(2))
 fo.write("\n")

@@ -9,11 +9,8 @@ class switches:
     def __init__(self):
         self.sensor_list = []
 
-    def add_sensor(self, label, pin, pullup):
+    def add(self, label, pin, pullup):
         self.sensor_list.append(switch(label, pin, pullup))
-
-    def get_sensor_name(self):
-        return "switch"
 
     def get_include(self):
         return ""
@@ -43,9 +40,6 @@ class switches:
                 rv = rv + "    pinMode(%s_pin, INPUT);\n" % sensor.label
         rv = rv + "\n"
         return rv
-
-    def get_command(self):
-        return "rs"
 
     def get_response_block(self):
         rv = "    else if(args[0].equals(String(\"rs\"))){ // read switches\n"

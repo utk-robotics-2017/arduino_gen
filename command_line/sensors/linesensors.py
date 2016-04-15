@@ -6,13 +6,10 @@ class linesensor:
 
 class linesensors:
     def __init__(self):
-        self.sensor_list = []
+        self.linesensors_list = []
 
-    def add_sensor(self, label, pin):
+    def add(self, label, pin):
         self.sensor_list.append(linesensor(label, pin))
-
-    def get_sensor_name(self):
-        return "linesensor"
 
     def get_include(self):
         return ""
@@ -39,9 +36,6 @@ class linesensors:
 
     def get_setup(self):
         return ""
-
-    def get_command(self):
-        return "rls"
 
     def get_response_block(self):
         rv = "    else if(args[0].equals(String(\"rls\"))){ // read linesensors\n"

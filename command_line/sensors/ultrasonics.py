@@ -9,11 +9,8 @@ class ultrasonics:
     def __init__(self):
         self.sensor_list = []
 
-    def add_sensor(self, label, pin):
+    def add(self, label, pin):
         self.sensor_list.append(ultrasonic(label, pin))
-
-    def get_sensor_name(self):
-        return "ultrasonic"
 
     def get_include(self):
         return "#include \"NewPing.h\";"
@@ -37,9 +34,6 @@ class ultrasonics:
 
     def get_setup(self):
         return ""
-
-    def get_command(self):
-        return "rus"
 
     def get_response_block(self):
         rv = "    else if(args[0].equals(String(\"rus\"))){ // read ultrasonics\n"

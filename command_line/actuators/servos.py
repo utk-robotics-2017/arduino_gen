@@ -8,11 +8,8 @@ class servos:
     def __init__(self):
         self.actuator_list = []
 
-    def add_actuator(self, label, pin):
+    def add(self, label, pin):
         self.actuator_list.append(servo(label, pin))
-
-    def get_sensor_name(self):
-        return "servo"
 
     def get_include(self):
         return "#include \"Servo.h\";"
@@ -36,9 +33,6 @@ class servos:
             rv = rv + "    servos[%s_index].attach(%s_pin);\n" % (actuator.label, actuator.label)
         rv = rv + "\n"
         return rv
-
-    def get_command(self):
-        return "ss"
 
     def get_response_block(self):
         rv = "    else if(args[0].equals(String(\"ss\"))){ // set servo\n"

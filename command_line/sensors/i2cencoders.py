@@ -11,12 +11,10 @@ class i2cencoders:
     def __init__(self):
         self.sensor_list = []
 
-    def add_sensor(self, label, pinA, pinB, reverse, init_number):
+    def add(self, label, pinA, pinB, reverse, init_number):
         self.sensor_list.append(i2cencoder(label, pinA, pinB, reverse, init_number))
         self.sensor_list.sort(key=lambda x: x.init_number, reverse=False)
 
-    def get_sensor_name(self):
-        return "i2cencoder"
 
     def get_include(self):
         return "#include \"Wire.h\";\n#include \"I2CEncoder.h\";"
@@ -46,9 +44,6 @@ class i2cencoders:
             rv = rv + "    i2cencoders[%s_index].zero();\n" % sensor.label
         rv = rv + "\n"
         return rv
-
-    def get_command(self):
-        return "rus"
 
     def get_response_block(self):
         rv = "    else if(args[0].equals(String(\"ep\"))){ // encoder position (in rotations)\n"

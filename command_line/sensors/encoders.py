@@ -9,11 +9,8 @@ class encoders:
     def __init__(self):
         self.sensor_list = []
 
-    def add_sensor(self, label, pinA, pinB):
+    def add(self, label, pinA, pinB):
         self.sensor_list.append(encoder(label, pinA, pinB))
-
-    def get_sensor_name(self):
-        return "encoder"
 
     def get_include(self):
         return "#include \"Encoder.h\";"
@@ -38,9 +35,6 @@ class encoders:
 
     def get_setup(self):
         return ""
-
-    def get_command(self):
-        return "re"
 
     def get_response_block(self):
         rv = "    else if(args[0].equals(String(\"re\"))){ // read encoders\n"
