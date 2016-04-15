@@ -12,6 +12,7 @@ from sensors.switches import switches
 
 # Actuator Includes
 from actuators.servos import servos
+from actuators.monsterMotoMotors import monsterMotoMotors
 
 #Special Includes
 from special.arms import arms
@@ -45,7 +46,8 @@ device_type = {'ultrasonic': ultrasonics(),
                 'encoder': encoders(),
                 'switch': switches(),
                 'servo': servos(),
-                'arm': arms()}
+                'arm': arms(),
+                'monsterMotoMotor': monsterMotoMotors()}
 
 for json_item in json_data:
 

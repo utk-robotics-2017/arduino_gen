@@ -36,7 +36,7 @@ class ultrasonics:
         return ""
 
     def get_response_block(self):
-        rv = '''    else if(args[0].equals(String("rus"))){ // read ultrasonics
+        return '''    else if(args[0].equals(String("rus"))){ // read ultrasonics
         if(numArgs == 2){
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < %d){
@@ -50,4 +50,3 @@ class ultrasonics:
         }
     }
 ''' % (len(self.sensor_list))
-        return rv

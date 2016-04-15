@@ -52,7 +52,7 @@ class arms:
         return rv
 
     def get_response_block(self):
-        rv = '''    else if(args[0].equals(String("sa"))) { // set arm
+        return '''    else if(args[0].equals(String("sa"))) { // set arm
         if(numArgs == 7) {
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < %d){
@@ -99,4 +99,3 @@ class arms:
         }
     }
 ''' % (len(self.arm_list), len(self.arm_list))
-        return rv

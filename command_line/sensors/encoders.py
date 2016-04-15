@@ -37,7 +37,7 @@ class encoders:
         return ""
 
     def get_response_block(self):
-        rv = '''    else if(args[0].equals(String("re"))){ // read encoders
+        return '''    else if(args[0].equals(String("re"))){ // read encoders
         if(numArgs == 2){
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < %d){
@@ -63,4 +63,3 @@ class encoders:
         }
     }
 ''' % (len(self.sensor_list), len(self.sensor_list))
-        return rv

@@ -58,5 +58,13 @@
 		"wrist_pin":15,
 		"wrist_rotate_pin":16,
 		"label":"the_arm"
+	},
+	{
+		"type":"monsterMotoMotor",
+		"label":"testMotor",
+		"inA_pin": 12,
+		"inB_pin": 12,
+		"pwm_pin": 12,
+		"reverse": true
 	}
 	]

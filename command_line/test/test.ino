@@ -31,6 +31,10 @@ const char a_button_pin = 35;
 const char front_ultrasonic_pin = 22;
 const char left_ultrasonic_pin = 23;
 
+const char testMotor_inA_pin = 12;
+const char testMotor_inB_pin = 12;
+const char testMotor_pwm_pin = 12;
+
 const char left_front_wheel_encoder_pinA = 33;
 const char left_front_wheel_encoder_pinB = 34;
 
@@ -68,6 +72,20 @@ NewPing ultrasonics[2] = {
     NewPing(left_ultrasonic_pin, left_ultrasonic_pin)
 };
 
+const char testMotor_index = 0;
+char inA_pins[1]= {
+    testMotor_inA_pin
+};
+char inB_pins[1]= {
+    testMotor_inB_pin
+};
+char pwm_pins[1]= {
+    testMotor_pwm_pin
+};
+char reverse[1]= {
+    1
+};
+
 const char left_front_wheel_encoder_index = 0;
 I2CEncoder i2cencoders[1];
 
@@ -93,6 +111,16 @@ void setup() {
     pinMode(lift_switch_pin, INPUT);
     pinMode(a_button_pin, INPUT_PULLUP);
 
+    for(int i = 0; i < 1; i++) {
+        pinMode(inA_pins[i], OUTPUT);
+        pinMode(inB_pins[i], OUTPUT);
+        pinMode(pwm_pins[i], OUTPUT);
+    }
+    // Initialize braked
+    for(int i = 0; i < 1; i++) {
+        digitalWrite(inA_pins[i], LOW);
+        digitalWrite(inB_pins[i], LOW);
+    }
     Wire.begin();
     i2cencoders[left_front_wheel_encoder_index].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
     i2cencoders[left_front_wheel_encoder_index].zero();
@@ -278,6 +306,54 @@ void parseAndExecuteCommand(String command) {
             Serial.println("Error: usage - rus [id]");
         }
     }
+    else if(args[0].equals(String("mod"))){ // motor drive
+        if(numArgs ==  3) {
+            int indexNum = args[1].toInt();
+            if(indexNum > -1 && indexNum < 1) {
+                int value = args[2].toInt();
+                if( value < -1023 || value > 1023) {
+                    Serial.println("Error: usage - mod [id] [value]");
+                } else {
+                    if(reverse[indexNum] == 1) {
+                        value = value * -1;
+                    }
+
+                    if(value == 0) {
+                        digitalWrite(inA_pins[indexNum], LOW);
+                        digitalWrite(inB_pins[indexNum], LOW);
+                        analogWrite(pwm_pins[indexNum], 0);
+                    } else if(value > 0) {
+                        digitalWrite(inA_pins[indexNum], HIGH);
+                        digitalWrite(inB_pins[indexNum], LOW);
+                        analogWrite(pwm_pins[indexNum], value);
+                    } else {
+                        digitalWrite(inA_pins[indexNum], LOW);
+                        digitalWrite(inB_pins[indexNum], HIGH);
+                        analogWrite(pwm_pins[indexNum], -1 * value);
+                    }
+                }
+            } else {
+                Serial.println("Error: usage - mod [id] [value]");
+            }
+        } else {
+            Serial.println("Error: usage - mod [id] [value]");
+        }
+    }
+    else if(args[0].equals(String("mos"))){ // motor stop
+        if(numArgs == 2) {
+            int indexNum = args[1].toInt();
+            if(indexNum > -1 && indexNum < 1) {
+                digitalWrite(inA_pins[indexNum], LOW);
+                digitalWrite(inB_pins[indexNum], LOW);
+                analogWrite(pwm_pins[indexNum], 0);
+            } else {
+                Serial.println("Error: usage - mos [id]");
+            }
+        } else {
+            Serial.println("Error: usage - mos [id]");
+        }
+    }
+
     else if(args[0].equals(String("ep"))){ // i2c encoder position (in rotations)
         if(numArgs == 2){
             int indexNum = args[1].toInt();

@@ -38,7 +38,7 @@ class linesensors:
         return ""
 
     def get_response_block(self):
-        rv = '''    else if(args[0].equals(String("rls"))){ // read linesensors
+        return '''    else if(args[0].equals(String("rls"))){ // read linesensors
         if(numArgs == 2){
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < %d){
@@ -51,4 +51,3 @@ class linesensors:
         }
     }
 ''' % (len(self.sensor_list))
-        return rv

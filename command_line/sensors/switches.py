@@ -42,7 +42,7 @@ class switches:
         return rv
 
     def get_response_block(self):
-        rv = '''    else if(args[0].equals(String("rs"))){ // read switches
+        return '''    else if(args[0].equals(String("rs"))){ // read switches
         if(numArgs == 2){
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < %d){
@@ -55,4 +55,3 @@ class switches:
         }
     }
 ''' % (len(self.sensor_list))
-        return rv

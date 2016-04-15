@@ -37,7 +37,7 @@ class servos:
 #TODO: add in attach and detach
 
     def get_response_block(self):
-        rv = '''    else if(args[0].equals(String("ss"))){ // set servo
+        return '''    else if(args[0].equals(String("ss"))){ // set servo
         if(numArgs == 3){
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < %d){
@@ -52,4 +52,3 @@ class servos:
         }
     }
 ''' % (len(self.actuator_list))
-        return rv

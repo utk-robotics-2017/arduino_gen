@@ -46,7 +46,7 @@ class i2cencoders:
         return rv
 
     def get_response_block(self):
-        rv = '''    else if(args[0].equals(String("ep"))){ // i2c encoder position (in rotations)
+        return '''    else if(args[0].equals(String("ep"))){ // i2c encoder position (in rotations)
         if(numArgs == 2){
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < %d){
@@ -102,5 +102,3 @@ class i2cencoders:
         }
     }
 ''' % (len(self.sensor_list), len(self.sensor_list), len(self.sensor_list), len(self.sensor_list))
-
-        return rv
