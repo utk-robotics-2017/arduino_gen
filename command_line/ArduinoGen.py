@@ -29,7 +29,7 @@ args = vars(ap.parse_args())
 # Set up the input and out files
 fi = open(args["input"], "r")
 
-if 'output' in args:
+if args['output'] is not None:
     fo = open(args["output"], "w")
 else:
     dot = args["input"].find(".")
@@ -73,7 +73,10 @@ fo.write(gen.add_includes())
 fo.write(gen.add_pins())
 fo.write(gen.add_constructors())
 fo.write(gen.add_setup())
-fo.write(gen.add_template(1))
+fo.write(gen.add_loop())
+fo.write(gen.add_parse_args())
+fo.write(gen.add_check_input())
+fo.write(gen.add_parse_and_execute_command_beginning())
 fo.write(gen.add_commands())
-fo.write(gen.add_template(2))
+fo.write(gen.add_parse_and_execute_command_ending())
 fo.write("\n")
