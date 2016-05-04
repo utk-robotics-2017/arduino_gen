@@ -95,10 +95,10 @@ class i2cencoders:
                 i2cencoders[indexNum].zero();
                 Serial.println("ok");
             } else {
-                Serial.println("Error: usage - es [id]");
+                Serial.println("Error: usage - ez [id]");
             }
         } else {
-            Serial.println("Error: usage - es [id]");
+            Serial.println("Error: usage - ez [id]");
         }
     }
 ''' % (len(self.sensor_list), len(self.sensor_list), len(self.sensor_list), len(self.sensor_list))
