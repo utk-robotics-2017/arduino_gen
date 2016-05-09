@@ -56,10 +56,13 @@ class linesensors:
     def get_setup(self):
         return ""
 
+    def get_loop_functions(self):
+        return ""
+
     def get_response_block(self):
         rv = ""
         if(len(self.digital_sensor_list) > 0):
-            rv = rv + '''    else if(args[0].equals(String("rdls"))){ // read digital linesensors
+            rv += '''    else if(args[0].equals(String("rdls"))){ // read digital linesensors
         if(numArgs == 2){
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < %d){
@@ -74,7 +77,7 @@ class linesensors:
 ''' % (len(self.digital_sensor_list))
 
         if(len(self.analog_sensor_list) > 0):
-            rv = rv + '''    else if(args[0].equals(String("rals"))){ // read analog linesensors
+            rv += '''    else if(args[0].equals(String("rals"))){ // read analog linesensors
         if(numArgs == 2){
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < %d){
@@ -89,3 +92,6 @@ class linesensors:
 ''' % (len(self.analog_sensor_list))
 
         return rv
+
+    def get_extra_functions(self):
+        return ""

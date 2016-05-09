@@ -6,41 +6,46 @@ class servo:
 
 class servos:
     def __init__(self):
-        self.actuator_list = []
+        self.actuators = dict()
 
     def add(self, json_item):
-        self.actuator_list.append(servo(json_item['label'], json_item['pin']))
+        self.actuators[json_item['label']] = servo(json_item['label'], json_item['pin'])
+
+    def get(self, label):
+        return self.actuators[label]
 
     def get_include(self):
         return "#include \"Servo.h\";"
 
     def get_pins(self):
         rv = ""
-        for actuator in self.actuator_list:
+        for actuator in self.actuators.values():
             rv = rv + "const char %s_pin = %d;\n" % (actuator.label, actuator.pin)
         return rv
 
     def get_constructor(self):
         rv = ""
-        for i in range(len(self.actuator_list)):
-            rv = rv + "const char %s_index = %d;\n" % (self.actuator_list[i].label, i)
-        rv = rv + ("Servo servos[%d];\n") % (len(self.actuator_list))
+        for i, label in zip(range(len(self.actuators)), self.actuators.keys()):
+            rv = rv + "const char %s_index = %d;\n" % (label, i)
+
+        rv += "char servo_pins[%d] = {\n" % (len(self.actuators))
+        for label in self.actuators.keys():
+            rv += ("    %s_pin,\n") % (label)
+        rv = rv[:-2] + "\n};\n"
+
+        rv = rv + ("Servo servos[%d];\n") % (len(self.actuators))
         return rv
 
     def get_setup(self):
         rv = ""
-        for actuator in self.actuator_list:
-            rv += "    servos[%s_index].attach(%s_pin);\n" % (actuator.label, actuator.label)
+        for label in self.actuators.keys():
+            rv += "    servos[%s_index].attach(%s_pin);\n" % (label, label)
         rv += "\n"
-
-        rv += "char servo_pins[%d] = {\n" % (len(self.actuator_list))
-        for actuator in self.actuator_list:
-            rv += ("    %s_pin,\n") % (sensor.label)
-        rv = rv[:-2] + "\n};\n"
 
         return rv
 
-#TODO: add in attach and detach
+    def get_loop_functions(self):
+        return ""
 
     def get_response_block(self):
         return '''    else if(args[0].equals(String("ss"))){ // set servo
@@ -73,4 +78,7 @@ class servos:
             Serial.println("Error: usage - sd [id]");
         }
     }
-''' % (len(self.actuator_list))
+''' % (len(self.actuators), len(self.actuators))
+
+    def get_extra_functions(self):
+        return ""

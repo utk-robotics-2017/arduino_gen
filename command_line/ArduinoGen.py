@@ -13,10 +13,10 @@ from sensors.linesensor_arrays import linesensor_arrays
 
 # Actuator Includes
 from actuators.servos import servos
-from actuators.monsterMotoMotors import monsterMotoMotors
+from actuators.motors import motors
 
-#Special Includes
-from special.arms import arms
+#Systems Includes
+from systems.arms import arms
 
 from generator import generator
 
@@ -47,16 +47,24 @@ json_data = json.loads(file_text)
 device_dict = dict()
 
 device_type = {'ultrasonic': ultrasonics(),
-                'linesensor': linesensors(),
-                'i2cencoder': i2cencoders(),
-                'encoder': encoders(),
-                'switch': switches(),
-                'servo': servos(),
-                'arm': arms(),
-                'monsterMotoMotor': monsterMotoMotors(),
-                'linesensor_array': linesensor_arrays()}
+               'linesensor': linesensors(),
+               'i2cencoder': i2cencoders(),
+               'encoder': encoders(),
+               'switch': switches(),
+               'servo': servos(),
+               'motor': motors(),
+               'linesensor_array': linesensor_arrays()}
+
+system_type = {'arm': arms()}  #,
+               #'fourwheeldrivebase': fourwheeldrivebases()}
+
+system_json_data = []
 
 for json_item in json_data:
+
+    if json_item['type'] in system_type:
+        system_json_data.append(json_item)
+        continue
 
     # Buttons and Limit Switches work the same as switches
     if json_item['type'] == 'limit_switch' or json_item['type'] == 'button':
@@ -65,6 +73,12 @@ for json_item in json_data:
     if not json_item['type'] in device_dict:
         device_dict[json_item['type']] = device_type[json_item['type']]
     device_dict[json_item['type']].add(json_item)
+
+for json_item in system_json_data:
+    if not json_item['type'] in device_dict:
+        device_dict[json_item['type']] = system_type[json_item['type']]
+    if json_item['type'] == 'arm':
+        device_dict[json_item['type']].add(json_item, device_dict['servo'])
 
 gen = generator(device_dict)
 
@@ -79,4 +93,7 @@ fo.write(gen.add_check_input())
 fo.write(gen.add_parse_and_execute_command_beginning())
 fo.write(gen.add_commands())
 fo.write(gen.add_parse_and_execute_command_ending())
+fo.write(gen.add_extra_functions())
 fo.write("\n")
+
+gen.copy_include_files(fo_prefix)

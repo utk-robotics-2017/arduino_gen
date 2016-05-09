@@ -7,10 +7,13 @@ class encoder:
 
 class encoders:
     def __init__(self):
-        self.sensor_list = []
+        self.sensors = dict()
 
     def add(self, json_item):
-        self.sensor_list.append(encoder(json_item['label'], json_item['pinA'], json_item['pinB']))
+        self.sensors[json_item['label']] = encoder(json_item['label'], json_item['pinA'], json_item['pinB'])
+
+    def get(self, label):
+        return self.sensors['label']
 
     def get_include(self):
         return "#include \"Encoder.h\";"
@@ -36,7 +39,11 @@ class encoders:
     def get_setup(self):
         return ""
 
+    def get_loop_functions(self):
+        return ""
+
     def get_response_block(self):
+        length = len(self.sensors)
         return '''    else if(args[0].equals(String("re"))){ // read encoders
         if(numArgs == 2){
             int indexNum = args[1].toInt();
@@ -62,4 +69,7 @@ class encoders:
             Serial.println("Error: usage - ze [id]");
         }
     }
-''' % (len(self.sensor_list), len(self.sensor_list))
+''' % (length, length)
+
+    def get_extra_functions(self):
+        return ""

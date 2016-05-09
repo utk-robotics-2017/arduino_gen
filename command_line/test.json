@@ -49,20 +49,41 @@
 	},
 	{
 	"type":"servo",
-	"pin": 4,
-	"label": "test_servo"
+	"pin": 12,
+	"label": "base_servo"
+	},
+	{
+	"type":"servo",
+	"pin": 13,
+	"label": "shoulder_servo"
+	},
+	{
+	"type":"servo",
+	"pin": 14,
+	"label": "elbow_servo"
+	},
+	{
+	"type":"servo",
+	"pin": 15,
+	"label": "wrist_servo"
+	},
+	{
+	"type":"servo",
+	"pin": 16,
+	"label": "wrist_rotate_servo"
 	},
 	{
 		"type":"arm",
-		"base_pin": 12,
-		"shoulder_pin":13,
-		"elbow_pin":14,
-		"wrist_pin":15,
-		"wrist_rotate_pin":16,
-		"label":"the_arm"
+		"base_label": "base_servo",
+		"shoulder_label": "shoulder_servo",
+		"elbow_label": "elbow_servo",
+		"wrist_label": "wrist_servo",
+		"wrist_rotate_label": "wrist_rotate_servo",
+		"label": "the_arm"
 	},
 	{
-		"type":"monsterMotoMotor",
+		"type":"motor",
+		"motorController": "MonsterMoto",
 		"label":"testMotor",
 		"inA_pin": 12,
 		"inB_pin": 12,

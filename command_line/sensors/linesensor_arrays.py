@@ -74,3 +74,6 @@ class linesensor_arrays:
     # TODO
     def get_response_block(self):
         return ""
+
+    def get_extra_functions(self):
+        return ""

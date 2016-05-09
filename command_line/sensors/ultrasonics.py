@@ -35,6 +35,9 @@ class ultrasonics:
     def get_setup(self):
         return ""
 
+    def get_loop_functions(self):
+        return ""
+
     def get_response_block(self):
         return '''    else if(args[0].equals(String("rus"))){ // read ultrasonics
         if(numArgs == 2){
@@ -50,3 +53,6 @@ class ultrasonics:
         }
     }
 ''' % (len(self.sensor_list))
+
+    def get_extra_functions(self):
+        return ""

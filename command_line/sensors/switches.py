@@ -41,6 +41,9 @@ class switches:
         rv = rv + "\n"
         return rv
 
+    def get_loop_functions(self):
+        return ""
+
     def get_response_block(self):
         return '''    else if(args[0].equals(String("rs"))){ // read switches
         if(numArgs == 2){
@@ -55,3 +58,6 @@ class switches:
         }
     }
 ''' % (len(self.sensor_list))
+
+    def get_extra_functions(self):
+        return ""
