@@ -20,19 +20,19 @@ class encoders:
 
     def get_pins(self):
         rv = ""
-        for sensor in self.sensor_list:
+        for sensor in self.sensors.values():
             rv = rv + "const char %s_pinA = %d;\n" % (sensor.label, sensor.pinA)
             rv = rv + "const char %s_pinB = %d;\n" % (sensor.label, sensor.pinB)
         return rv
 
     def get_constructor(self):
         rv = ""
-        for i in range(len(self.sensor_list)):
-            rv = rv + "const char %s_index = %d;\n" % (self.sensor_list[i].label, i)
-        rv = rv + "Encoder encoders[%d] = {\n" % len(self.sensor_list)
+        for i, label in zip(range(len(self.sensors)), self.sensors.keys()):
+            rv = rv + "const char %s_index = %d;\n" % (label, i)
+        rv = rv + "Encoder encoders[%d] = {\n" % len(self.sensors)
 
-        for sensor in self.sensor_list:
-            rv = rv + "    Encoder(%s_pinA, %s_pinB),\n" % (sensor.label, sensor.label)
+        for label in self.sensors.keys():
+            rv = rv + "    Encoder(%s_pinA, %s_pinB),\n" % (label, label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
