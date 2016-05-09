@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import shutil
 
 # Sensor Includes
 from sensors.ultrasonics import ultrasonics
@@ -15,8 +16,13 @@ from sensors.linesensor_arrays import linesensor_arrays
 from actuators.servos import servos
 from actuators.motors import motors
 
+# Control Includes
+from control.pids import pids
+
 #Systems Includes
 from systems.arms import arms
+from systems.velocitycontrolledmotors import velocitycontrolledmotors
+from systems.fourwheeldrivebases import fourwheeldrivebases
 
 from generator import generator
 
@@ -34,8 +40,9 @@ if args['output'] is not None:
 else:
     dot = args["input"].find(".")
     fo_prefix = args["input"][:dot]
-    if not os.path.exists(fo_prefix):
-        os.makedirs(fo_prefix)
+    if os.path.exists(fo_prefix):
+        shutil.rmtree(fo_prefix)
+    os.makedirs(fo_prefix)
     fo = open("%s/%s.ino" % (fo_prefix, fo_prefix), "w")
 
 # Read in json
@@ -46,42 +53,61 @@ json_data = json.loads(file_text)
 
 device_dict = dict()
 
-device_type = {'ultrasonic': ultrasonics(),
-               'linesensor': linesensors(),
-               'i2cencoder': i2cencoders(),
-               'encoder': encoders(),
-               'switch': switches(),
-               'servo': servos(),
-               'motor': motors(),
-               'linesensor_array': linesensor_arrays()}
-
-system_type = {'arm': arms()}  #,
-               #'fourwheeldrivebase': fourwheeldrivebases()}
+#Split into levels based on dependencies
+device_type = [
+    {
+        'ultrasonic': ultrasonics(),
+        'linesensor': linesensors(),
+        'i2cencoder': i2cencoders(),
+        'encoder': encoders(),
+        'switch': switches(),
+        'servo': servos(),
+        'motor': motors(),
+        'pid': pids(),
+        'linesensor_array': linesensor_arrays()
+    },
+    {
+        'arm': arms(),
+        'velocitycontrolledmotor': velocitycontrolledmotors()
+    },
+    {
+        'fourwheeldrivebase': fourwheeldrivebases()
+    }
+    ]
 
 system_json_data = []
 
-for json_item in json_data:
 
-    if json_item['type'] in system_type:
-        system_json_data.append(json_item)
-        continue
+for device_level in device_type:
+    for json_item in json_data:
 
-    # Buttons and Limit Switches work the same as switches
-    if json_item['type'] == 'limit_switch' or json_item['type'] == 'button':
-        json_item['type'] = 'switch'
+        # Buttons and Limit Switches work the same as switches
+        if json_item['type'].lower() == 'limit_switch' or json_item['type'].lower() == 'button':
+            json_item['type'] = 'switch'
 
-    if not json_item['type'] in device_dict:
-        device_dict[json_item['type']] = device_type[json_item['type']]
-    device_dict[json_item['type']].add(json_item)
+        if json_item['type'].lower() == 'monstermotomotor':
+            json_item['type'] = 'motor'
+            json_item['motorController'] = 'monstermoto'
+        elif json_item['type'].lower() == 'rover5motor':
+            json_item['type'] = 'motor'
+            json_item['motorController'] = 'rover5'
 
-for json_item in system_json_data:
-    if not json_item['type'] in device_dict:
-        device_dict[json_item['type']] = system_type[json_item['type']]
-    if json_item['type'] == 'arm':
-        device_dict[json_item['type']].add(json_item, device_dict['servo'])
+        if not json_item['type'] in device_level:
+            continue
+
+        if not json_item['type'] in device_dict:
+            device_dict[json_item['type']] = device_level[json_item['type']]
+
+        if json_item['type'] == 'arm':
+            device_dict[json_item['type']].add(json_item, device_dict['servo'])
+        elif json_item['type'] == 'velocitycontrolledmotors':
+            device_dict[json_item['type']].add(json_item, device_dict['motor'], device_dict['i2cencoder'], device_dict['vpid'])
+        elif json_item['type'] == 'fourwheeldrivebase':
+            device_dict[json_item['type']].add(json_item, device_dict['motor'], device_dict['velocitycontrolledmotor'])
+
+        device_dict[json_item['type']].add(json_item)
 
 gen = generator(device_dict)
-
 fo.write(gen.add_header())
 fo.write(gen.add_includes())
 fo.write(gen.add_pins())
@@ -95,5 +121,4 @@ fo.write(gen.add_commands())
 fo.write(gen.add_parse_and_execute_command_ending())
 fo.write(gen.add_extra_functions())
 fo.write("\n")
-
 gen.copy_include_files(fo_prefix)

@@ -17,6 +17,9 @@ class servos:
     def get_include(self):
         return "#include \"Servo.h\";"
 
+    def get_include_files(self):
+        return []
+
     def get_pins(self):
         rv = ""
         for actuator in self.actuators.values():

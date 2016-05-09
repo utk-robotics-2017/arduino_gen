@@ -70,6 +70,24 @@ double I2CEncoder::getSpeed() {
 }
 
 /**
+ * Returns the velocity of the encoder rotation per minute for the output
+ * shaft of the motor. (Assumes 269)
+ */
+double I2CEncoder::getVelocity(){
+  double position = getPosition();
+  double speed = getSpeed();
+  double position2 = getPosition();
+  if(position2 >= position)
+  {
+    return speed;
+  }
+  else
+  {
+    return -1*speed;
+  }
+}
+
+/**
  * Returns the unsigned velocity bits. This is the time-delta between
  * ticks in multiples of 64 microseconds/tick. Stopped is 0xFFFF or 4
  * seconds. (Assumes 269)

@@ -25,13 +25,16 @@ class arms:
     def get_include(self):
         return "#include \"Arm.h\";"
 
+    def get_include_files(self):
+        return ['Arm.h', 'Arm.cpp']
+
     def get_pins(self):
         return ""
 
     def get_constructor(self):
         rv = "Arm arms[%d] = {\n" % len(self.arm_list)
         for arm in self.arm_list:
-            rv += "    Arm(%s_index, %s_index, %s_index, %s_index, %s_index, servo_pins, servos),  // %s\n" % (arm.base.label, arm.shoulder.label, arm.elbow.label, arm.wrist.label, arm.wrist_rotate.label, arm.label)
+            rv += "    Arm(%s_index, %s_index, %s_index, %s_index, %s_index, servo_pins, servos),\n" % (arm.base.label, arm.shoulder.label, arm.elbow.label, arm.wrist.label, arm.wrist_rotate.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 

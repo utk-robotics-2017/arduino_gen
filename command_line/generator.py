@@ -1,5 +1,5 @@
-from os import listdir
-from shutil import copyfile
+import shutil
+
 
 class generator:
     def __init__(self, appendage_dict):
@@ -29,9 +29,12 @@ class generator:
 
         return rv
 
-    def copy_include_files(self, dir):
-        for f in listdir('includes'):
-            copyfile('includes/' + f, dir + "/" + f)
+    def copy_include_files(self, directory):
+        keys = self.appendage_dict.keys()
+        for key in keys:
+            includes = self.appendage_dict[key].get_include_files()
+            for include in includes:
+                shutil.copyfile('includes/' + include, directory + "/" + include)
 
     def add_pins(self):
         rv = "// Pin definitions\nconst char LED = 13;\n"
@@ -178,13 +181,13 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'rl'");
         }
     }
-    '''
+'''
 
     def add_commands(self):
         rv = ""
         keys = self.appendage_dict.keys()
         for key in keys:
-            rv = rv + self.appendage_dict[key].get_response_block()
+            rv += self.appendage_dict[key].get_response_block()
         return rv
 
     def add_parse_and_execute_command_ending(self):
@@ -212,7 +215,12 @@ void parseAndExecuteCommand(String command) {
 '''
 
     def add_extra_functions(self):
-        rv = ""
+        rv = '''double toDouble(String s)
+{
+  char buf[s.length() + 1];
+  s.toCharArray(buf, s.length() + 1);
+  return atof(buf);
+}'''
         keys = self.appendage_dict.keys()
         for key in keys:
             rv = rv + self.appendage_dict[key].get_extra_functions()

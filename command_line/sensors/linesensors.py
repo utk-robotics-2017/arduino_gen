@@ -18,6 +18,9 @@ class linesensors:
     def get_include(self):
         return ""
 
+    def get_include_files(self):
+        return []
+
     def get_pins(self):
         rv = ""
         for sensor in self.digital_sensor_list:

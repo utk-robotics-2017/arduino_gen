@@ -1,0 +1,89 @@
+[{
+	"type": "rover5motor",
+	"label": "leftFrontDrive",
+	"dir_pin": 3,
+	"pwm_pin": 5,
+	"reverse": 0
+},
+{
+	"type": "rover5motor",
+	"label": "rightFrontDrive",
+	"dir_pin": 7,
+	"pwm_pin": 11,
+	"reverse": 0
+},
+{
+	"type": "rover5motor",
+	"label": "leftBackDrive",
+	"dir_pin": 2,
+	"pwm_pin": 3,
+	"reverse": 0
+},
+{
+	"type": "rover5motor",
+	"label": "rightBackDrive",
+	"dir_pin": 12,
+	"pwm_pin": 9,
+	"reverse": 0
+},
+{
+	"type": "i2cencoder",
+	"label": "leftFrontEncoder",
+	"reverse": 0,
+	"init_number": 4
+},
+{
+	"type": "i2cencoder",
+	"label": "rightFrontEncoder",
+	"reverse": 1,
+	"init_number": 3
+},
+{
+	"type": "i2cencoder",
+	"label": "leftBackEncoder",
+	"reverse": 0,
+	"init_number": 1
+},
+{
+	"type": "i2cencoder",
+	"label": "rightBackEncoder",
+	"reverse": 1,
+	"init_number": 2
+},
+{
+	"type": "pid",
+	"label": "leftFrontVPID",
+	"kp": 0.1,
+	"ki": 0.0,
+	"kd": 0.0,
+	"vpid": 1,
+	"reverse": 0
+},
+{
+	"type": "pid",
+	"label": "rightFrontVPID",
+	"kp": 0.1,
+	"ki": 0.0,
+	"kd": 0.0,
+	"vpid": 1,
+	"reverse": 0
+},
+{
+	"type": "pid",
+	"label": "leftBackVPID",
+	"kp": 0.1,
+	"ki": 0.0,
+	"kd": 0.0,
+	"vpid": 1,
+	"reverse": 0
+},
+{
+	"type": "pid",
+	"label": "rightBackVPID",
+	"kp": 0.1,
+	"ki": 0.0,
+	"kd": 0.0,
+	"vpid": 1,
+	"reverse": 0
+}
+]
