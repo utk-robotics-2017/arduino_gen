@@ -21,9 +21,9 @@ class motors:
         self.rover5s = dict()
 
     def add(self, json_item):
-        if json_item['motorController'].lower() == 'monstermoto':
+        if json_item['motorController'].lower() == 'monsterMoto':
             self.monsterMotos[json_item['label']] = MonsterMotorMotor(json_item['label'], json_item['inA_pin'], json_item['inB_pin'], json_item['pwm_pin'], json_item['reverse'])
-        elif json_item['motorController'].lower() == 'rover5':
+        elif json_item['motorController'].lower() == 'roverFive':
             self.rover5s[json_item['label']] = Rover5Motor(json_item['label'], json_item['dir_pin'], json_item['pwm_pin'], json_item['reverse'])
 
     def get(self, label):
@@ -49,7 +49,7 @@ class motors:
         for motor in self.monsterMotos.values():
             rv += "    Motor(%d, %d, %d, %d, MonsterMoto),\n" % (motor.inA_pin, motor.inB_pin, motor.pwm_pin, 1 if motor.reverse else 0)
         for motor in self.rover5s.values():
-            rv += "    Motor(%d, -1, %d, %d, Rover5),\n" % (motor.dir_pin, motor.pwm_pin, 1 if motor.reverse else 0)
+            rv += "    Motor(%d, -1, %d, %d, RoverFive),\n" % (motor.dir_pin, motor.pwm_pin, 1 if motor.reverse else 0)
         rv = rv[:-2] + "\n};\n"
         return rv
 

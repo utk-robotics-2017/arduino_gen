@@ -64,14 +64,15 @@ device_type = [
         'servo': servos(),
         'motor': motors(),
         'pid': pids(),
-        'linesensor_array': linesensor_arrays()
+        'linesensor_array': linesensor_arrays(),
+        'stepper': steppers()
     },
     {
         'arm': arms(),
-        'velocitycontrolledmotor': velocitycontrolledmotors()
+        'velocityControlledMotor': velocitycontrolledmotors()
     },
     {
-        'fourwheeldrivebase': fourwheeldrivebases()
+        'fourWheelDriveBase': fourwheeldrivebases()
     }
     ]
 
@@ -87,10 +88,10 @@ for device_level in device_type:
 
         if json_item['type'].lower() == 'monstermotomotor':
             json_item['type'] = 'motor'
-            json_item['motorController'] = 'monstermoto'
-        elif json_item['type'].lower() == 'rover5motor':
+            json_item['motorController'] = 'monsterMoto'
+        elif json_item['type'].lower() == 'roverfivemotor':
             json_item['type'] = 'motor'
-            json_item['motorController'] = 'rover5'
+            json_item['motorController'] = 'roverFive'
 
         if not json_item['type'] in device_level:
             continue
@@ -100,9 +101,9 @@ for device_level in device_type:
 
         if json_item['type'] == 'arm':
             device_dict[json_item['type']].add(json_item, device_dict['servo'])
-        elif json_item['type'] == 'velocitycontrolledmotors':
+        elif json_item['type'] == 'velocityControlledMotors':
             device_dict[json_item['type']].add(json_item, device_dict['motor'], device_dict['i2cencoder'], device_dict['vpid'])
-        elif json_item['type'] == 'fourwheeldrivebase':
+        elif json_item['type'] == 'fourWheelDriveBase':
             device_dict[json_item['type']].add(json_item, device_dict['motor'], device_dict['velocitycontrolledmotor'])
 
         device_dict[json_item['type']].add(json_item)

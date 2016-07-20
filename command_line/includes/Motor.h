@@ -3,7 +3,7 @@
 
 enum MotorControllerType {
 	MonsterMoto,
-	Rover5
+	RoverFive
 };
 
 class Motor
