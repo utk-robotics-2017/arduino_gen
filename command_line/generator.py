@@ -15,17 +15,17 @@ class generator:
         for key in keys:
             include = self.appendage_dict[key].get_include()
             if include != "":
-                rv = rv + "%s\n" % include
-        rv = rv + "\n"
+                rv += "%s\n" % include
+        rv += "\n"
 
-        rv = rv + "#define STR1(x)  #x\n"
-        rv = rv + "#define STR(x)  STR1(x)\n\n"
-        rv = rv + "// Globals\n"
-        rv = rv + "int ledState = HIGH;\n"
-        rv = rv + "// Command parsing\n"
-        rv = rv + "const int MAX_ARGS = 6;\n"
-        rv = rv + "String args[MAX_ARGS];\n"
-        rv = rv + "int numArgs = 0;\n\n"
+        rv += "#define STR1(x)  #x\n"
+        rv += "#define STR(x)  STR1(x)\n\n"
+        rv += "// Globals\n"
+        rv += "int ledState = HIGH;\n"
+        rv += "// Command parsing\n"
+        rv += "const int MAX_ARGS = 6;\n"
+        rv += "String args[MAX_ARGS];\n"
+        rv += "int numArgs = 0;\n\n"
 
         return rv
 
@@ -225,3 +225,16 @@ void parseAndExecuteCommand(String command) {
         for key in keys:
             rv = rv + self.appendage_dict[key].get_extra_functions()
         return rv
+
+    def copy_shell_scripts(self, moveto):
+        shutil.copyfile('shell/build.sh', moveto + "/build.sh")
+        shutil.copyfile('shell/serial.sh', moveto + "/serial.sh")
+        find_replace_file(moveto + "/serial.sh", "/dev/mega", "/dev/" + self.arduino)
+        shutil.copyfile('shell/upload.sh', moveto + "/upload.sh")
+        self.find_replace_file(moveto + "/upload.sh", "/dev/mega", "/dev/" + self.arduino)
+
+    def find_replace_file(self, fileToSearch, find, replace)
+        tempFile = open( fileToSearch, 'r+' )
+        for line in fileinput.input( fileToSearch ):
+            tempFile.write( line.replace( find, replace ) )
+        tempFile.close()
