@@ -38,6 +38,8 @@ class ArduinoGen:
             shutil.rmtree(self.arduino_folder)
         os.makedirs(self.arduino_folder)
 
+        shutil.copyfile(_input, self.arduino_folder + "/" + arduino + ".json")
+
         self.device_dict = dict()
         self.read_input(open(_input))
         self.generate_output(open(self.arduino_folder+ "/%s.ino" % (arduino), 'w'))
