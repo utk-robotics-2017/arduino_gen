@@ -90,34 +90,35 @@ class ArduinoGen:
             }
             ]
 
-            for device_level in device_type:
-                for json_item in json_data:
+        for device_level in device_type:
+            for json_item in json_data:
 
-                    # Buttons and Limit Switches work the same as switches
-                    if json_item['type'].lower() == 'limit_switch' or json_item['type'].lower() == 'button':
-                        json_item['type'] = 'switch'
-                    # Setup the motor controller
-                    if json_item['type'].lower() == 'monstermotomotor':
-                        json_item['type'] = 'motor'
-                        json_item['motorController'] = 'monsterMoto'
-                    elif json_item['type'].lower() == 'roverfivemotor':
-                        json_item['type'] = 'motor'
-                        json_item['motorController'] = 'roverFive'
+                # Buttons and Limit Switches work the same as switches
+                if json_item['type'].lower() == 'limit_switch' or json_item['type'].lower() == 'button':
+                    json_item['type'] = 'switch'
+                # Setup the motor controller
+                if json_item['type'].lower() == 'monstermotomotor':
+                    json_item['type'] = 'motor'
+                    json_item['motorController'] = 'monsterMoto'
+                elif json_item['type'].lower() == 'roverfivemotor':
+                    json_item['type'] = 'motor'
+                    json_item['motorController'] = 'roverFive'
 
-                    if not json_item['type'] in device_level:
-                        continue
+                if not json_item['type'] in device_level:
+                    continue
 
-                    if not json_item['type'] in self.device_dict:
-                        self.device_dict[json_item['type']] = device_level[json_item['type']]
+                if not json_item['type'] in self.device_dict:
+                    self.device_dict[json_item['type']] = device_level[json_item['type']]
 
-                    if json_item['type'] == 'arm':
-                        self.device_dict[json_item['type']].add(json_item, self.device_dict['servo'])
-                    elif json_item['type'] == 'velocityControlledMotors':
-                        self.device_dict[json_item['type']].add(json_item, self.device_dict['motor'], self.device_dict['i2cencoder'], self.device_dict['vpid'])
-                    elif json_item['type'] == 'fourWheelDriveBase':
-                        self.device_dict[json_item['type']].add(json_item, self.device_dict['motor'], self.device_dict['velocitycontrolledmotor'])
-
+                if json_item['type'] == 'arm':
+                    self.device_dict[json_item['type']].add(json_item, self.device_dict['servo'])
+                elif json_item['type'] == 'velocityControlledMotors':
+                    self.device_dict[json_item['type']].add(json_item, self.device_dict['motor'], self.device_dict['i2cencoder'], self.device_dict['vpid'])
+                elif json_item['type'] == 'fourWheelDriveBase':
+                    self.device_dict[json_item['type']].add(json_item, self.device_dict['motor'], self.device_dict['velocitycontrolledmotor'])
+                else:
                     self.device_dict[json_item['type']].add(json_item)
+
     def generate_output(self, fo):
         gen = generator(self.device_dict)
         fo.write(gen.add_header())
@@ -143,7 +144,7 @@ class ArduinoGen:
         exec(self.arduino_folder + "/upload.sh")
 
 
-if __init__ == "main":
+if __name__ == "main":
     # Collect command line arguments
     ap = argparse.ArgumentParser()
     ap.add_argument("-i", "--input", required=True, help="Path to the config file for what is connected to the arduino")

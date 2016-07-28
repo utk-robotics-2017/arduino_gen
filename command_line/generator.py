@@ -233,7 +233,7 @@ void parseAndExecuteCommand(String command) {
         shutil.copyfile('shell/upload.sh', moveto + "/upload.sh")
         self.find_replace_file(moveto + "/upload.sh", "/dev/mega", "/dev/" + self.arduino)
 
-    def find_replace_file(self, fileToSearch, find, replace)
+    def find_replace_file(self, fileToSearch, find, replace):
         tempFile = open( fileToSearch, 'r+' )
         for line in fileinput.input( fileToSearch ):
             tempFile.write( line.replace( find, replace ) )

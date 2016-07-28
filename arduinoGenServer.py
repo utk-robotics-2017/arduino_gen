@@ -9,6 +9,8 @@ import os
 import tornado.ioloop
 import tornado.websocket
 
+from command_line.ArduinoGen import ArduinoGen
+
 clients = set()
 clientId = 0
 
@@ -26,7 +28,7 @@ if not os.path.isdir(lockFolderAbsPath):
     os.mkdir(lockFolderAbsPath)
 
 arduinos = [
-    #{ "name": "mega" }
+    { "name": "mega" }
 ]
 
 for arduino in arduinos:
@@ -153,7 +155,7 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                     self.write_message("ClientNoLock")
                     log(self.id, "tried to write components, but doesn't have a device lock")
                 else:
-                    log(self.id, "TODO: use Andrew's code to write to an arduino")
+                    ArduinoGen(input=self.device["name"])
                 return
 
     def on_close(self):
