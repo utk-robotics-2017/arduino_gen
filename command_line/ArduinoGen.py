@@ -31,9 +31,16 @@ class ArduinoGen:
         _input = kwargs.get("input", "")
 
         dot = _input.rfind(".")
-        lastSlash = args["input"].rfind("/")
-        self.arduino = args["input"][:dot][lastSlash:]
-        self.arduino_folder = "../../" + self.arduino
+        if dot == -1:
+            self.arduino = _input
+        else:
+            self.arduino = _input[:dot]
+
+        lastSlash = self.arduino.rfind("/")
+        if lastSlash != -1:
+            self.arduino = self.arduino[lastSlash:]
+
+        self.arduino_folder = "../" + self.arduino
         if os.path.exists(self.arduino_folder):
             shutil.rmtree(self.arduino_folder)
         os.makedirs(self.arduino_folder)
