@@ -29,26 +29,32 @@ from generator import generator
 class ArduinoGen:
     def __init__(self, **kwargs):
         _input = kwargs.get("input", "")
-
+        print _input
         dot = _input.rfind(".")
+        print dot
         if dot == -1:
             self.arduino = _input
         else:
             self.arduino = _input[:dot]
+        print self.arduino
 
         lastSlash = self.arduino.rfind("/")
+        print lastSlash
         if lastSlash != -1:
             self.arduino = self.arduino[lastSlash:]
+        print self.arduino
 
         self.arduino_folder = "../" + self.arduino
         if os.path.exists(self.arduino_folder):
             shutil.rmtree(self.arduino_folder)
         os.makedirs(self.arduino_folder)
 
-        shutil.copyfile(_input, self.arduino_folder + "/" + arduino + ".json")
+        deviceJsonFile = kwargs.get("deviceJsonFile", "")
+
+        shutil.copyfile(deviceJsonFile, self.arduino_folder + "/" + self.arduino + ".json")
 
         self.device_dict = dict()
-        self.read_input(open(_input))
+        self.read_input(open(deviceJsonFile))
         self.generate_output(open(self.arduino_folder+ "/%s.ino" % (arduino), 'w'))
 
         upload = kwargs.get('upload', False)
