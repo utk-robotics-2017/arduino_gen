@@ -1,5 +1,5 @@
 import shutil
-
+import fileinput
 
 class generator:
     def __init__(self, appendage_dict):
@@ -34,7 +34,7 @@ class generator:
         for key in keys:
             includes = self.appendage_dict[key].get_include_files()
             for include in includes:
-                shutil.copyfile('includes/' + include, directory + "/" + include)
+                shutil.copyfile('/home/pi/ArduinoGen/command_line/includes/' + include, directory + "/" + include)
 
     def add_pins(self):
         rv = "// Pin definitions\nconst char LED = 13;\n"
@@ -226,12 +226,12 @@ void parseAndExecuteCommand(String command) {
             rv = rv + self.appendage_dict[key].get_extra_functions()
         return rv
 
-    def copy_shell_scripts(self, moveto):
-        shutil.copyfile('shell/build.sh', moveto + "/build.sh")
-        shutil.copyfile('shell/serial.sh', moveto + "/serial.sh")
-        find_replace_file(moveto + "/serial.sh", "/dev/mega", "/dev/" + self.arduino)
-        shutil.copyfile('shell/upload.sh', moveto + "/upload.sh")
-        self.find_replace_file(moveto + "/upload.sh", "/dev/mega", "/dev/" + self.arduino)
+    def copy_shell_scripts(self, moveto, arduino):
+        shutil.copyfile('/home/pi/ArduinoGen/command_line/shell/build.sh', moveto + "/build.sh")
+        shutil.copyfile('/home/pi/ArduinoGen/command_line/shell/serial.sh', moveto + "/serial.sh")
+        self.find_replace_file(moveto + "/serial.sh", "/dev/mega", "/dev/" + arduino)
+        shutil.copyfile('/home/pi/ArduinoGen/command_line/shell/upload.sh', moveto + "/upload.sh")
+        self.find_replace_file(moveto + "/upload.sh", "/dev/mega", "/dev/" + arduino)
 
     def find_replace_file(self, fileToSearch, find, replace):
         tempFile = open( fileToSearch, 'r+' )

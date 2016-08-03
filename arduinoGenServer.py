@@ -149,13 +149,22 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                         log(self.id, "posted " + self.device["name"] + "'s components")
                 return
 
+            cmd = "GenCode"
+            if message[:len(cmd)] == cmd:
+                if not hasattr(self, 'device'):
+                    self.write_message("ClientNoLock")
+                    log(self.id, "tried to generate arduino code, but doesn't have a device lock")
+                else:
+                    self.write_message("GeneratedArduinoCode")
+                    ArduinoGen(input=self.device["name"], deviceJsonFile = confFolderAbsPath + "/" + self.device["name"] + ".json")
+
             cmd = "WriteComponents"
             if message[:len(cmd)] == cmd:
                 if not hasattr(self, 'device'):
                     self.write_message("ClientNoLock")
                     log(self.id, "tried to write components, but doesn't have a device lock")
                 else:
-                    ArduinoGen(input=self.device["name"], deviceJsonFile = confFolderAbsPath + "/" + self.device["name"] + ".json")
+                    ArduinoGen(input=self.device["name"], deviceJsonFile = confFolderAbsPath + "/" + self.device["name"] + ".json", prefix="../../currentArduinoCode")
                 return
 
     def on_close(self):

@@ -15,6 +15,7 @@ from sensors.linesensor_arrays import linesensor_arrays
 # Actuator Includes
 from actuators.servos import servos
 from actuators.motors import motors
+from actuators.steppers import steppers
 
 # Control Includes
 from control.pids import pids
@@ -38,13 +39,16 @@ class ArduinoGen:
             self.arduino = _input[:dot]
         print self.arduino
 
+
+        prefix = kwargs.get("prefix", "")
+
         lastSlash = self.arduino.rfind("/")
         print lastSlash
         if lastSlash != -1:
             self.arduino = self.arduino[lastSlash:]
         print self.arduino
 
-        self.arduino_folder = "../" + self.arduino
+        self.arduino_folder = "/home/pi/ArduinoGen" + prefix + self.arduino
         if os.path.exists(self.arduino_folder):
             shutil.rmtree(self.arduino_folder)
         os.makedirs(self.arduino_folder)
@@ -55,7 +59,7 @@ class ArduinoGen:
 
         self.device_dict = dict()
         self.read_input(open(deviceJsonFile))
-        self.generate_output(open(self.arduino_folder+ "/%s.ino" % (arduino), 'w'))
+        self.generate_output(open(self.arduino_folder + "/%s.ino" % (self.arduino), 'w'))
 
         upload = kwargs.get('upload', False)
         if upload:
@@ -141,13 +145,13 @@ class ArduinoGen:
         fo.write(gen.add_extra_functions())
         fo.write("\n")
         gen.copy_include_files(self.arduino_folder)
-        gen.copy_shell_scripts(self.arduino_folder)
+        gen.copy_shell_scripts(self.arduino_folder, self.arduino)
 
     def build(self):
-        exec(self.arduino_folder + "/build.sh")
+        exec(self.prefix + self.arduino_folder + "/build.sh")
 
     def upload(self):
-        exec(self.arduino_folder + "/upload.sh")
+        exec(self.prefix + self.arduino_folder + "/upload.sh")
 
 
 if __name__ == "main":
@@ -158,4 +162,4 @@ if __name__ == "main":
     ap.add_argument("-u", "--upload", required=False, help="Build the ino file and upload that on to the arduino")
     args = vars(ap.parse_args())
 
-    ArduinoGen(input=args['input'], build=args['build'], upload=args['upload'])
+    ArduinoGen(input=args['input'], build=args['build'], upload=args['upload'], prefix="../")
