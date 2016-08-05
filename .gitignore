@@ -1,0 +1,4 @@
+# Don't commit ~ directories or temp files
+\~
+*.swp
+*.pyc
