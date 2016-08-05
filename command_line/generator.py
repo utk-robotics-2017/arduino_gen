@@ -226,15 +226,18 @@ void parseAndExecuteCommand(String command) {
             rv = rv + self.appendage_dict[key].get_extra_functions()
         return rv
 
-    def copy_shell_scripts(self, moveto, arduino):
-        shutil.copyfile('/home/pi/ArduinoGen/command_line/shell/build.sh', moveto + "/build.sh")
-        shutil.copyfile('/home/pi/ArduinoGen/command_line/shell/serial.sh', moveto + "/serial.sh")
-        self.find_replace_file(moveto + "/serial.sh", "/dev/mega", "/dev/" + arduino)
-        shutil.copyfile('/home/pi/ArduinoGen/command_line/shell/upload.sh', moveto + "/upload.sh")
-        self.find_replace_file(moveto + "/upload.sh", "/dev/mega", "/dev/" + arduino)
+    def write_shell_scripts(self, moveto, arduino, uploaded=false):
+        build_fo = open(moveto + "/build.sh", w+)
+        build_fo.write("#!/usr/bin/env bash\n")
+        build_fo.write("\n")
+        build_fo.write('ino build -m mega2560 --cppflags="-D __USER__=`whoami` -D __DIR_`pwd` -D __GIT_HASH__=`git rev-parse HEAD`"')
 
-    def find_replace_file(self, fileToSearch, find, replace):
-        tempFile = open( fileToSearch, 'r+' )
-        for line in fileinput.input( fileToSearch ):
-            tempFile.write( line.replace( find, replace ) )
-        tempFile.close()
+        upload_fo = open(moveto + "/upload.sh", w+)
+        upload_fo.write("#!/usr/bin/env bash\n")
+        if not uploaded:
+            upload_fo.write("cp ../%s %s/%s\n" % (arduino, moveto, arduino))
+        upload_fo.write("ino upload -m mega2560 -p /dev/%s" % arduino)
+        
+        serial_fo = open(moveto + "/serial.sh", w+)
+        serial_fo.write("#!/usr/bin/env bash\n")
+        serial_fo.write("picocom /dev/%s -b 115200 --echo" % arduino)

@@ -39,7 +39,6 @@ class ArduinoGen:
             self.arduino = _input[:dot]
         print self.arduino
 
-
         prefix = kwargs.get("prefix", "")
 
         lastSlash = self.arduino.rfind("/")
@@ -48,7 +47,7 @@ class ArduinoGen:
             self.arduino = self.arduino[lastSlash:]
         print self.arduino
 
-        self.arduino_folder = "/home/pi/ArduinoGen" + prefix + self.arduino
+        self.arduino_folder = "/home/pi/ArduinoGen/" + prefix + self.arduino
         if os.path.exists(self.arduino_folder):
             shutil.rmtree(self.arduino_folder)
         os.makedirs(self.arduino_folder)
@@ -59,9 +58,10 @@ class ArduinoGen:
 
         self.device_dict = dict()
         self.read_input(open(deviceJsonFile))
-        self.generate_output(open(self.arduino_folder + "/%s.ino" % (self.arduino), 'w'))
-
+         
         upload = kwargs.get('upload', False)
+        self.generate_output(open(self.arduino_folder + "/%s.ino" % (self.arduino), 'w'), upload)
+
         if upload:
             build()
             upload()
@@ -129,7 +129,7 @@ class ArduinoGen:
                 else:
                     self.device_dict[json_item['type']].add(json_item)
 
-    def generate_output(self, fo):
+    def generate_output(self, fo, upload):
         gen = generator(self.device_dict)
         fo.write(gen.add_header())
         fo.write(gen.add_includes())
@@ -144,7 +144,7 @@ class ArduinoGen:
         fo.write(gen.add_parse_and_execute_command_ending())
         fo.write(gen.add_extra_functions())
         fo.write("\n")
-        gen.copy_include_files(self.arduino_folder)
+        gen.write_include_files(self.arduino_folder, upload)
         gen.copy_shell_scripts(self.arduino_folder, self.arduino)
 
     def build(self):
