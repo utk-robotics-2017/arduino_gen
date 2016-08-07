@@ -3,6 +3,7 @@ import argparse
 import json
 import os
 import shutil
+import getpass
 
 # Sensor Includes
 from sensors.ultrasonics import ultrasonics
@@ -25,50 +26,50 @@ from systems.arms import arms
 from systems.velocitycontrolledmotors import velocitycontrolledmotors
 from systems.fourwheeldrivebases import fourwheeldrivebases
 
-from generator import generator
+from generator import Generator
+
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+CURRENT_ARDUINO_CODE_DIR = "/home/pi/../../../currentArduinoCode"
+
 
 class ArduinoGen:
     def __init__(self, **kwargs):
-        _input = kwargs.get("input", "")
-        print _input
-        dot = _input.rfind(".")
-        print dot
-        if dot == -1:
-            self.arduino = _input
-        else:
-            self.arduino = _input[:dot]
-        print self.arduino
+        self.arduino = kwargs.get("arduino", "")
 
-        prefix = kwargs.get("prefix", "")
 
-        lastSlash = self.arduino.rfind("/")
-        print lastSlash
-        if lastSlash != -1:
-            self.arduino = self.arduino[lastSlash:]
-        print self.arduino
+        print "Making directory...",
 
-        self.arduino_folder = "/home/pi/ArduinoGen/" + prefix + self.arduino
+        self.arduino_folder = "%s/%s" % (CURRENT_DIR, self.arduino)
         if os.path.exists(self.arduino_folder):
             shutil.rmtree(self.arduino_folder)
-        os.makedirs(self.arduino_folder)
+        os.makedirs(self.arduino_folder, 0777)
+        os.makedirs("%s/src" % self.arduino_folder, 0777)
+        print "Done"
 
-        deviceJsonFile = kwargs.get("deviceJsonFile", "")
+        jsonFile = "%s/conf/%s.json" % (CURRENT_DIR, self.arduino)
 
-        shutil.copyfile(deviceJsonFile, self.arduino_folder + "/" + self.arduino + ".json")
+        print "Copying config file...",
 
+        shutil.copyfile(jsonFile, "%s/%s.json" % (self.arduino_folder, self.arduino))
+        print "Done"
+
+        print "Reading config file...",
         self.device_dict = dict()
-        self.read_input(open(deviceJsonFile))
-         
-        upload = kwargs.get('upload', False)
-        self.generate_output(open(self.arduino_folder + "/%s.ino" % (self.arduino), 'w'), upload)
+        self.read_input(open(jsonFile))
+        
+        print "Done"
 
+        print "Generating output..."
+        upload = kwargs.get('upload', False)
+        self.generate_output(open("%s/src/%s.ino" % (self.arduino_folder, self.arduino), 'w'), upload)
+        print "Done"
         if upload:
-            build()
-            upload()
+            self.upload()
         else:
             build = kwargs.get('build', False)
             if build:
-                build()
+                self.build()
+        print "Finished."
 
     def read_input(self, fi):
         # Read in json
@@ -130,28 +131,42 @@ class ArduinoGen:
                     self.device_dict[json_item['type']].add(json_item)
 
     def generate_output(self, fo, upload):
-        gen = generator(self.device_dict)
+        gen = Generator(self.device_dict)
+        print "\tWriting headers"
         fo.write(gen.add_header())
+        print "\tWriting includes"
         fo.write(gen.add_includes())
+        print "\tWriting pins"
         fo.write(gen.add_pins())
+        print "\tWriting constructors"
         fo.write(gen.add_constructors())
+        print "\tWriting setup"
         fo.write(gen.add_setup())
+        print "\tWriting loop"
         fo.write(gen.add_loop())
+        print "\tWriting parse args"
         fo.write(gen.add_parse_args())
+        print "\tWriting check input"
         fo.write(gen.add_check_input())
+        print "\tWriting parse and execute command"
         fo.write(gen.add_parse_and_execute_command_beginning())
         fo.write(gen.add_commands())
         fo.write(gen.add_parse_and_execute_command_ending())
+        print "\tWriting extra functions"
         fo.write(gen.add_extra_functions())
         fo.write("\n")
-        gen.write_include_files(self.arduino_folder, upload)
-        gen.copy_shell_scripts(self.arduino_folder, self.arduino)
+        print "\tCopying include files"
+        gen.copy_include_files(self.arduino_folder)
+        print "\tWriting build, serial, and upload shell scripts"
+        gen.write_shell_scripts(self.arduino_folder, self.arduino, upload)
 
     def build(self):
-        exec(self.prefix + self.arduino_folder + "/build.sh")
+        os.chdir("%s/%s" % (CURRENT_DIR, self.arduino))
+        os.system("sudo sh build.sh")
 
     def upload(self):
-        exec(self.prefix + self.arduino_folder + "/upload.sh")
+        os.chdir("%s/%s" % (CURRENT_DIR, self.arduino))
+        os.system("sudo sh upload_copy.sh")
 
 
 if __name__ == "main":
