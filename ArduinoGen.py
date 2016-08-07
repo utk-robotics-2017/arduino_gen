@@ -39,7 +39,7 @@ class ArduinoGen:
 
         print "Making directory...",
 
-        self.arduino_folder = "%s/%s" % (CURRENT_DIR, self.arduino)
+        self.arduino_folder = "%s/../%s" % (CURRENT_DIR, self.arduino)
         if os.path.exists(self.arduino_folder):
             shutil.rmtree(self.arduino_folder)
         os.makedirs(self.arduino_folder, 0777)
