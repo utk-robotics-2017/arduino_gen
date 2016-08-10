@@ -162,11 +162,11 @@ class ArduinoGen:
 
     def build(self):
         os.chdir("%s/%s" % (CURRENT_DIR, self.arduino))
-        os.system("sudo sh build.sh")
+        os.system("sh build.sh")
 
     def upload(self):
         os.chdir("%s/%s" % (CURRENT_DIR, self.arduino))
-        os.system("sudo sh upload_copy.sh")
+        os.system("sh upload_copy.sh")
 
 
 if __name__ == "main":

@@ -9,7 +9,7 @@ import os
 import tornado.ioloop
 import tornado.websocket
 
-from command_line.ArduinoGen import ArduinoGen
+from ArduinoGen import ArduinoGen
 
 clients = set()
 clientId = 0
