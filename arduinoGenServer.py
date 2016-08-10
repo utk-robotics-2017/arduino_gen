@@ -5,6 +5,7 @@ import json
 import signal
 import socket
 import os
+import os.path
 
 import tornado.ioloop
 import tornado.websocket
@@ -15,8 +16,8 @@ clients = set()
 clientId = 0
 
 port = 9000
-confFolder = "./conf"
-lockFolder = "./lock"
+confFolder = "/currentArduinoCode"
+lockFolder = "/var/lock"
 pin = random.randint(0, 99999)
 
 confFolderAbsPath = os.path.abspath(confFolder)
@@ -27,9 +28,7 @@ lockFolderAbsPath = os.path.abspath(lockFolder)
 if not os.path.isdir(lockFolderAbsPath):
     os.mkdir(lockFolderAbsPath)
 
-arduinos = [
-    { "name": "mega" }
-]
+arduinos = [{"name": d for d in os.listdir(confFolder) if os.path.isdir(d) and not d == ".git"}]
 
 for arduino in arduinos:
     arduino["locked"] = os.path.exists(lockFolderAbsPath + "/" + arduino["name"] + ".lck")
@@ -125,7 +124,7 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                     self.write_message("ClientNoLock")
                     log(self.id, "tried to get components, but doesn't have a device lock")
                 else:
-                    deviceJsonFile = confFolderAbsPath + "/" + self.device["name"] + ".json"
+                    deviceJsonFile = confFolderAbsPath + "/" + self.device["name"] + "/" + self.device["name"] + ".json"
                     if not os.path.exists(deviceJsonFile):
                         self.write_message("[]")
                         log(self.id, "no file, sending empy list")
