@@ -4,7 +4,7 @@ import fileinput
 import getpass
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
-CURRENT_ARDUINO_CODE_DIR = "/home/pi/../../../currentArduinoCode"
+CURRENT_ARDUINO_CODE_DIR = "/currentArduinoCode"
 
 class Generator:
     def __init__(self, appendage_dict):
@@ -40,6 +40,7 @@ class Generator:
             includes = self.appendage_dict[key].get_include_files()
             for include in includes:
                 shutil.copyfile("%s/includes/%s" % (CURRENT_DIR, include) , "%s/%s" % (directory, include))
+                os.chmod("%s/includes/%s" % (CURRENT_DIR, include), 0777)
 
     def add_pins(self):
         rv = "// Pin definitions\nconst char LED = 13;\n"
@@ -236,6 +237,8 @@ void parseAndExecuteCommand(String command) {
         build_fo.write("#!/usr/bin/env bash\n")
         build_fo.write("\n")
         build_fo.write('ino build -m mega2560 --cppflags="-D __USER__=`whoami` -D __DIR_`pwd` -D __GIT_HASH__=`git rev-parse HEAD`"\n')
+        build_fo.close()
+        os.chmod("%s/build.sh" % moveto, 0777)
 
         upload_fo = open("%s/upload.sh" % moveto, 'w')
         upload_fo.write("#!/usr/bin/env bash\n")
@@ -244,6 +247,8 @@ void parseAndExecuteCommand(String command) {
         upload_fo.write('git commit -m "new uploaded arduino code for %s"\n' % arduino)
         upload_fo.write("git push\n")
         upload_fo.write("ino upload -m mega2560 -p /dev/%s\n" % arduino)
+        upload_fo.close()
+        os.chmod("%s/upload.sh" % moveto, 0777)
 
         upload_copy_fo = open("%s/upload_copy.sh" % moveto, 'w')
         upload_copy_fo.write("#!/usr/bin/env bash\n")
@@ -255,8 +260,13 @@ void parseAndExecuteCommand(String command) {
         upload_copy_fo.write("git add -A\n")
         upload_copy_fo.write('git commit -m "new uploaded arduino code for %s"\n' % arduino)
         upload_copy_fo.write('git push\n')
-        upload_fo.write("ino upload -m mega2560 -p /dev/%s\n" % arduino)
-        
+        upload_copy_fo.write("ino upload -m mega2560 -p /dev/%s\n" % arduino)
+        upload_copy_fo.write("chmod -R +0777 .")
+        upload_copy_fo.close()
+        os.chmod("%s/upload_copy.sh" % moveto, 0777)
+
         serial_fo = open("%s/serial.sh" % moveto, 'w')
         serial_fo.write("#!/usr/bin/env bash\n")
         serial_fo.write("picocom /dev/%s -b 115200 --echo\n" % arduino)
+        serial_fo.close()
+        os.chmod("%s/serial.sh" % moveto, 0777)

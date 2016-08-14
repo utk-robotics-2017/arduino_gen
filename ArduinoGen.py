@@ -29,7 +29,7 @@ from systems.fourwheeldrivebases import fourwheeldrivebases
 from generator import Generator
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
-CURRENT_ARDUINO_CODE_DIR = "/home/pi/../../../currentArduinoCode"
+CURRENT_ARDUINO_CODE_DIR = "/currentArduinoCode"
 
 
 class ArduinoGen:
@@ -39,22 +39,25 @@ class ArduinoGen:
 
         print "Making directory...",
 
-        self.arduino_folder = "%s/../%s" % (CURRENT_DIR, self.arduino)
+        self.arduino_folder = "%s/%s" % (CURRENT_DIR, self.arduino)
         if os.path.exists(self.arduino_folder):
             shutil.rmtree(self.arduino_folder)
         os.makedirs(self.arduino_folder, 0777)
+        os.chmod(self.arduino_folder, 0777)
         os.makedirs("%s/src" % self.arduino_folder, 0777)
+        os.chmod("%s/src" % self.arduino_folder, 0777)
         print "Done"
 
         jsonFile = "%s/conf/%s.json" % (CURRENT_DIR, self.arduino)
 
         print "Copying config file...",
-
         shutil.copyfile(jsonFile, "%s/%s.json" % (self.arduino_folder, self.arduino))
+        os.chmod("%s/%s.json" % (self.arduino_folder, self.arduino), 0777)
         print "Done"
 
         print "Reading config file...",
         self.device_dict = dict()
+        os.chmod(jsonFile, 0777)
         self.read_input(open(jsonFile))
         
         print "Done"
@@ -62,6 +65,7 @@ class ArduinoGen:
         print "Generating output..."
         upload = kwargs.get('upload', False)
         self.generate_output(open("%s/src/%s.ino" % (self.arduino_folder, self.arduino), 'w'), upload)
+        os.chmod("%s/src/%s.ino" % (self.arduino_folder, self.arduino), 0777)
         print "Done"
         if upload:
             self.upload()
@@ -129,7 +133,7 @@ class ArduinoGen:
                     self.device_dict[json_item['type']].add(json_item, self.device_dict['motor'], self.device_dict['velocitycontrolledmotor'])
                 else:
                     self.device_dict[json_item['type']].add(json_item)
-
+        fi.close()
     def generate_output(self, fo, upload):
         gen = Generator(self.device_dict)
         print "\tWriting headers"
@@ -155,10 +159,12 @@ class ArduinoGen:
         print "\tWriting extra functions"
         fo.write(gen.add_extra_functions())
         fo.write("\n")
+        fo.close()
         print "\tCopying include files"
         gen.copy_include_files(self.arduino_folder)
         print "\tWriting build, serial, and upload shell scripts"
         gen.write_shell_scripts(self.arduino_folder, self.arduino, upload)
+        
 
     def build(self):
         os.chdir("%s/%s" % (CURRENT_DIR, self.arduino))
