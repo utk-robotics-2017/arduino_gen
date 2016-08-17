@@ -16,9 +16,14 @@ clients = set()
 clientId = 0
 
 port = 9000
-confFolder = "/currentArduinoCode"
+currentArduinoCodeFolder = "/currentArduinoCode"
+confFolder = "./conf"
 lockFolder = "/var/lock"
 pin = random.randint(0, 99999)
+
+currentArduinoCodeFolderAbsPath = os.path.abspath(currentArduinoCodeFolder)
+if not os.path.isdir(currentArduinoCodeFolderAbsPath):
+    os.mkdir(currentArduinoCodeFolderAbsPath)
 
 confFolderAbsPath = os.path.abspath(confFolder)
 if not os.path.isdir(confFolderAbsPath):
@@ -28,7 +33,7 @@ lockFolderAbsPath = os.path.abspath(lockFolder)
 if not os.path.isdir(lockFolderAbsPath):
     os.mkdir(lockFolderAbsPath)
 
-arduinos = [{"name": d for d in os.listdir(confFolder) if os.path.isdir(d) and not d == ".git"}]
+arduinos = [{"name": d for d in os.listdir(currentArduinoCodeFolder) if os.path.isdir(currentArduinoCodeFolder + "/" + d) and not d == ".git"}]
 
 for arduino in arduinos:
     arduino["locked"] = os.path.exists(lockFolderAbsPath + "/" + arduino["name"] + ".lck")
@@ -93,7 +98,7 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                     else:
                         dev["locked"] = True
                         self.device = dev
-                        lockFileName = lockFolderAbsPath + "/" + arduino["name"] + ".lck"
+                        lockFileName = lockFolderAbsPath + "/" + self.device["name"] + ".lck"
                         with open(lockFileName, "w") as f:
                             f.write("Locked by ArduinoGenServer")
 
@@ -111,7 +116,7 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                     self.write_message("ClientNoLock")
                     log(self.id, "tried to unlock, but doesn't have a device lock")
                 else:
-                    lockFileName = lockFolderAbsPath + "/" + arduino["name"] + ".lck"
+                    lockFileName = lockFolderAbsPath + "/" + self.device["name"] + ".lck"
                     os.remove(lockFileName)
                     self.device["locked"] = False
                     self.write_message("UnlockedDevice" + self.device["name"])
@@ -129,7 +134,7 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                     self.write_message("ClientNoLock")
                     log(self.id, "tried to get components, but doesn't have a device lock")
                 else:
-                    deviceJsonFile = confFolderAbsPath + "/" + self.device["name"] + "/" + self.device["name"] + ".json"
+                    deviceJsonFile = confFolderAbsPath + "/" + self.device["name"] + ".json"
                     if not os.path.exists(deviceJsonFile):
                         self.write_message("[]")
                         log(self.id, "no file, sending empy list")
@@ -159,10 +164,11 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                     self.write_message("ClientNoLock")
                     log(self.id, "tried to generate arduino code, but doesn't have a device lock")
                 else:
-                    self.write_message("GeneratedArduinoCode")
                     log(self.id, "generating arduino code for " + self.device["name"])
                     ArduinoGen(arduino=self.device["name"])
                     log(self.id, "generated arduino code for " + self.device["name"])
+                    self.write_message("GeneratedArduinoCode")
+                return
 
             cmd = "WriteComponents"
             if message[:len(cmd)] == cmd:
@@ -173,13 +179,14 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                     log(self.id, "writing components to " + self.device["name"])
                     ArduinoGen(arduino=self.device["name"], upload=True)
                     log(self.id, "written components to " + self.device["name"])
+                    self.write_message("WrittenComponents")
                 return
 
     def on_close(self):
         if hasattr(self, 'device'):
             dev = self.device
             dev["locked"] = False
-            lockFileName = lockFolderAbsPath + "/" + arduino["name"] + ".lck"
+            lockFileName = lockFolderAbsPath + "/" + dev["name"] + ".lck"
             os.remove(lockFileName)
             log(self.id, "unlocked " + dev["name"])
 
@@ -198,8 +205,21 @@ def make_app():
         (r"/", arduinoGen)
     ])
 
+def sigInt_handler(signum, frame):
+    print("Closing Server")
+
+    while clients:
+        client = next(iter(clients))
+        client.close(reason="Server Closing")
+        client.on_close()
+
+    tornado.ioloop.IOLoop.current().stop()
+    print("Server is closed")
+    sys.exit(0)
+
 if __name__ == "__main__":
     app = make_app()
     app.listen(9000)
+    signal.signal(signal.SIGINT, sigInt_handler)
     print("Pin: {:05d}".format(pin))
     tornado.ioloop.IOLoop.current().start()

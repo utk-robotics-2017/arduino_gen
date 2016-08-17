@@ -120,3 +120,15 @@ echo $udevRule > $udevRulePath
 udevadm trigger
 
 mkdir "/currentArduinoCode/$devName" -m 777
+
+productName="[UNKNOWN PRODUCT]"
+case $devProduct in
+    0010)
+        productName="Mega"
+        ;;
+    0043)
+        productName="Uno"
+        ;;
+esac
+
+echo $productName > "/currentArduinoCode/$devName/ProductName"
