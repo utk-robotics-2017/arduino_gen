@@ -93,6 +93,9 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                     else:
                         dev["locked"] = True
                         self.device = dev
+                        lockFileName = lockFolderAbsPath + "/" + arduino["name"] + ".lck"
+                        with open(lockFileName, "w") as f:
+                            f.write("Locked by ArduinoGenServer")
 
                         for client in clients:
                             client.write_message("DeviceList" + json.dumps(arduinos))
@@ -108,6 +111,8 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                     self.write_message("ClientNoLock")
                     log(self.id, "tried to unlock, but doesn't have a device lock")
                 else:
+                    lockFileName = lockFolderAbsPath + "/" + arduino["name"] + ".lck"
+                    os.remove(lockFileName)
                     self.device["locked"] = False
                     self.write_message("UnlockedDevice" + self.device["name"])
                     log(self.id, "unlocked " + self.device["name"])
@@ -155,7 +160,9 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                     log(self.id, "tried to generate arduino code, but doesn't have a device lock")
                 else:
                     self.write_message("GeneratedArduinoCode")
+                    log(self.id, "generating arduino code for " + self.device["name"])
                     ArduinoGen(arduino=self.device["name"])
+                    log(self.id, "generated arduino code for " + self.device["name"])
 
             cmd = "WriteComponents"
             if message[:len(cmd)] == cmd:
@@ -163,13 +170,17 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                     self.write_message("ClientNoLock")
                     log(self.id, "tried to write components, but doesn't have a device lock")
                 else:
+                    log(self.id, "writing components to " + self.device["name"])
                     ArduinoGen(arduino=self.device["name"], upload=True)
+                    log(self.id, "written components to " + self.device["name"])
                 return
 
     def on_close(self):
         if hasattr(self, 'device'):
             dev = self.device
             dev["locked"] = False
+            lockFileName = lockFolderAbsPath + "/" + arduino["name"] + ".lck"
+            os.remove(lockFileName)
             log(self.id, "unlocked " + dev["name"])
 
             clients.remove(self)
