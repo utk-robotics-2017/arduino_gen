@@ -91,7 +91,7 @@ elif ( $listDevs ); then
         #devProduct=`echo "$devInfo" | grep -oP "iProduct.*\d+ \K.*"`
         devVendor=`echo "$devInfo" | grep -oP "idVendor.*0x\d+ \K.*"`
         devProduct=`echo "$devInfo" | grep -oP "idProduct.*0x\d+ \K.*"`
-        devSerial=`echo "$devInfo" | grep -oP "iSerial.*\d+ \K\d+"`
+        devSerial=`echo "$devInfo" | grep -oP "iSerial.*\d+ \K.*"`
 
         devName="[UNNAMED]"
         for arduinoName in $arduinoNames; do
@@ -111,7 +111,7 @@ devInfo=`lsusb -v -s $devNum`
 
 devVendor=`echo "$devInfo" | grep -oP "idVendor.*0x\K\d+"`
 devProduct=`echo "$devInfo" | grep -oP "idProduct.*0x\K\d+"`
-devSerial=`echo "$devInfo" | grep -oP "iSerial.*\d+ \K\d+"`
+devSerial=`echo "$devInfo" | grep -oP "iSerial.*\d+ \K.*"`
 
 udevRule=`printf 'SUBSYSTEM=="tty", ATTRS{idVendor}=="%s", ATTRS{idProduct}=="%s", ATTRS{serial}=="%s", SYMLINK+="%s"\n' "$devVendor" "$devProduct" "$devSerial" "$devName"`
 udevRulePath="/etc/udev/rules.d/100-$devName-usb-serial.rules"
