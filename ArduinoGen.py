@@ -5,29 +5,20 @@ import os
 import shutil
 import getpass
 import sys
-
-# Sensor Includes
-from appendages.ultrasonics import ultrasonics
-from appendages.linesensors import linesensors
-from appendages.i2cencoders import i2cencoders
-from appendages.encoders import encoders
-from appendages.switches import switches
-from appendages.linesensor_arrays import linesensor_arrays
-
-# Actuator Includes
-from appendages.servos import servos
-from appendages.motors import motors
-from appendages.steppers import steppers
-
-# Control Includes
-from appendages.pids import pids
-
-#Systems Includes
-from appendages.arms import arms
-from appendages.velocitycontrolledmotors import velocitycontrolledmotors
-from appendages.fourwheeldrivebases import fourwheeldrivebases
+import os
+import importlib
+import glob
 
 from generator import Generator
+
+# Import all the files in appendages
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+appendageFiles = glob.glob("%s/appendages/*.py" % CURRENT_DIR)
+for appendageFile in appendageFiles:
+    appendageFile = appendageFile[len(CURRENT_DIR) + 1 + len("appendages/"):]
+    if appendageFile == "__init__.py":
+        continue
+    importlib.import_module("appendages.%s" % appendageFile[:-3])
 
 class ArduinoGen:
     def __init__(self, arduino, arduinoType):
