@@ -124,10 +124,13 @@ mkdir "/currentArduinoCode/$devName" -m 777
 productName="[UNKNOWN PRODUCT]"
 case $devProduct in
     0010)
-        productName="Mega"
+        productName="mega2560"
+        ;;
+    0042)
+        productName="mega2560"
         ;;
     0043)
-        productName="Uno"
+        productName="uno"
         ;;
 esac
 
