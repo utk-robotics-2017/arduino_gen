@@ -29,18 +29,6 @@ from systems.fourwheeldrivebases import fourwheeldrivebases
 
 from generator import Generator
 
-def print_middle_finger():
-    print "....................../´¯/)"
-    print "....................,/¯../"
-    print ".................../..../"
-    print "............./´¯/'...'/´¯¯`·¸"
-    print "........../'/.../..../......./¨¯\\"
-    print "........('(...´...´.... ¯~/'...')"
-    print ".........\.................'...../"
-    print "..........''...\.......... _.·´"
-    print "............\..............("
-    print "..............\.............\..."
-
 class ArduinoGen:
     def __init__(self, arduino, arduinoType):
         self.arduino = arduino
@@ -129,11 +117,9 @@ class ArduinoGen:
     def generateOutput(self):
         if not hasattr(self, 'folder'):
             print "Parent folder has not been set"
-            print_middle_finger()
             sys.exit()
         elif not hasattr(self, 'device_dict'):
             print "Config file has not been read"
-            print_middle_finger()
             sys.exit()
 
         print "Generating output..."
@@ -176,7 +162,6 @@ class ArduinoGen:
     def build(self):
         if not hasattr(self, 'folder'):
             print "Parent folder has not been set"
-            print_middle_finger()
             sys.exit()
         print "Building..."
         os.chdir("%s/%s" % (self.folder, self.arduino))
@@ -186,7 +171,6 @@ class ArduinoGen:
     def upload(self):
         if not hasattr(self, 'folder'):
             print "Parent folder has not been set"
-            print_middle_finger()
             sys.exit()
         print "Uploading..."
         os.chdir("%s/%s" % (self.folder, self.arduino))
