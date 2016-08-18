@@ -171,7 +171,12 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                         log(self.id, "posted " + self.device["name"] + "'s components")
 
                     log(self.id, "generating arduino code for " + self.device["name"])
-                    ArduinoGen(arduino=self.device["name"])
+                    #TODO: add finding the arduinoType
+                    ag = ArduinoGen(arduino=self.device["name"])
+                    ag.setParentFolder(os.path.dirname(os.path.realpath(__file__)))
+                    ag.setupFolder()
+                    ag.readConfig(deviceJsonFile)
+                    ag.generateOutput()
                     log(self.id, "generated arduino code for " + self.device["name"])
                     self.write_message("GeneratedArduinoCode")
                 return
@@ -189,7 +194,13 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                         log(self.id, "posted " + self.device["name"] + "'s components")
 
                     log(self.id, "writing components to " + self.device["name"])
-                    ArduinoGen(arduino=self.device["name"], upload=True)
+                    #TODO: add finding the arduinoType
+                    ag = ArduinoGen(arduino=self.device["name"])
+                    ag.setParentFolder(os.path.dirname(os.path.realpath(__file__)))
+                    ag.setupFolder()
+                    ag.readConfig(deviceJsonFile)
+                    ag.generateOutput()
+                    ag.upload()
                     log(self.id, "written components to " + self.device["name"])
                     self.write_message("WrittenComponents")
                 return
