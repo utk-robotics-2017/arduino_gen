@@ -33,7 +33,7 @@ lockFolderAbsPath = os.path.abspath(lockFolder)
 if not os.path.isdir(lockFolderAbsPath):
     os.mkdir(lockFolderAbsPath)
 
-arduinos = [{"name": d for d in os.listdir(currentArduinoCodeFolder) if os.path.isdir(currentArduinoCodeFolder + "/" + d) and not d == ".git"}]
+arduinos = [{"name": d} for d in os.listdir(currentArduinoCodeFolder) if os.path.isdir(currentArduinoCodeFolder + "/" + d) and not d == ".git"]
 
 for arduino in arduinos:
     arduino["locked"] = os.path.exists(lockFolderAbsPath + "/" + arduino["name"] + ".lck")
