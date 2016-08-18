@@ -253,7 +253,7 @@ void parseAndExecuteCommand(String command) {
         upload_copy_fo = open("%s/upload_copy.sh" % writeTo, 'w')
         upload_copy_fo.write("#!/usr/bin/env bash\n")
         upload_copy_fo.write("find %s/%s/* -not -name 'ProductName' -delete\n" % (CURRENT_ARDUINO_CODE_DIR, arduino))
-        upload_copy_fo.write("cp -r %s/%s %s/%s\n" % (writeTo, arduino, CURRENT_ARDUINO_CODE_DIR, arduino))
+        upload_copy_fo.write("cp -r %s %s\n" % (writeTo, CURRENT_ARDUINO_CODE_DIR))
         upload_copy_fo.write("cd %s/%s\n" % (CURRENT_ARDUINO_CODE_DIR, arduino))
         upload_copy_fo.write("sh build.sh\n")
         upload_copy_fo.write("rm upload_copy.sh\n")

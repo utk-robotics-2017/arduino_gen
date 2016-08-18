@@ -7,25 +7,25 @@ import getpass
 import sys
 
 # Sensor Includes
-from sensors.ultrasonics import ultrasonics
-from sensors.linesensors import linesensors
-from sensors.i2cencoders import i2cencoders
-from sensors.encoders import encoders
-from sensors.switches import switches
-from sensors.linesensor_arrays import linesensor_arrays
+from appendages.ultrasonics import ultrasonics
+from appendages.linesensors import linesensors
+from appendages.i2cencoders import i2cencoders
+from appendages.encoders import encoders
+from appendages.switches import switches
+from appendages.linesensor_arrays import linesensor_arrays
 
 # Actuator Includes
-from actuators.servos import servos
-from actuators.motors import motors
-from actuators.steppers import steppers
+from appendages.servos import servos
+from appendages.motors import motors
+from appendages.steppers import steppers
 
 # Control Includes
-from control.pids import pids
+from appendages.pids import pids
 
 #Systems Includes
-from systems.arms import arms
-from systems.velocitycontrolledmotors import velocitycontrolledmotors
-from systems.fourwheeldrivebases import fourwheeldrivebases
+from appendages.arms import arms
+from appendages.velocitycontrolledmotors import velocitycontrolledmotors
+from appendages.fourwheeldrivebases import fourwheeldrivebases
 
 from generator import Generator
 
@@ -123,7 +123,7 @@ class ArduinoGen:
             sys.exit()
 
         print "Generating output..."
-        fo = open("%s/src/%s.ino", (self.folder, self.arduino))
+        fo = open("%s/src/%s.ino" % (self.folder, self.arduino), 'w')
         gen = Generator(self.device_dict)
         print "\tWriting headers"
         fo.write(gen.add_header())
@@ -173,7 +173,7 @@ class ArduinoGen:
             print "Parent folder has not been set"
             sys.exit()
         print "Uploading..."
-        os.chdir("%s/%s" % (self.folder, self.arduino))
+        os.chdir(self.folder)
         os.system("sh upload_copy.sh")
         print "Done"
 

@@ -172,7 +172,7 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
 
                     log(self.id, "generating arduino code for " + self.device["name"])
                     pn = open("%s/%s/ProductName" % (currentArduinoCodeFolder, self.device["name"]))
-                    arduinoType = pn.read()
+                    arduinoType = pn.read().rstrip()
                     ag = ArduinoGen(arduino=self.device["name"], arduinoType=arduinoType)
                     ag.setParentFolder(os.path.dirname(os.path.realpath(__file__)))
                     ag.setupFolder()
@@ -196,7 +196,7 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
 
                     log(self.id, "writing components to " + self.device["name"])
                     pn = open("%s/%s/ProductName" % (currentArduinoCodeFolder, self.device["name"]))
-                    arduinoType = pn.read()
+                    arduinoType = pn.read().rstrip()
                     ag = ArduinoGen(arduino=self.device["name"], arduinoType=arduinoType)
                     ag.setParentFolder(os.path.dirname(os.path.realpath(__file__)))
                     ag.setupFolder()
