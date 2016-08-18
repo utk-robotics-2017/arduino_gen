@@ -32,7 +32,7 @@ from generator import Generator
 def print_middle_finger():
     print "....................../´¯/)"
     print "....................,/¯../"
-    print ".................../..../""
+    print ".................../..../"
     print "............./´¯/'...'/´¯¯`·¸"
     print "........../'/.../..../......./¨¯\\"
     print "........('(...´...´.... ¯~/'...')"
@@ -69,10 +69,7 @@ class ArduinoGen:
 
         print "Reading config file...",
         fi = open(f)
-        # Read in json
-        file_text = ""
-        for line in fi:
-            file_text = file_text + line
+        file_text = fi.read()
         json_data = json.loads(file_text)
 
         #Split into levels based on dependencies
