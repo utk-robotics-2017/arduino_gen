@@ -2,5 +2,6 @@
 \~
 *.swp
 *.pyc
-/mega
 /conf
+/mega
+/uno
