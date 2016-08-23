@@ -4,7 +4,7 @@ class linesensor:
         self.pin = pin
 
 
-class linesensors:
+class linesensorList:
     def __init__(self):
         self.digital_sensor_list = []
         self.analog_sensor_list = []

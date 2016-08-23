@@ -5,7 +5,7 @@ class encoder:
         self.pinB = pinB
 
 
-class encoders:
+class encoderList:
     def __init__(self):
         self.sensors = dict()
 

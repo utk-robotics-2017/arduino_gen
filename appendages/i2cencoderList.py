@@ -5,7 +5,7 @@ class i2cencoder:
         self.init_number = init_number
 
 
-class i2cencoders:
+class i2cencoderList:
     def __init__(self):
         self.sensors = dict()
         self.sorted_sensors = []

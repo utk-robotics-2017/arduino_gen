@@ -6,7 +6,7 @@ class velocitycontrolledmotor:
         self.vpid = vpid
 
 
-class velocitycontrolledmotors:
+class velocitycontrolledmotorList:
     def __init__(self):
         self.vcms = dict()
 

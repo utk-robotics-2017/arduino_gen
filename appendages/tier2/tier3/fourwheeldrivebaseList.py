@@ -7,7 +7,7 @@ class fourwheeldrivebase:
         self.useVelocityControl = useVelocityControl
 
 
-class fourwheeldrivebases:
+class fourwheeldrivebaseList:
     def __init__(self):
         self.drivebase_list = []
 

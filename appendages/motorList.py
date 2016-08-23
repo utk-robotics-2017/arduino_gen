@@ -15,7 +15,7 @@ class Rover5Motor:
         self.reverse = reverse
 
 
-class motors:
+class motorList:
     def __init__(self):
         self.monsterMotos = dict()
         self.rover5s = dict()

@@ -8,7 +8,7 @@ class Stepper:
         self.pinD = pinD
         self.initial_speed = initial_speed
 
-class steppers:
+class stepperList:
     def __init__(self):
         self.actuators = []
 

@@ -4,7 +4,7 @@ class ultrasonic:
         self.pin = pin
 
 
-class ultrasonics:
+class ultrasonicList:
 
     def __init__(self):
         self.sensor_list = []

@@ -5,7 +5,7 @@ class switch:
         self.pullup = pullup
 
 
-class switches:
+class switchList:
     def __init__(self):
         self.sensor_list = []
 

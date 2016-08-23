@@ -4,7 +4,7 @@ class servo:
         self.pin = pin
 
 
-class servos:
+class servoList:
     def __init__(self):
         self.actuators = dict()
 

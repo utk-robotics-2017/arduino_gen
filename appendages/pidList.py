@@ -10,7 +10,7 @@ class pid:
         self.reverse = reverse
 
 
-class pids:
+class pidList:
     def __init__(self):
         self.pids = dict()
         self.vpids = dict()

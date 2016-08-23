@@ -8,7 +8,7 @@ class arm:
         self.wrist_rotate = wrist_rotate
 
 
-class arms:
+class armList:
     def __init__(self):
         self.arm_list = []
 

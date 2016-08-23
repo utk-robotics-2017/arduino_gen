@@ -13,12 +13,7 @@ from generator import Generator
 
 # Import all the files in appendages
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
-appendageFiles = glob.glob("%s/appendages/*.py" % CURRENT_DIR)
-for appendageFile in appendageFiles:
-    appendageFile = appendageFile[len(CURRENT_DIR) + 1 + len("appendages/"):]
-    if appendageFile == "__init__.py":
-        continue
-    importlib.import_module("appendages.%s" % appendageFile[:-3])
+
 
 class ArduinoGen:
     def __init__(self, arduino, arduinoType):
@@ -52,27 +47,25 @@ class ArduinoGen:
         json_data = json.loads(file_text)
 
         #Split into levels based on dependencies
-        device_type = [
-            {
-                'ultrasonic': ultrasonics(),
-                'linesensor': linesensors(),
-                'i2cencoder': i2cencoders(),
-                'encoder': encoders(),
-                'switch': switches(),
-                'servo': servos(),
-                'motor': motors(),
-                'pid': pids(),
-                'linesensor_array': linesensor_arrays(),
-                'stepper': steppers()
-            },
-            {
-                'arm': arms(),
-                'velocityControlledMotor': velocitycontrolledmotors()
-            },
-            {
-                'fourWheelDriveBase': fourwheeldrivebases()
-            }
-            ]
+        device_type = []
+        current_search_path = CURRENT_DIR + "/appendages/"
+        current_import_path = "appendages"
+        current_depth_index = 0
+        while True:
+            file_list = [f for f in os.listdir(current_search_path)
+                if os.path.isfile(current_search_path + f) and f[-3:] == ".py" and not f == "__init__.py"]
+            device_type.append({})
+            for f in file_list:
+                module = importlib.import_module("%s.%s" % (current_import_path, f[:-3]))
+                class_ = getattr(module, f[:-3])
+                device_type[current_depth_index][f[:-7]] = class_()
+            dir_list = [f for f in os.listdir(current_search_path) if os.path.isdir(current_search_path + f)]
+            if len(dir_list) == 0:
+                break
+            current_search_path += dir_list[0] + "/"
+            current_import_path += "." + dir_list[0]
+            current_depth_index += 0
+
         self.device_dict = dict()
         for device_level in device_type:
             for json_item in json_data:

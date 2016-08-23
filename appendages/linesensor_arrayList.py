@@ -6,7 +6,7 @@ class linesensor_array:
         self.emitter_pin = emitter_pin
 
 
-class linesensor_arrays:
+class linesensor_arrayList:
     def __init__(self):
         self.digital_sensor_list = []
         self.analog_sensor_list = []
