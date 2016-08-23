@@ -21,9 +21,9 @@ class motorList:
         self.rover5s = dict()
 
     def add(self, json_item):
-        if json_item['motorController'].lower() == 'monsterMoto':
+        if json_item['motorController'].lower() == 'monstermoto':
             self.monsterMotos[json_item['label']] = MonsterMotorMotor(json_item['label'], json_item['inA_pin'], json_item['inB_pin'], json_item['pwm_pin'], json_item['reverse'])
-        elif json_item['motorController'].lower() == 'roverFive':
+        elif json_item['motorController'].lower() == 'roverfive':
             self.rover5s[json_item['label']] = Rover5Motor(json_item['label'], json_item['dir_pin'], json_item['pwm_pin'], json_item['reverse'])
 
     def get(self, label):
@@ -54,7 +54,16 @@ class motorList:
         return rv
 
     def get_setup(self):
-        return ""
+        rv = ""
+        for motor in self.monsterMotos.values():
+            rv += "    pinMode(%d, OUTPUT);\n" % motor.inA_pin
+            rv += "    pinMode(%d, OUTPUT);\n" % motor.inB_pin
+            rv += "    pinMode(%d, OUTPUT);\n" % motor.pwm_pin
+
+        for motor in self.rover5s.values():
+            rv += "    pinMode(%d, OUTPUT);\n" % motor.dir_pin
+            rv += "    pinMode(%d, OUTPUT);\n" % motor.pwm_pin
+        return rv
 
     def get_loop_functions(self):
         return ""

@@ -36,17 +36,8 @@ void Motor::drive(int speed)
     break;
 
   case RoverFive:
-
-    if (speed == 0) {
-      analogWrite(pwm, 0);
-      digitalWrite(inA, LOW);
-    } else if (speed > 0) {
-      analogWrite(pwm, speed);
-      digitalWrite(inA, LOW);
-    } else {
-      analogWrite(pwm, abs(speed));
-      digitalWrite(inA, HIGH);
-    }
+    analogWrite(pwm, abs(speed));
+    digitalWrite(inA, speed > 0);
     break;
   }
 }
