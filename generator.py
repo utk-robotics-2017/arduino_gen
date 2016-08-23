@@ -39,8 +39,8 @@ class Generator:
         for key in keys:
             includes = self.appendage_dict[key].get_include_files()
             for include in includes:
-                shutil.copyfile("%s/includes/%s" % (CURRENT_DIR, include) , "%s/%s" % (directory, include))
-                os.chmod("%s/includes/%s" % (CURRENT_DIR, include), 0777)
+                shutil.copyfile("%s/includes/%s" % (CURRENT_DIR, include) , "%s/src/%s" % (directory, include))
+                os.chmod("%s/src/%s" % (directory, include), 0777)
 
     def add_pins(self):
         rv = "// Pin definitions\nconst char LED = 13;\n"

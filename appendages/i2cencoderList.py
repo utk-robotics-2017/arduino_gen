@@ -20,7 +20,7 @@ class i2cencoderList:
         return self.sensors[label]
 
     def get_include(self):
-        return "#include \"Wire.h\";\n#include \"I2CEncoder.h\";"
+        return "#include <Wire.h>\n#include \"I2CEncoder.h\""
 
     def get_include_files(self):
         return ['I2CEncoder.h', 'I2CEncoder.cpp']

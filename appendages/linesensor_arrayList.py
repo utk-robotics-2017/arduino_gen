@@ -18,7 +18,7 @@ class linesensor_arrayList:
             self.analog_sensor_list.append(linesensor_array(json_item['label'], json_item['pin_list'], json_item['num_samples'], json_item['emitter_pin']))
 
     def get_include(self):
-        return "#include \"QTRSensors.h\";"
+        return "#include \"QTRSensors.h\""
 
     def get_include_files(self):
         return ['QTRSensors.h', 'QTRSensors.cpp']

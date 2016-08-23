@@ -16,7 +16,7 @@ class encoderList:
         return self.sensors['label']
 
     def get_include(self):
-        return "#include \"Encoder.h\";"
+        return "#include \"Encoder.h\""
 
     def get_include_files(self):
         return []

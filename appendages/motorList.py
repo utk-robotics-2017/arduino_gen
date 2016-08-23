@@ -33,7 +33,7 @@ class motorList:
             return self.rover5s[label]
 
     def get_include(self):
-        return "#include \"Motor.h\";"
+        return "#include \"Motor.h\""
 
     def get_include_files(self):
         return ['Motor.h', 'Motor.cpp']

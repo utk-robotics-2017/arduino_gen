@@ -13,7 +13,7 @@ class ultrasonicList:
         self.sensor_list.append(ultrasonic(json_item['label'], json_item['pin']))
 
     def get_include(self):
-        return "#include \"NewPing.h\";"
+        return "#include \"NewPing.h\""
 
     def get_include_files(self):
         return []

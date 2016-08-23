@@ -15,7 +15,7 @@ class servoList:
         return self.actuators[label]
 
     def get_include(self):
-        return "#include \"Servo.h\";"
+        return "#include \"Servo.h\""
 
     def get_include_files(self):
         return []

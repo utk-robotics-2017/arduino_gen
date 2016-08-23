@@ -35,7 +35,7 @@ class pidList:
             return self.pids[label]
 
     def get_include(self):
-        return "#include \"PID.h\";\n#include \"vPID.h\";"
+        return "#include \"PID.h\"\n#include \"vPID.h\""
 
     def get_include_files(self):
         return ['PID.h', 'PID.cpp', 'vPID.h', 'vPID.cpp']

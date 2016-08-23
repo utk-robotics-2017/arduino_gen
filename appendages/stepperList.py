@@ -20,7 +20,7 @@ class stepperList:
         return self.actuators[label]
 
     def get_include(self):
-        return "#include \"Stepper.h\";"
+        return "#include \"Stepper.h\""
 
     def get_include_files(self):
         return ""
