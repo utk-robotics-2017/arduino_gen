@@ -14,7 +14,7 @@ class Rover5Motor:
         self.pwm_pin = pwm_pin
         self.reverse = reverse
 
-
+# TODO: convert to using only one dictionary the same way the motor class is set up in the cpp
 class motorList:
     def __init__(self):
         self.monsterMotos = dict()
@@ -44,6 +44,8 @@ class motorList:
     def get_constructor(self):
         rv = ""
         for i, label in zip(range(len(self.monsterMotos)), self.monsterMotos.keys()):
+            rv += "const char %s_index = %d;\n" % (label, i)
+        for i, label in zip(range(len(self.rover5s)), self.rover5s.keys()):
             rv += "const char %s_index = %d;\n" % (label, i)
         rv += "Motor motors[%d] = {\n" % (len(self.monsterMotos) + len(self.rover5s))
         for motor in self.monsterMotos.values():
