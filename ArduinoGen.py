@@ -140,7 +140,7 @@ class ArduinoGen:
         print "\tWriting build, serial, and upload shell scripts"
         gen.write_shell_scripts(self.folder, self.arduino, self.arduinoType)
         print "Done"
-        print "Your output can be found at %s/%s" % (self.folder, self.arduino)
+        print "Your output can be found at %s" % (self.folder)
 
 
     def build(self):
