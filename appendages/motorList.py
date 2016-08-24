@@ -1,36 +1,30 @@
-class MonsterMotorMotor:
-    def __init__(self, label, inA_pin, inB_pin, pwm_pin, reverse):
+class Motor:
+    def __init__(self, label, inA_pin, inB_pin, pwm_pin, reverse, motor_controller):
         self.label = label
         self.inA_pin = inA_pin
         self.inB_pin = inB_pin
         self.pwm_pin = pwm_pin
         self.reverse = reverse
+        self.motor_controller = motor_controller
 
-
-class Rover5Motor:
-    def __init__(self, label, dir_pin, pwm_pin, reverse):
-        self.label = label
-        self.dir_pin = dir_pin
-        self.pwm_pin = pwm_pin
-        self.reverse = reverse
-
-# TODO: convert to using only one dictionary the same way the motor class is set up in the cpp
 class motorList:
     def __init__(self):
-        self.monsterMotos = dict()
-        self.rover5s = dict()
+        self.motorDict = {}
+        self.motorList = []
 
     def add(self, json_item):
         if json_item['motorController'].lower() == 'monstermoto':
-            self.monsterMotos[json_item['label']] = MonsterMotorMotor(json_item['label'], json_item['inA_pin'], json_item['inB_pin'], json_item['pwm_pin'], json_item['reverse'])
+            motor = Motor(json_item['label'], json_item['inA_pin'], json_item['inB_pin'], json_item['pwm_pin'], json_item['reverse'], 'MonsterMoto')
         elif json_item['motorController'].lower() == 'roverfive':
-            self.rover5s[json_item['label']] = Rover5Motor(json_item['label'], json_item['dir_pin'], json_item['pwm_pin'], json_item['reverse'])
+            motor = Motor(json_item['label'], json_item['dir_pin'], -1, json_item['pwm_pin'], json_item['reverse'], 'roverfive')
+
+        self.motorDict[motor.label] = motor
+        self.motorList.append(motor)
+        self.motorList.sort(key=lambda x: x.label, reverse=False)
 
     def get(self, label):
-        if label in self.monsterMotos:
-            return self.monsterMotos[label]
-        elif label in self.rover5s:
-            return self.rover5s[label]
+        if label in self.motorDict:
+            return self.motorDict[label]
 
     def get_include(self):
         return "#include \"Motor.h\""
@@ -43,26 +37,22 @@ class motorList:
 
     def get_constructor(self):
         rv = ""
-        for i, label in zip(range(len(self.monsterMotos)), self.monsterMotos.keys()):
-            rv += "const char %s_index = %d;\n" % (label, i)
-        for i, label in zip(range(len(self.rover5s)), self.rover5s.keys()):
-            rv += "const char %s_index = %d;\n" % (label, i)
-        rv += "Motor motors[%d] = {\n" % (len(self.monsterMotos) + len(self.rover5s))
-        for motor in self.monsterMotos.values():
-            rv += "    Motor(%d, %d, %d, %d, MonsterMoto),\n" % (motor.inA_pin, motor.inB_pin, motor.pwm_pin, 1 if motor.reverse else 0)
-        for motor in self.rover5s.values():
-            rv += "    Motor(%d, -1, %d, %d, RoverFive),\n" % (motor.dir_pin, motor.pwm_pin, 1 if motor.reverse else 0)
+        for i, motor in enumerate(self.motorList);
+            rv += "const char %s_index = %d;\n" % (motor.label, i)
+        rv += "Motor motors[%d] = {\n" % (len(self.motorList))
+        for motor in self.motorList:
+            rv += "    Motor(%d, %d, %d, %d, %s),\n" % (motor.inA_pin, motor.inB_pin, motor.pwm_pin, 1 if motor.reverse else 0, motor.motor_controller)
         rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_setup(self):
         rv = ""
-        for motor in self.monsterMotos.values():
+        for motor in self.motorList:
             rv += "    pinMode(%d, OUTPUT);\n" % motor.inA_pin
             rv += "    pinMode(%d, OUTPUT);\n" % motor.inB_pin
             rv += "    pinMode(%d, OUTPUT);\n" % motor.pwm_pin
 
-        for motor in self.rover5s.values():
+        for motor in self.motorList:
             rv += "    pinMode(%d, OUTPUT);\n" % motor.dir_pin
             rv += "    pinMode(%d, OUTPUT);\n" % motor.pwm_pin
         return rv
@@ -71,7 +61,7 @@ class motorList:
         return ""
 
     def get_response_block(self):
-        length = len(self.monsterMotos) + len(self.rover5s)
+        length = len(self.motorList)
         return '''    else if(args[0].equals(String("mod"))){ // motor drive
         if(numArgs ==  3) {
             int indexNum = args[1].toInt();

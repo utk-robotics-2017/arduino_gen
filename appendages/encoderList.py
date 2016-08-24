@@ -1,4 +1,4 @@
-class encoder:
+class Encoder:
     def __init__(self, label, pinA, pinB):
         self.label = label
         self.pinA = pinA
@@ -7,13 +7,17 @@ class encoder:
 
 class encoderList:
     def __init__(self):
-        self.sensors = dict()
+        self.encoderDict = {}
+        self.encoderList = []
 
     def add(self, json_item):
-        self.sensors[json_item['label']] = encoder(json_item['label'], json_item['pinA'], json_item['pinB'])
+        encoder = Encoder(json_item['label'], json_item['pinA'], json_item['pinB'])
+        self.encoderDict[json_item['label']] = encoder
+        self.encoderList.append(encoder)
+        self.encoderList.sort(key=lambda x: x.label, reverse=False)
 
     def get(self, label):
-        return self.sensors['label']
+        return self.encoderDict['label']
 
     def get_include(self):
         return "#include \"Encoder.h\""
@@ -23,30 +27,34 @@ class encoderList:
 
     def get_pins(self):
         rv = ""
-        for sensor in self.sensors.values():
-            rv = rv + "const char %s_pinA = %d;\n" % (sensor.label, sensor.pinA)
-            rv = rv + "const char %s_pinB = %d;\n" % (sensor.label, sensor.pinB)
+        for encoder in self.encoderList:
+            rv += "const char %s_pinA = %d;\n" % (encoder.label, encoder.pinA)
+            rv += "const char %s_pinB = %d;\n" % (encoder.label, encoder.pinB)
         return rv
 
     def get_constructor(self):
         rv = ""
-        for i, label in zip(range(len(self.sensors)), self.sensors.keys()):
-            rv = rv + "const char %s_index = %d;\n" % (label, i)
-        rv = rv + "Encoder encoders[%d] = {\n" % len(self.sensors)
+        for i, encoder in enumerate(self.encoderList):
+            rv += "const char %s_index = %d;\n" % (encoder.label, i)
+        rv += "Encoder encoders[%d] = {\n" % len(self.encoderList)
 
-        for label in self.sensors.keys():
-            rv = rv + "    Encoder(%s_pinA, %s_pinB),\n" % (label, label)
+        for encoder in self.encoderList:
+            rv += "    Encoder(%s_pinA, %s_pinB),\n" % (encoder.label, encoder.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_setup(self):
-        return ""
+        rv = ""
+        for encoder in self.encoderList:
+            rv += "    pinMode(%s_pinA, INPUT);\n" % encoder.label
+            rv += "    pinMode(%s_pinB, INPUT);\n" % encoder.label
+        return rv
 
     def get_loop_functions(self):
         return ""
 
     def get_response_block(self):
-        length = len(self.sensors)
+        length = len(self.encoderList)
         return '''    else if(args[0].equals(String("re"))){ // read encoders
         if(numArgs == 2){
             int indexNum = args[1].toInt();

@@ -8,13 +8,17 @@ class velocitycontrolledmotor:
 
 class velocitycontrolledmotorList:
     def __init__(self):
-        self.vcms = dict()
+        self.vcmDict = {}
+        self.vcmList = []
 
     def add(self, json_item, motors, encoders, vpids):
         motor = motors.get(json_item['motor_label'])
         encoder = encoders.get(json_item['encoder_label'])
         vpid = vpids.get(json_item['vpid_label'])
-        self.vcms[json_item['label']] = velocitycontrolledmotor(json_item['label'], motor, encoder, vpid)
+        vcm = velocitycontrolledmotor(json_item['label'], motor, encoder, vpid)
+        self.vcmDict[json_item['label']] = vcm
+        self.vcmList.append(vcm)
+        self.vcmList.sort(key=lambda x:x.label, reverse=False)
 
     def get_include(self):
         return "#include \"VelocityControlledMotor.h\";"
@@ -26,8 +30,8 @@ class velocitycontrolledmotorList:
         return ""
 
     def get_constructor(self):
-        rv = "VelocityControlledMotor vcms[%d] = {\n" % len(self.vcms)
-        for vcm in self.vcms:
+        rv = "VelocityControlledMotor vcms[%d] = {\n" % len(self.vcmList)
+        for vcm in self.vcmList:
             rv += "    VelocityControlledMotor(motors[%_index], i2cencoders[%s_index], vpids[%s_index]),\n" % (vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
         rv = rv[:-2] + "\n};\n"
         return rv
@@ -36,7 +40,7 @@ class velocitycontrolledmotorList:
         return ""
 
     def get_response_block(self):
-        length = len(self.vcms)
+        length = len(self.vcmList)
         return '''    else if(args[0].equals(String("vcmd"))) { // set velocity controlled motor voltage (no pid)
         if(numArgs == 7) {
             int indexNum = args[1].toInt();
