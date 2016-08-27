@@ -67,7 +67,7 @@ class Generator:
         keys = self.appendage_dict.keys()
         for key in keys:
             rv = rv + self.appendage_dict[key].get_setup()
-        rv = rv + "    //Init Serial\n    Serial.begin(115200);\n}\n\n"
+        rv = rv + "    //Init Serial\n    Serial.begin(115200);\ndigitalWrite(LED, HIGH);\n}\n\n"
         return rv
 
     def add_loop(self):

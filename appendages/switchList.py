@@ -1,4 +1,4 @@
-class switch:
+class Switch:
     def __init__(self, label, pin, pullup):
         self.label = label
         self.pin = pin
@@ -7,10 +7,11 @@ class switch:
 
 class switchList:
     def __init__(self):
-        self.sensor_list = []
+        self.switchList = []
 
     def add(self, json_item):
-        self.sensor_list.append(switch(json_item['label'], json_item['pin'], json_item['pullup']))
+        self.switchList.append(Switch(json_item['label'], json_item['pin'], json_item['pullup']))
+        self.switchList.sort(key=lambda x: x.label, reverse=False)
 
     def get_include(self):
         return ""
@@ -20,23 +21,23 @@ class switchList:
 
     def get_pins(self):
         rv = ""
-        for sensor in self.sensor_list:
+        for sensor in self.switchList:
             rv = rv + "const char %s_pin = %d;\n" % (sensor.label, sensor.pin)
         return rv
 
     def get_constructor(self):
         rv = ""
-        for i in range(len(self.sensor_list)):
-            rv = rv + "const char %s_index = %d;\n" % (self.sensor_list[i].label, i)
-        rv = rv + "char switches[%d] = {\n" % (len(self.sensor_list))
-        for sensor in self.sensor_list:
-            rv = rv + ("    %s_pin,\n") % (sensor.label)
+        for i, sensor in enumerate(self.switchList):
+            rv += "const char %s_index = %d;\n" % (sensor.label, i)
+        rv += "char switches[%d] = {\n" % (len(self.switchList))
+        for sensor in self.switchList:
+            rv += ("    %s_pin,\n") % (sensor.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_setup(self):
         rv = ""
-        for sensor in self.sensor_list:
+        for sensor in self.switchList:
             if sensor.pullup:
                 rv = rv + "    pinMode(%s_pin, INPUT_PULLUP);\n" % sensor.label
             else:
@@ -60,7 +61,7 @@ class switchList:
             Serial.println("Error: usage - rs [id]");
         }
     }
-''' % (len(self.sensor_list))
+''' % (len(self.switchList))
 
     def get_extra_functions(self):
         return ""

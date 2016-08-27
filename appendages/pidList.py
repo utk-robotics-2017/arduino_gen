@@ -1,4 +1,4 @@
-class pid:
+class Pid:
     def __init__(self, label, kp, ki, kd, minOutput=None, maxOutput=None, reverse=False):
         self.label = label
         self.kp = float(kp)
@@ -9,11 +9,12 @@ class pid:
             self.maxOutput = float(maxOutput)
         self.reverse = reverse
 
-
 class pidList:
     def __init__(self):
-        self.pids = dict()
-        self.vpids = dict()
+        self.pidDict = {}
+        self.pidList = []
+        self.vpidDict = {}
+        self.vpidList = []
 
     def add(self, json_item):
         if 'minOutput' in json_item:
@@ -24,9 +25,17 @@ class pidList:
             maxOutput = None
 
         if json_item['vpid']:
-            self.vpids[json_item['label']] = pid(json_item['label'], json_item['kp'], json_item['ki'], json_item['kd'], minOutput, maxOutput, json_item['reverse'])
+            pid = Pid(json_item['label'], json_item['kp'], json_item['ki'], json_item['kd'], minOutput, maxOutput, json_item['reverse'])
+            self.pidDict[pid.label] = pid
+            self.pidList.append(pid)
+            self.pidList.sort(key=lambda x: x.label, reverse=False)
         else:
-            self.pids[json_item['label']] = pid(json_item['label'], json_item['kp'], json_item['ki'], json_item['kd'], minOutput, maxOutput, json_item['reverse'])
+            pid = Pid(json_item['label'], json_item['kp'], json_item['ki'], json_item['kd'], minOutput, maxOutput, json_item['reverse'])
+            self.vpidDict[pid.label] = pid
+            self.vpidList.append(pid)
+            self.vpidList.sort(key=lambda x: x.label, reverse=False)
+
+
 
     def get(self, label):
         if label in self.vpids.keys():
@@ -47,38 +56,41 @@ class pidList:
         rv = ""
         length_vpids = len(self.vpids)
         if length_vpids > 0:
-            for i, label in zip(range(length_vpids), self.vpids.keys()):
-                rv = rv + "const char %s_index = %d;\n" % (label, i)
+            for i, vpid in enumerate(self.vpidList):
+                rv += "const char %s_index = %d;\n" % (vpid.label, i)
             rv += "double lastPositions_vpid[%d];\ndouble Inputs_vpid[%d], Setpoints_vpid[%d], Outputs_vpid[%d];\n" % (length_vpids, length_vpids, length_vpids, length_vpids)
             rv += "vPID vpids[%d] = {\n" % (length_vpids)
-            for vpid in self.vpids.values():
+            for vpid in sself.vpidList:
                 rv += "    vPID(&Inputs_vpid[%s_index], &Outputs_vpid[%s_index], &Setpoints_vpid[%s_index], %f, %f, %f, %s),\n" % (vpid.label, vpid.label, vpid.label, vpid.kp, vpid.ki, vpid.kd, "REVERSE" if vpid.reverse else "DIRECT")
             rv = rv[:-2] + "\n};\n"
 
         length_pids = len(self.pids)
         if length_pids > 0:
-            for i, label in zip(range(len(self.pids)), self.pids.keys()):
-                rv = rv + "const char %s_index = %d;\n" % (label, i)
+            for i, pid in enumerate(self.pidList):
+                rv += "const char %s_index = %d;\n" % (pid.label, i)
             rv += "double lastPositions_pid[%d];\ndouble Inputs_pid[%d], Setpoints_pid[%d], Outputs_pid[%d];\n" % (length_vpids, length_vpids, length_vpids, length_vpids)
             rv += "PID pids[%d] = {\n" % (length_pids)
-            for pid in self.pids.values():
+            for pid in self.pidList:
                 rv += "    PID(&Inputs_pid[%s_index], &Outputs_pid[%s_index], &Setpoints_pid[%s_index], %f, %f, %f, %s),\n" % (vpid.label, vpid.label, vpid.label, vpid.kp, vpid.ki, vpid.kd, "REVERSE" if vpid.reverse else "DIRECT")
             rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_setup(self):
         rv = ""
-        for vpid in self.vpids.values():
+        for vpid in self.vpidList:
             if hasattr(vpid, 'minOutput'):
-                rv += "    vpid.SetOutputLimits(%f, %f)\n" % (vpid.minOutput, vpid.maxOutput)
+                rv += "    vpids[%s_index].SetOutputLimits(%f, %f)\n" % (vpid.label, vpid.minOutput, vpid.maxOutput)
+        for pid in self.pidList:
+            if hasattr(pid, 'minOutput'):
+                rv += "    pids[%s_index].SetOutputLimits(%f, %f)\n" % (pid.label, pid.minOutput, pid.maxOutput)
         return rv
 
     def get_loop_functions(self):
         return ""
 
     def get_response_block(self):
-        length_vpids = len(self.vpids)
-        length_pids = len(self.pids)
+        length_vpids = len(self.vpidList)
+        length_pids = len(self.pidList)
         rv = ""
         if length_pids > 0:
             rv += '''    else if (args[0].equals(String("pc"))) { // Modify the pid constants

@@ -10,10 +10,15 @@ class Stepper:
 
 class stepperList:
     def __init__(self):
-        self.actuators = []
+        self.stepperDict = {}
+        self.stepperList = []
 
     def add(self, json_item):
-        self.actuators[json_item['label']] = Stepper(json_item['label'], json_item['num_steps'], json_item['pinA'], json_item['pinB'], json_item['pinC'], json_item['pinD'], json_item['initial_speed'])
+        stepper = Stepper(json_item['label'], json_item['num_steps'], json_item['pinA'], json_item['pinB'], json_item['pinC'], json_item['pinD'], json_item['initial_speed'])
+        self.stepperDict[json_item['label']] = stepper
+        self.stepperList.append(stepper)
+        self.stepperList.sort(key=lambda x: x.label, reverse=False)
+
 
 
     def get(self, label):
@@ -27,27 +32,33 @@ class stepperList:
 
     def get_pins(self):
         rv = ""
-        for actuator in self.actuators.values():
-            rv += "const char %s_pinA = %d;\n" % (actuator.label, actuator.pinA)
-            rv += "const char %s_pinB = %d;\n" % (actuator.label, actuator.pinB)
-            rv += "const char %s_pinC = %d;\n" % (actuator.label, actuator.pinC)
-            rv += "const char %s_pinD = %d;\n" % (actuator.label, actuator.pinD)
+        for stepper in self.stepperList:
+            rv += "const char %s_pinA = %d;\n" % (stepper.label, stepper.pinA)
+            rv += "const char %s_pinB = %d;\n" % (stepper.label, stepper.pinB)
+            rv += "const char %s_pinC = %d;\n" % (stepper.label, stepper.pinC)
+            rv += "const char %s_pinD = %d;\n" % (stepper.label, stepper.pinD)
         return rv
 
     def get_constructor(self):
         rv = ""
-        for i, label in zip(range(len(self.actuators)), self.actuators.keys()):
-            rv += "const char %s_index = %d;\n" % (label, i)
+        for i, stepper in enumerate(self.stepperList):
+            rv += "const char %s_index = %d;\n" % (stepper.label, i)
 
-        rv += ("Stepper steppers[%d] = {\n") % (len(self.actuators))
-        for stepper in self.actuators:
+        rv += ("Stepper steppers[%d] = {\n") % (len(self.stepperList))
+        for stepper in self.stepperList:
             rv += "    Stepper(%d, %s_pinA, %s_pinB, %s_pinC, %_pinD)," % (stepper.steps, stepper.label, stepper.label, stepper.label, stepper.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_setup(self):
         rv = ""
-        for stepper in self.actuators:
+        for stepper in self.stepperList:
+            rv += "    pinMode(%s_pinA, OUTPUT);\n" % stepper.label
+            rv += "    pinMode(%s_pinB, OUTPUT);\n" % stepper.label
+            rv += "    pinMode(%s_pinC, OUTPUT);\n" % stepper.label
+            rv += "    pinMode(%s_pinD, OUTPUT);\n" % stepper.label
+
+        for stepper in self.stepperList:
             rv += "    steppers[%s_index].setSpeed(%s_pin);\n" % (stepper.label, stepper.initial_speed)
         rv += "\n"
 
@@ -84,7 +95,7 @@ else if(args[0].equals(String("sss"))){ // step stepper
         Serial.println("Error: usage - sss [id] [value]");
     }
 }
-''' % (len(self.actuators), len(self.actuators))
+''' % (len(self.stepperList), len(self.stepperList))
 
 def get_extra_functions(self):
     return ""

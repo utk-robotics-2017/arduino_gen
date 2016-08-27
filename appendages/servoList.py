@@ -1,4 +1,4 @@
-class servo:
+class Servo:
     def __init__(self, label, pin):
         self.label = label
         self.pin = pin
@@ -6,13 +6,17 @@ class servo:
 
 class servoList:
     def __init__(self):
-        self.actuators = dict()
+        self.servoDict = {}
+        self.servoList = []
 
     def add(self, json_item):
-        self.actuators[json_item['label']] = servo(json_item['label'], json_item['pin'])
+        servo = Servo(json_item['label'], json_item['pin'])
+        self.servoDict[servo.label] = servo
+        self.servoList.append(servo)
+        self.servoList.sort(key=lambda x: x.label, reverse=False)
 
     def get(self, label):
-        return self.actuators[label]
+        return self.servoDict[label]
 
     def get_include(self):
         return "#include \"Servo.h\""
@@ -22,27 +26,27 @@ class servoList:
 
     def get_pins(self):
         rv = ""
-        for actuator in self.actuators.values():
+        for actuator in self.servoList:
             rv = rv + "const char %s_pin = %d;\n" % (actuator.label, actuator.pin)
         return rv
 
     def get_constructor(self):
         rv = ""
-        for i, label in zip(range(len(self.actuators)), self.actuators.keys()):
-            rv = rv + "const char %s_index = %d;\n" % (label, i)
+        for i, servo in enumerate(self.servoList):
+            rv += "const char %s_index = %d;\n" % (servo.label, i)
 
-        rv += "char servo_pins[%d] = {\n" % (len(self.actuators))
-        for label in self.actuators.keys():
-            rv += ("    %s_pin,\n") % (label)
+        rv += "char servo_pins[%d] = {\n" % (len(self.servoList))
+        for servo in self.servoList:
+            rv += ("    %s_pin,\n") % (servo.label)
         rv = rv[:-2] + "\n};\n"
 
-        rv = rv + ("Servo servos[%d];\n") % (len(self.actuators))
+        rv = rv + ("Servo servos[%d];\n") % (len(self.servoList))
         return rv
 
     def get_setup(self):
         rv = ""
-        for label in self.actuators.keys():
-            rv += "    servos[%s_index].attach(%s_pin);\n" % (label, label)
+        for servo in self.servoList:
+            rv += "    servos[%s_index].attach(%s_pin);\n" % (servo.label, servo.label)
         rv += "\n"
 
         return rv
@@ -81,7 +85,7 @@ class servoList:
             Serial.println("Error: usage - sd [id]");
         }
     }
-''' % (len(self.actuators), len(self.actuators))
+''' % (len(self.servoList), len(self.servoList))
 
     def get_extra_functions(self):
         return ""

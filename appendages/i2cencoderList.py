@@ -4,7 +4,6 @@ class i2cencoder:
         self.reverse = reverse
         self.init_number = init_number
 
-
 class i2cencoderList:
     def __init__(self):
         self.sensors = dict()
@@ -31,8 +30,11 @@ class i2cencoderList:
     def get_constructor(self):
         rv = ""
         for i in range(len(self.sorted_sensors)):
-            rv = rv + "const char %s_index = %d;\n" % (self.sorted_sensors[i].label, i)
-        rv = rv + "I2CEncoder i2cencoders[%d];\n" % (len(self.sorted_sensors))
+            rv += "const char %s_index = %d;\n" % (self.sorted_sensors[i].label, i)
+        rv += "I2CEncoder i2cencoders[%d] = {\n" % (len(self.sorted_sensors))
+        for senso in self.sorted_sensors:
+            rv += "    I2CEncoder(),\n"
+        rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_setup(self):
