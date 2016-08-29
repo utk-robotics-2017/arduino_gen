@@ -9,6 +9,7 @@ class Motor:
 
 class motorList:
     def __init__(self):
+        self.tier = 1
         self.motorDict = {}
         self.motorList = []
 
@@ -16,7 +17,7 @@ class motorList:
         if json_item['motorController'].lower() == 'monstermoto':
             motor = Motor(json_item['label'], json_item['inA_pin'], json_item['inB_pin'], json_item['pwm_pin'], json_item['reverse'], 'MonsterMoto')
         elif json_item['motorController'].lower() == 'roverfive':
-            motor = Motor(json_item['label'], json_item['dir_pin'], -1, json_item['pwm_pin'], json_item['reverse'], 'roverfive')
+            motor = Motor(json_item['label'], json_item['dir_pin'], -1, json_item['pwm_pin'], json_item['reverse'], 'RoverFive')
 
         self.motorDict[motor.label] = motor
         self.motorList.append(motor)
@@ -37,7 +38,7 @@ class motorList:
 
     def get_constructor(self):
         rv = ""
-        for i, motor in enumerate(self.motorList);
+        for i, motor in enumerate(self.motorList):
             rv += "const char %s_index = %d;\n" % (motor.label, i)
         rv += "Motor motors[%d] = {\n" % (len(self.motorList))
         for motor in self.motorList:
@@ -49,11 +50,8 @@ class motorList:
         rv = ""
         for motor in self.motorList:
             rv += "    pinMode(%d, OUTPUT);\n" % motor.inA_pin
-            rv += "    pinMode(%d, OUTPUT);\n" % motor.inB_pin
-            rv += "    pinMode(%d, OUTPUT);\n" % motor.pwm_pin
-
-        for motor in self.motorList:
-            rv += "    pinMode(%d, OUTPUT);\n" % motor.dir_pin
+            if not motor.inB_pin == -1:
+                rv += "    pinMode(%d, OUTPUT);\n" % motor.inB_pin
             rv += "    pinMode(%d, OUTPUT);\n" % motor.pwm_pin
         return rv
 

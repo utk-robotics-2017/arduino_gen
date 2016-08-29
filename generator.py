@@ -17,10 +17,13 @@ class Generator:
         rv = "// Includes\n"
 
         keys = self.appendage_dict.keys()
-        for key in keys:
-            include = self.appendage_dict[key].get_include()
-            if include != "":
-                rv += "%s\n" % include
+        for i in range(1, 3):
+            for key in keys:
+                if not self.appendage_dict[key].tier == i:
+                    continue
+                include = self.appendage_dict[key].get_include()
+                if include != "":
+                    rv += "%s\n" % include
         rv += "\n"
 
         rv += "#define STR1(x)  #x\n"
@@ -55,10 +58,13 @@ class Generator:
     def add_constructors(self):
         rv = "// Constructors\n"
         keys = self.appendage_dict.keys()
-        for key in keys:
-            constructor = self.appendage_dict[key].get_constructor()
-            if not constructor == "":
-                rv += constructor + "\n"
+        for i in range(1, 3):
+            for key in keys:
+                if not self.appendage_dict[key].tier == i:
+                    continue
+                constructor = self.appendage_dict[key].get_constructor()
+                if not constructor == "":
+                    rv += constructor + "\n"
         rv += "\n"
         return rv
 
@@ -66,11 +72,15 @@ class Generator:
         rv = "void setup() {\n    // Init LED pin\n    pinMode(LED, OUTPUT);\n\n"
         keys = self.appendage_dict.keys()
         for key in keys:
-            rv = rv + self.appendage_dict[key].get_setup()
-        rv = rv + "    //Init Serial\n    Serial.begin(115200);\ndigitalWrite(LED, HIGH);\n}\n\n"
+            rv += self.appendage_dict[key].get_setup()
+        rv += "    //Init Serial\n    Serial.begin(115200);\n}\n\n"
         return rv
 
     def add_loop(self):
+        extra = ""
+        keys = self.appendage_dict.keys()
+        for key in keys:
+            extra += self.appendage_dict[key].get_loop_functions()
         return '''/* The loop is set up in two parts. First the Arduino does the work it needs to
  * do for every loop, next is runs the checkInput() routine to check and act on
  * any input from the serial connection.
@@ -80,9 +90,10 @@ void loop() {
 
     // Accept and parse serial input
     checkInput();
+    %s
 }
 
-'''
+''' % extra
 
     def add_parse_args(self):
         return '''void parse_args(String command) {

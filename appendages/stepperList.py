@@ -10,6 +10,7 @@ class Stepper:
 
 class stepperList:
     def __init__(self):
+        self.tier = 1
         self.stepperDict = {}
         self.stepperList = []
 

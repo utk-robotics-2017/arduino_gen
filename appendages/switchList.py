@@ -7,6 +7,7 @@ class Switch:
 
 class switchList:
     def __init__(self):
+        self.tier = 1
         self.switchList = []
 
     def add(self, json_item):

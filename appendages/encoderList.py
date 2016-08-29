@@ -7,6 +7,7 @@ class Encoder:
 
 class encoderList:
     def __init__(self):
+        self.tier = 1
         self.encoderDict = {}
         self.encoderList = []
 

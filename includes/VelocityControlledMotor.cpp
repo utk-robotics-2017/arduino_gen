@@ -1,4 +1,4 @@
-#include "MotorEncoderPID.h"
+#include "VelocityControlledMotor.h"
 
 VelocityControlledMotor::VelocityControlledMotor(Motor motor, I2CEncoder encoder, VPID vpid, double* input, double* setpoint, double* output)
 {
@@ -10,6 +10,18 @@ VelocityControlledMotor::VelocityControlledMotor(Motor motor, I2CEncoder encoder
 	this->input = input;
 	this->setpoint = setpoint;
 	this->output = output;
+}
+
+VelocityControlledMotor::VelocityControlledMotor(Motor motor, Encoder encoder, VPID vpid, double* input, double* setpoint, double* output)
+{
+    this->i2c = 0;
+    this->motor = motor;
+    this->encoder = encoder;
+    this->vpid = vpid;
+    
+    this->input = input;
+    this->setpoint = setpoint;
+    this->output = output;
 }
 
 void VelocityControlledMotor::setValue(int value)
@@ -41,10 +53,24 @@ void VelocityControlledMotor::runVPID()
 
 double VelocityControlledMotor::getVelocity()
 {
-	return i2cencoder.getVelocity();
+	if(i2c)
+    {
+        return i2cencoder.getVelocity();
+    }
+    else
+    {
+        //TODO: set up way to get velocity from encoder
+        return 0;
+    }
 }
 
 double VelocityControlledMotor::getPosition()
 {
-	return i2cencoder.getPosition();
+	if(i2c)
+    {
+        return i2cencoder.getPosition();
+    }
+    else
+    {
+        return encoder.read();
 }

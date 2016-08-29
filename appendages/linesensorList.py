@@ -6,6 +6,7 @@ class linesensor:
 
 class linesensorList:
     def __init__(self):
+        self.tier = 1
         self.digital_sensor_list = []
         self.analog_sensor_list = []
 

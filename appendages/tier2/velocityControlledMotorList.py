@@ -6,8 +6,9 @@ class velocitycontrolledmotor:
         self.vpid = vpid
 
 
-class velocitycontrolledmotorList:
+class velocityControlledMotorList:
     def __init__(self):
+        self.tier = 2
         self.vcmDict = {}
         self.vcmList = []
 
@@ -32,12 +33,15 @@ class velocitycontrolledmotorList:
     def get_constructor(self):
         rv = "VelocityControlledMotor vcms[%d] = {\n" % len(self.vcmList)
         for vcm in self.vcmList:
-            rv += "    VelocityControlledMotor(motors[%_index], i2cencoders[%s_index], vpids[%s_index]),\n" % (vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
+            rv += "    VelocityControlledMotor(motors[%s_index], i2cencoders[%s_index], vpids[%s_index]),\n" % (vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_setup(self):
         return ""
+
+    def get_loop_functions(self):
+        return "for(int i = 0; i < %d; i++) {\n        vcms[i].runVPID();\n    }\n" % len(self.vcmList)
 
     def get_response_block(self):
         length = len(self.vcmList)

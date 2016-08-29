@@ -11,6 +11,7 @@ class Pid:
 
 class pidList:
     def __init__(self):
+        self.tier = 1
         self.pidDict = {}
         self.pidList = []
         self.vpidDict = {}
@@ -24,7 +25,7 @@ class pidList:
             minOutput = None
             maxOutput = None
 
-        if json_item['vpid']:
+        if not json_item['vpid']:
             pid = Pid(json_item['label'], json_item['kp'], json_item['ki'], json_item['kd'], minOutput, maxOutput, json_item['reverse'])
             self.pidDict[pid.label] = pid
             self.pidList.append(pid)
@@ -38,10 +39,10 @@ class pidList:
 
 
     def get(self, label):
-        if label in self.vpids.keys():
-            return self.vpids[label]
+        if label in self.vpidDict.keys():
+            return self.vpidDict[label]
         else:
-            return self.pids[label]
+            return self.pidDict[label]
 
     def get_include(self):
         return "#include \"PID.h\"\n#include \"vPID.h\""
@@ -54,24 +55,24 @@ class pidList:
 
     def get_constructor(self):
         rv = ""
-        length_vpids = len(self.vpids)
+        length_vpids = len(self.vpidList)
         if length_vpids > 0:
             for i, vpid in enumerate(self.vpidList):
                 rv += "const char %s_index = %d;\n" % (vpid.label, i)
             rv += "double lastPositions_vpid[%d];\ndouble Inputs_vpid[%d], Setpoints_vpid[%d], Outputs_vpid[%d];\n" % (length_vpids, length_vpids, length_vpids, length_vpids)
             rv += "vPID vpids[%d] = {\n" % (length_vpids)
-            for vpid in sself.vpidList:
+            for vpid in self.vpidList:
                 rv += "    vPID(&Inputs_vpid[%s_index], &Outputs_vpid[%s_index], &Setpoints_vpid[%s_index], %f, %f, %f, %s),\n" % (vpid.label, vpid.label, vpid.label, vpid.kp, vpid.ki, vpid.kd, "REVERSE" if vpid.reverse else "DIRECT")
             rv = rv[:-2] + "\n};\n"
 
-        length_pids = len(self.pids)
+        length_pids = len(self.pidList)
         if length_pids > 0:
             for i, pid in enumerate(self.pidList):
                 rv += "const char %s_index = %d;\n" % (pid.label, i)
-            rv += "double lastPositions_pid[%d];\ndouble Inputs_pid[%d], Setpoints_pid[%d], Outputs_pid[%d];\n" % (length_vpids, length_vpids, length_vpids, length_vpids)
+            rv += "double lastPositions_pid[%d];\ndouble Inputs_pid[%d], Setpoints_pid[%d], Outputs_pid[%d];\n" % (length_pids, length_pids, length_pids, length_pids)
             rv += "PID pids[%d] = {\n" % (length_pids)
             for pid in self.pidList:
-                rv += "    PID(&Inputs_pid[%s_index], &Outputs_pid[%s_index], &Setpoints_pid[%s_index], %f, %f, %f, %s),\n" % (vpid.label, vpid.label, vpid.label, vpid.kp, vpid.ki, vpid.kd, "REVERSE" if vpid.reverse else "DIRECT")
+                rv += "    PID(&Inputs_pid[%s_index], &Outputs_pid[%s_index], &Setpoints_pid[%s_index], %f, %f, %f, %s),\n" % (pid.label, pid.label, pid.label, pid.kp, pid.ki, pid.kd, "REVERSE" if pid.reverse else "DIRECT")
             rv = rv[:-2] + "\n};\n"
         return rv
 
@@ -79,10 +80,10 @@ class pidList:
         rv = ""
         for vpid in self.vpidList:
             if hasattr(vpid, 'minOutput'):
-                rv += "    vpids[%s_index].SetOutputLimits(%f, %f)\n" % (vpid.label, vpid.minOutput, vpid.maxOutput)
+                rv += "    vpids[%s_index].SetOutputLimits(%f, %f);\n" % (vpid.label, vpid.minOutput, vpid.maxOutput)
         for pid in self.pidList:
             if hasattr(pid, 'minOutput'):
-                rv += "    pids[%s_index].SetOutputLimits(%f, %f)\n" % (pid.label, pid.minOutput, pid.maxOutput)
+                rv += "    pids[%s_index].SetOutputLimits(%f, %f);\n" % (pid.label, pid.minOutput, pid.maxOutput)
         return rv
 
     def get_loop_functions(self):
@@ -138,11 +139,15 @@ class pidList:
       int indexNum = args[1].toInt();
       if (indexNum > -1 && indexNum < %d) {
         String ret = "";
-        ret += Inputs_pid[indexNum];
+        char dts[256];
+        dtostrf(Inputs_pid[indexNum], 0, 6, dts);
+        ret += dts;
         ret += " ";
-        ret += Setpoints_pid[indexNum];
+        dtostrf(Setpoints_pid[indexNUm], 0, 6, dts);
+        ret += dts;
         ret += " ";
-        ret += Outputs_pid[indexNum];
+        dtostrf(Outputs_pid[indexNum], 0, 6, dts);
+        ret += dts;
         Serial.println(ret);
         } else {
         Serial.println(F("error: usage - 'pd [index]'"));
@@ -199,11 +204,15 @@ class pidList:
       int indexNum = args[1].toInt();
       if (indexNum > -1 && indexNum < %d) {
         String ret = "";
-        ret += Inputs_vpid[indexNum];
+        char dts[256];
+        dtostrf(Inputs_vpid[indexNum], 0, 6, dts);
+        ret += dts;
         ret += " ";
-        ret += Setpoints_vpid[indexNum];
+        dtostrf(Setpoints_vpid[indexNum], 0, 6, dts);
+        ret += dts;
         ret += " ";
-        ret += Outputs_vpid[indexNum];
+        dtostrf(Outputs_vpid[indexNum], 0, 6, dts);
+        ret += dts;
         Serial.println(ret);
         } else {
         Serial.println(F("error: usage - 'vpd [index]'"));
