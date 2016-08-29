@@ -165,13 +165,14 @@ if __name__ == "__main__":
     # Collect command line arguments
     ap = argparse.ArgumentParser()
     ap.add_argument("-a", "--arduino", required=True, help="Name of the arduino")
+    ap.add_argument("-at", "--arduino-type", required=True, help="Type of arduino")
     ap.add_argument("-pf", "--parent_folder", required=True, help="Parent folder of the folder to put all the output files")
     ap.add_argument("-c", "--config", required=True, help="Location of the config json file")
     ap.add_argument("-b", "--build", required=False, help="Build the ino file into something that can be uploaded to the arduino")
     ap.add_argument("-u", "--upload", required=False, help="Build the ino file and upload that on to the arduino")
     args = vars(ap.parse_args())
 
-    ag = ArduinoGen()
+    ag = ArduinoGen(args['arduino'], args['arduino-type'])
     ag.setParentFolder(args['parent_folder'])
     ag.readConfig(args['config'])
     ag.generateOutput()
