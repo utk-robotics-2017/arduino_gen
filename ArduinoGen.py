@@ -64,12 +64,11 @@ class ArduinoGen:
                 break
             current_search_path += dir_list[0] + "/"
             current_import_path += "." + dir_list[0]
-            current_depth_index += 0
+            current_depth_index += 1
 
         self.device_dict = dict()
         for device_level in device_type:
             for json_item in json_data:
-
                 # Buttons and Limit Switches work the same as switches
                 if json_item['type'].lower() == 'limit_switch' or json_item['type'].lower() == 'button':
                     json_item['type'] = 'switch'
@@ -89,10 +88,10 @@ class ArduinoGen:
 
                 if json_item['type'] == 'arm':
                     self.device_dict[json_item['type']].add(json_item, self.device_dict['servo'])
-                elif json_item['type'] == 'velocityControlledMotors':
-                    self.device_dict[json_item['type']].add(json_item, self.device_dict['motor'], self.device_dict['i2cencoder'], self.device_dict['vpid'])
+                elif json_item['type'] == 'velocityControlledMotor':
+                    self.device_dict[json_item['type']].add(json_item, self.device_dict['motor'], self.device_dict['i2cencoder'], self.device_dict['pid'])
                 elif json_item['type'] == 'fourWheelDriveBase':
-                    self.device_dict[json_item['type']].add(json_item, self.device_dict['motor'], self.device_dict['velocitycontrolledmotor'])
+                    self.device_dict[json_item['type']].add(json_item, self.device_dict['motor'], self.device_dict['velocityControlledMotor'])
                 else:
                     self.device_dict[json_item['type']].add(json_item)
         fi.close()

@@ -9,6 +9,7 @@ import os.path
 
 import tornado.ioloop
 import tornado.websocket
+import tornado.httpserver
 
 from ArduinoGen import ArduinoGen
 
@@ -225,10 +226,18 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
 
         log(self.id, "disconnected")
 
+class SetupTLS(tornado.web.RequestHandler):
+    def get(self):
+        self.write("Please accept the TLS certificate to use websockets from this device.")
+
 def make_app():
-    return tornado.web.Application([
-        (r"/", arduinoGen)
-    ])
+    return tornado.httpserver.HTTPServer(tornado.web.Application([
+        (r"/", arduinoGen),
+        (r"/setuptls", SetupTLS)
+    ]), ssl_options={
+        "certfile": "/etc/ssl/certs/tornado.crt",
+        "keyfile": "/etc/ssl/certs/tornado.key"
+    })
 
 def sigInt_handler(signum, frame):
     print("Closing Server")
@@ -244,7 +253,7 @@ def sigInt_handler(signum, frame):
 
 if __name__ == "__main__":
     app = make_app()
-    app.listen(9000)
+    app.listen(port)
     signal.signal(signal.SIGINT, sigInt_handler)
     print("Pin: {:05d}".format(pin))
     tornado.ioloop.IOLoop.current().start()

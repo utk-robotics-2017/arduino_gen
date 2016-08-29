@@ -7,6 +7,7 @@ class ultrasonic:
 class ultrasonicList:
 
     def __init__(self):
+        self.tier = 1
         self.sensor_list = []
 
     def add(self, json_item):

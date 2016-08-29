@@ -9,6 +9,7 @@ class fourwheeldrivebase:
 
 class fourwheeldrivebaseList:
     def __init__(self):
+        self.tier = 3
         self.drivebase_list = []
 
     def add(self, json_item, motors, velocitycontrolledmotors):

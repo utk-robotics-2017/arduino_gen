@@ -10,6 +10,7 @@ class arm:
 
 class armList:
     def __init__(self):
+        self.tier = 2
         self.arm_list = []
 
     def add(self, json_item, servos):

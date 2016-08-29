@@ -6,6 +6,7 @@ class i2cencoder:
 
 class i2cencoderList:
     def __init__(self):
+        self.tier = 1
         self.sensors = dict()
         self.sorted_sensors = []
 
@@ -31,10 +32,7 @@ class i2cencoderList:
         rv = ""
         for i in range(len(self.sorted_sensors)):
             rv += "const char %s_index = %d;\n" % (self.sorted_sensors[i].label, i)
-        rv += "I2CEncoder i2cencoders[%d] = {\n" % (len(self.sorted_sensors))
-        for senso in self.sorted_sensors:
-            rv += "    I2CEncoder(),\n"
-        rv = rv[:-2] + "\n};\n"
+        rv += "I2CEncoder i2cencoders[%d];\n" % (len(self.sorted_sensors))
         return rv
 
     def get_setup(self):
