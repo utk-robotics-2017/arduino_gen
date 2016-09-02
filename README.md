@@ -1,3 +1,4 @@
+# ArduinoGen
 ArduinoGen is a program that using a configuration file containing all the appendages (sensors, actuators, systems) connected to the Arduino, writes Arduino code that works with the call-response nature of RIP's spine core.
 
 ## [Web Interface](https://utk-robotics-2017.github.io/ArduinoGen/index.html)
