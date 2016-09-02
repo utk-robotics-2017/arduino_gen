@@ -10,6 +10,27 @@ The web interface allows the generation of the config file by dragging appendage
 
 The backend of ArduinoGen works with the server, but also be included as a class into any python script as well as run via command line. This class generates the arduino code, and indices config file for RIP's spine core, a build script, a serial com script, and an upload script.
 
+### Usage
+```
+
+usage: ArduinoGen.py [-h] -a ARDUINO -pf PARENT_FOLDER -c CONFIG [-b BUILD] [-u UPLOAD]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -a ARDUINO, --arduino ARDUINO
+                        Name of the arduino
+  -pf PARENT_FOLDER, --parent_folder PARENT_FOLDER
+                        Parent folder of the folder to put all the output
+                        files
+  -c CONFIG, --config CONFIG
+                        Location of the config json file
+  -b BUILD, --build BUILD
+                        Build the ino file into something that can be uploaded
+                        to the Arduino
+  -u UPLOAD, --upload UPLOAD
+                        Build the ino file and upload that onto the Arduino
+
+```
 
 ## Current Arduino Code
 The current code on the Arduino is contained in the currentArduinoCode folder which should be in the root directory and a commit is made each time new Arduino code is put on an Arduino.
