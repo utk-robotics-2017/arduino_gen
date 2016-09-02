@@ -1,11 +1,24 @@
-# ArduinoGen
-Arduino Code Generator for the UTK IEEE Robotics Integrated Platform (RIP)
+ArduinoGen is a program that using a configuration file containing all the appendages (sensors, actuators, systems) connected to the Arduino, writes Arduino code that works with the call-response nature of RIP's spine core.
+
+## [Web Interface](https://utk-robotics-2017.github.io/ArduinoGen/index.html)
+[source](https://github.com/utk-robotics-2017/utk-robotics-2017.github.io/tree/master/ArduinoGen)
+
+The web interface allows the generation of the config file by dragging appendages into the list and setting their various parameters. If one of the raspberry pi's is running the server then it can be connected to and config files can be retrieved, posted to the pi, or written to the Arduino.
+
+## Backend
+
+The backend of ArduinoGen works with the server, but also be included as a class into any python script as well as run via command line. This class generates the arduino code, and indices config file for RIP's spine core, a build script, a serial com script, and an upload script.
 
 
-## [Front End](https://utk-robotics-2017.github.io/ArduinoGen/index.html)
-A web interface that allows the user to input what sensors, actuators, and systems they want connected to their arduino, what pins are being used, and any other information specific to the sensors, actuators, or systems selected. A configuration file (in json) is created based on the inputs.
+## Current Arduino Code
+The current code on the Arduino is contained in the currentArduinoCode folder which should be in the root directory and a commit is made each time new Arduino code is put on an Arduino.
 
-## Back End
-The configuration file is then used to autogenerate Arduino code that supports the command response system implemented by the UTK IEEE Robot Team's Robotics Integrated Platform.
+## Arduino Libraries
+All libraries that are to be used with the Arduino Code should be in ArduinoLibraries which should be in the root directory.
 
-python ArduinoGen.py -a <arduino> -at <arduino-type> -pf <parent folder> -c <config file> [-b <build>] [-u <upload>]
+## Building and Uploading
+Building and uploading use a modified version of the ino library. Our modification cause the library to check the ArduinoLibraries folder for includes.
+
+## Serial Communication
+Currently, we are using picocom to manually communicate with the Arduino. Ctrl-X, Ctrl-A is how you exit.
+However, we are working on ArduinoCom as a replacement to picocom.
