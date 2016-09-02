@@ -20,11 +20,8 @@ class encoderList:
     def get(self, label):
         return self.encoderDict['label']
 
-    def get_include(self):
-        return "#include \"Encoder.h\""
-
-    def get_include_files(self):
-        return []
+    def get_includes(self):
+        return '#include "Encoder.h"\n'
 
     def get_pins(self):
         rv = ""
@@ -85,3 +82,7 @@ class encoderList:
 
     def get_extra_functions(self):
         return ""
+
+    def get_indices(self):
+        for i, encoder in enumerate(self.encoderList):
+            yield i, encoder

@@ -17,9 +17,6 @@ class switchList:
     def get_include(self):
         return ""
 
-    def get_include_files(self):
-        return []
-
     def get_pins(self):
         rv = ""
         for sensor in self.switchList:
@@ -66,3 +63,7 @@ class switchList:
 
     def get_extra_functions(self):
         return ""
+
+    def get_indices(self):
+        for i, switch in enumerate(self.switchList):
+            yield i, switch

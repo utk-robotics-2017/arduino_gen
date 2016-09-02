@@ -13,12 +13,11 @@ from generator import Generator
 
 # Import all the files in appendages
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
-
+CURRENT_ARDUINO_CODE_DIR = "/currentArduinoCode/"
 
 class ArduinoGen:
-    def __init__(self, arduino, arduinoType):
+    def __init__(self, arduino):
         self.arduino = arduino
-        self.arduinoType = arduinoType
 
     def setParentFolder(self, parentFolder):
         self.folder = "%s/%s" % (parentFolder, self.arduino)
@@ -89,7 +88,7 @@ class ArduinoGen:
                 if json_item['type'] == 'arm':
                     self.device_dict[json_item['type']].add(json_item, self.device_dict['servo'])
                 elif json_item['type'] == 'velocityControlledMotor':
-                    self.device_dict[json_item['type']].add(json_item, self.device_dict['motor'], self.device_dict['i2cencoder'], self.device_dict['pid'])
+                    self.device_dict[json_item['type']].add(json_item, self.device_dict['motor'], self.device_dict['i2cencoder'] if 'i2cencoder' in self.device_dict else None, self.device_dict['encoder'] if 'encoder' in self.device_dict else None, self.device_dict['pid'])
                 elif json_item['type'] == 'fourWheelDriveBase':
                     self.device_dict[json_item['type']].add(json_item, self.device_dict['motor'], self.device_dict['velocityControlledMotor'])
                 else:
@@ -134,10 +133,11 @@ class ArduinoGen:
         fo.close()
         os.chmod("%s/src/%s.ino" % (self.folder, self.arduino), 0777)
 
-        print "\tCopying include files"
-        gen.copy_include_files(self.folder)
+        print "\tWriting indices file"
+        gen.write_indices_file(self.folder, self.arduino)
+
         print "\tWriting build, serial, and upload shell scripts"
-        gen.write_shell_scripts(self.folder, self.arduino, self.arduinoType)
+        gen.write_shell_scripts(self.folder, self.arduino)
         print "Done"
         print "Your output can be found at %s" % (self.folder)
 
@@ -148,7 +148,7 @@ class ArduinoGen:
             sys.exit()
         print "Building..."
         os.chdir("%s/%s" % (self.folder, self.arduino))
-        os.system("sh build.sh")
+        os.system("ino build")
         print "Done"
 
     def upload(self):
@@ -156,22 +156,29 @@ class ArduinoGen:
             print "Parent folder has not been set"
             sys.exit()
         print "Uploading..."
-        os.chdir(self.folder)
-        os.system("sh upload_copy.sh")
+        ino_ini = open("%s%s/ino.ini" % (CURRENT_ARDUINO_CODE_DIR, self.arduino), 'r')
+        ino_ini_text = ino_ini.read()
+        shutil.rmtree("%s%s" % (CURRENT_ARDUINO_CODE_DIR, self.arduino))
+        shutil.copytree(self.folder, "%s%s" % (CURRENT_ARDUINO_CODE_DIR, self.arduino))
+        ino_ini = open("%s%s/ino.ini" % (CURRENT_ARDUINO_CODE_DIR, self.arduino), 'w')
+        ino_ini.write(ino_ini_text)
+        os.chmod("%s%s/ino.ini" % (CURRENT_ARDUINO_CODE_DIR, self.arduino), 0777)
+                
+        os.chdir("%s%s" % (CURRENT_ARDUINO_CODE_DIR, self.arduino))
+        os.system("sh upload.sh")
         print "Done"
 
 if __name__ == "__main__":
     # Collect command line arguments
     ap = argparse.ArgumentParser()
     ap.add_argument("-a", "--arduino", required=True, help="Name of the arduino")
-    ap.add_argument("-at", "--arduino-type", required=True, help="Type of arduino")
     ap.add_argument("-pf", "--parent_folder", required=True, help="Parent folder of the folder to put all the output files")
     ap.add_argument("-c", "--config", required=True, help="Location of the config json file")
     ap.add_argument("-b", "--build", required=False, help="Build the ino file into something that can be uploaded to the arduino")
     ap.add_argument("-u", "--upload", required=False, help="Build the ino file and upload that on to the arduino")
     args = vars(ap.parse_args())
 
-    ag = ArduinoGen(args['arduino'], args['arduino-type'])
+    ag = ArduinoGen(args['arduino'])
     ag.setParentFolder(args['parent_folder'])
     ag.readConfig(args['config'])
     ag.generateOutput()

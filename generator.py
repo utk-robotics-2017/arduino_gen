@@ -37,14 +37,6 @@ class Generator:
 
         return rv
 
-    def copy_include_files(self, directory):
-        keys = self.appendage_dict.keys()
-        for key in keys:
-            includes = self.appendage_dict[key].get_include_files()
-            for include in includes:
-                shutil.copyfile("%s/includes/%s" % (CURRENT_DIR, include) , "%s/src/%s" % (directory, include))
-                os.chmod("%s/src/%s" % (directory, include), 0777)
-
     def add_pins(self):
         rv = "// Pin definitions\nconst char LED = 13;\n"
         keys = self.appendage_dict.keys()
@@ -239,45 +231,36 @@ void parseAndExecuteCommand(String command) {
   return atof(buf);
 }'''
         keys = self.appendage_dict.keys()
-        for key in keys:
-            rv = rv + self.appendage_dict[key].get_extra_functions()
+        for appendage in self.appendage_dict.values():
+            rv += self.appendage.get_extra_functions()
         return rv
 
-    def write_shell_scripts(self, writeTo, arduino, arduinoType):
-        build_fo = open("%s/build.sh" % writeTo, 'w')
-        build_fo.write("#!/usr/bin/env bash\n")
-        build_fo.write("\n")
-        build_fo.write('ino build -m %s --cppflags="-D __USER__=`whoami` -D __DIR_`pwd` -D __GIT_HASH__=`git rev-parse HEAD`"\n' % arduinoType)
-        build_fo.close()
-        os.chmod("%s/build.sh" % writeTo, 0777)
-
+    def write_shell_scripts(self, writeTo, arduino):
         upload_fo = open("%s/upload.sh" % writeTo, 'w')
         upload_fo.write("#!/usr/bin/env bash\n")
-        upload_fo.write("sh build.sh\n")
+        upload_fo.write("ino build\n")
         upload_fo.write("git add -A\n")
         upload_fo.write('git commit -m "new uploaded arduino code for %s"\n' % arduino)
         upload_fo.write("git push\n")
-        upload_fo.write("ino upload -m %s -p /dev/%s\n" % (arduinoType, arduino))
+        upload_fo.write("ino upload\n")
         upload_fo.close()
         os.chmod("%s/upload.sh" % writeTo, 0777)
-
-        upload_copy_fo = open("%s/upload_copy.sh" % writeTo, 'w')
-        upload_copy_fo.write("#!/usr/bin/env bash\n")
-        upload_copy_fo.write("find %s/%s/* -not -name 'ProductName' -delete\n" % (CURRENT_ARDUINO_CODE_DIR, arduino))
-        upload_copy_fo.write("cp -r %s %s\n" % (writeTo, CURRENT_ARDUINO_CODE_DIR))
-        upload_copy_fo.write("cd %s/%s\n" % (CURRENT_ARDUINO_CODE_DIR, arduino))
-        upload_copy_fo.write("sh build.sh\n")
-        upload_copy_fo.write("rm upload_copy.sh\n")
-        upload_copy_fo.write("git add -A\n")
-        upload_copy_fo.write('git commit -m "new uploaded arduino code for %s"\n' % arduino)
-        upload_copy_fo.write('git push\n')
-        upload_copy_fo.write("ino upload -m %s -p /dev/%s\n" % (arduinoType, arduino))
-        upload_copy_fo.write("chmod -R +0777 .")
-        upload_copy_fo.close()
-        os.chmod("%s/upload_copy.sh" % writeTo, 0777)
 
         serial_fo = open("%s/serial.sh" % writeTo, 'w')
         serial_fo.write("#!/usr/bin/env bash\n")
         serial_fo.write("picocom /dev/%s -b 115200 --echo\n" % arduino)
         serial_fo.close()
         os.chmod("%s/serial.sh" % writeTo, 0777)
+    
+    def write_indices_file(self, writeTo, arduino):
+        indices = {}
+        for appendages in self.appendage_dict.values():
+            for i, appendaage in appendages.get_indices:
+                indices[appendage.label] = i
+        
+        indices_text = json.dumps(indices)
+
+        indices_fo = open("%s/%s_indices.json" % (writeTo, arduino), 'w')
+        indices_fo.write(indices_text)
+        indices_fo.close()
+        os.chmod("%s/%s_indices.json" % (writeTo, arduino), 'w')

@@ -32,7 +32,7 @@ void VelocityControlledMotor::setValue(int value)
 	
 void VelocityControlledMotor::setVelocity(double velocity);
 {
-	setpoint = velocity;
+	*setpoint = velocity;
 	vpid.setMode(AUTO);
 }
 
@@ -44,10 +44,10 @@ void VelocityControlledMotor::stop()
 
 void VelocityControlledMotor::runVPID()
 {
-	input = getVelocity();
+	*input = getVelocity();
 	char updated = vpid.calculate();
 	if(updated) {
-		motor.drive(output);
+		motor.drive(*output);
 	}
 }
 

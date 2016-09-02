@@ -22,9 +22,6 @@ class i2cencoderList:
     def get_include(self):
         return "#include <Wire.h>\n#include \"I2CEncoder.h\""
 
-    def get_include_files(self):
-        return ['I2CEncoder.h', 'I2CEncoder.cpp']
-
     def get_pins(self):
         return ""
 
@@ -127,3 +124,7 @@ class i2cencoderList:
 
     def get_extra_functions(self):
         return ""
+
+    def get_indices(self):
+        for i, i2cencoder in enumerate(self.sorted_sensors):
+            yield i, i2cencoder

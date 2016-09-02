@@ -47,9 +47,6 @@ class pidList:
     def get_include(self):
         return "#include \"PID.h\"\n#include \"vPID.h\""
 
-    def get_include_files(self):
-        return ['PID.h', 'PID.cpp', 'vPID.h', 'vPID.cpp']
-
     def get_pins(self):
         return ""
 
@@ -227,3 +224,9 @@ class pidList:
     # extra functions for loop are written by the systems using the pid
     def get_extra_functions(self):
         return ""
+
+    def get_indices(self):
+        for i, vpid in enumerate(self.vpidList):
+            yield i, vpid
+        for i, pid in enumerate(self.pidList):
+            yield i, pid

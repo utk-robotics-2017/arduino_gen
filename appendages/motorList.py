@@ -30,9 +30,6 @@ class motorList:
     def get_include(self):
         return "#include \"Motor.h\""
 
-    def get_include_files(self):
-        return ['Motor.h', 'Motor.cpp']
-
     def get_pins(self):
         return ""
 
@@ -95,3 +92,7 @@ class motorList:
 
     def get_extra_functions(self):
         return ""
+
+    def get_indices(self):
+        for i, motor in enumerate(self.motorList):
+            yield i, motor

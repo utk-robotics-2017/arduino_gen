@@ -20,16 +20,11 @@ class stepperList:
         self.stepperList.append(stepper)
         self.stepperList.sort(key=lambda x: x.label, reverse=False)
 
-
-
     def get(self, label):
         return self.actuators[label]
 
     def get_include(self):
         return "#include \"Stepper.h\""
-
-    def get_include_files(self):
-        return ""
 
     def get_pins(self):
         rv = ""
@@ -98,5 +93,9 @@ else if(args[0].equals(String("sss"))){ // step stepper
 }
 ''' % (len(self.stepperList), len(self.stepperList))
 
-def get_extra_functions(self):
-    return ""
+    def get_extra_functions(self):
+        return ""
+
+    def get_indices(self):
+        for i, stepper in enumerate(self.stepperList):
+            yield i, stepper

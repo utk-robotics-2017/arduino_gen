@@ -31,9 +31,6 @@ class fourwheeldrivebaseList:
     def get_includes(self):
         return "#include \"FourWheelDrive.h\""
 
-    def get_include_files(self):
-        return ['FourWheelDrive.h', 'FourWheelDrive.cpp']
-
     def get_pins(self):
         return ""
 
@@ -140,3 +137,7 @@ class fourwheeldrivebaseList:
 
     def get_extra_functions(self):
         return ""
+
+    def get_indices(self):
+        for i, drivebase in enumerate(self.drivebase_list):
+            yield i, drivebase

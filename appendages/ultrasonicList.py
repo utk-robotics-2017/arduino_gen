@@ -16,23 +16,20 @@ class ultrasonicList:
     def get_include(self):
         return "#include \"NewPing.h\""
 
-    def get_include_files(self):
-        return []
-
     def get_pins(self):
         rv = ""
         for sensor in self.sensor_list:
-            rv = rv + "const char %s_pin = %d;\n" % (sensor.label, sensor.pin)
+            rv += "const char %s_pin = %d;\n" % (sensor.label, sensor.pin)
         return rv
 
     def get_constructor(self):
         rv = ""
         for i in range(len(self.sensor_list)):
-            rv = rv + "const char %s_index = %d;\n" % (self.sensor_list[i].label, i)
-        rv = rv + "NewPing ultrasonics[%d] = {\n" % len(self.sensor_list)
+            rv += "const char %s_index = %d;\n" % (self.sensor_list[i].label, i)
+        rv += "NewPing ultrasonics[%d] = {\n" % len(self.sensor_list)
 
         for sensor in self.sensor_list:
-            rv = rv + "    NewPing(%s_pin, %s_pin),\n" % (sensor.label, sensor.label)
+            rv +="    NewPing(%s_pin, %s_pin),\n" % (sensor.label, sensor.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
@@ -60,3 +57,7 @@ class ultrasonicList:
 
     def get_extra_functions(self):
         return ""
+
+    def get_indices(self):
+        for i, ultrasonic in enumerate(self.sensor_list):
+            yield i, ultrasonic

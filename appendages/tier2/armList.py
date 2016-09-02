@@ -26,9 +26,6 @@ class armList:
     def get_include(self):
         return "#include \"Arm.h\";"
 
-    def get_include_files(self):
-        return ['Arm.h', 'Arm.cpp']
-
     def get_pins(self):
         return ""
 
@@ -79,3 +76,7 @@ class armList:
 
     def get_extra_functions(self):
         return ""
+
+    def get_indices(self):
+        for i, arm in enumerate(self.armList):
+            yield i, arm

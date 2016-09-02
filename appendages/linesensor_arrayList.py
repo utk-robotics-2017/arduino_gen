@@ -20,9 +20,6 @@ class linesensor_arrayList:
     def get_include(self):
         return "#include \"QTRSensors.h\""
 
-    def get_include_files(self):
-        return ['QTRSensors.h', 'QTRSensors.cpp']
-
     def get_pins(self):
         return ""
 

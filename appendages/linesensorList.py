@@ -19,9 +19,6 @@ class linesensorList:
     def get_include(self):
         return ""
 
-    def get_include_files(self):
-        return []
-
     def get_pins(self):
         rv = ""
         for sensor in self.digital_sensor_list:
@@ -99,3 +96,9 @@ class linesensorList:
 
     def get_extra_functions(self):
         return ""
+
+    def get_indices(self):
+        for i, linesensor in enumerate(self.digital_sensor_list):
+            yield i, linesensor
+        for i, linesensor in enumerate(self.analog_sensor_list):
+            yield i, linesensor

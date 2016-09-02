@@ -22,9 +22,6 @@ class servoList:
     def get_include(self):
         return "#include \"Servo.h\""
 
-    def get_include_files(self):
-        return []
-
     def get_pins(self):
         rv = ""
         for actuator in self.servoList:
@@ -90,3 +87,7 @@ class servoList:
 
     def get_extra_functions(self):
         return ""
+    
+    def get_indices(self):
+        for i, servo in enumerate(self.servoList):
+            yield i, servo

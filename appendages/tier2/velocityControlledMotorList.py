@@ -1,3 +1,5 @@
+from ..i2cencoderList import i2cencoder
+
 class velocitycontrolledmotor:
     def __init__(self, label, motor, encoder, vpid):
         self.label = label
@@ -12,9 +14,13 @@ class velocityControlledMotorList:
         self.vcmDict = {}
         self.vcmList = []
 
-    def add(self, json_item, motors, encoders, vpids):
+    def add(self, json_item, motors, i2cencoders, encoders, vpids):
         motor = motors.get(json_item['motor_label'])
-        encoder = encoders.get(json_item['encoder_label'])
+        encoder = None
+        if not i2cencoders is None:
+            encoder = i2cencoders.get(json_item['encoder_label'])
+        if encoder is None:
+            encoder = encoders.get(json_item['encoder_label'])
         vpid = vpids.get(json_item['vpid_label'])
         vcm = velocitycontrolledmotor(json_item['label'], motor, encoder, vpid)
         self.vcmDict[json_item['label']] = vcm
@@ -24,16 +30,16 @@ class velocityControlledMotorList:
     def get_include(self):
         return "#include \"VelocityControlledMotor.h\";"
 
-    def get_include_files(self):
-        return ['VelocityControlledMotor.h', 'VelocityControlledMotor.cpp']
-
     def get_pins(self):
         return ""
 
     def get_constructor(self):
         rv = "VelocityControlledMotor vcms[%d] = {\n" % len(self.vcmList)
         for vcm in self.vcmList:
-            rv += "    VelocityControlledMotor(motors[%s_index], i2cencoders[%s_index], vpids[%s_index]),\n" % (vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
+            if isinstance(vcm.encoder, i2cencoder):
+                rv += "    VelocityControlledMotor(motors[%s_index], i2cencoders[%s_index], vpids[%s_index], &Inputs_vpid[%s_index], &Setpoints_vpid[%s_index], &Outputs_vpid[%s_index]),\n" % (vcm.motor.label, vcm.encoder.label, vcm.vpid.label, vcm.vpid.label, vcm.vpid.label, vcm.vpid.label)
+            else:
+                rv += "    VelocityControlledMotor(motors[%s_index], encoders[%s_index], vpids[%s_index], &Inputs_vpid[%s_index], &Setpoints_vpid[%s_index], &Outputs_vpid[%s_index]),\n" % (vcm.motor.label, vcm.encoder.label, vcm.vpid.label, vcm.vpid.label, vcm.vpid.label, vcm.vpid.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
@@ -80,7 +86,7 @@ class velocityControlledMotorList:
         if(numArgs == 2) {
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < %d) {
-                vcms[indexNum].setValue(toDouble(velcity));
+                vcms[indexNum].setVelocity(toDouble(args[2]));
                 Serial.println("ok");
             } else {
                 Serial.println("Error: usage - vcms [id]");
@@ -121,3 +127,7 @@ class velocityControlledMotorList:
 
     def get_extra_functions(self):
         return ""
+
+    def get_indices(self):
+        for i, vcm in enumerate(self.vcmList):
+            yield i, vcm
