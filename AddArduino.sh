@@ -119,19 +119,19 @@ udevRulePath="/etc/udev/rules.d/100-$devName-usb-serial.rules"
 echo $udevRule > $udevRulePath
 udevadm trigger
 
-mkdir "/currentArduinoCode/$devName" -m 777
+mkdir "/CurrentArduinoCode/$devName" -m 777
 
-productName="[UNKNOWN PRODUCT]"
+boardModel="[UNKNOWN PRODUCT]"
 case $devProduct in
     0010)
-        productName="mega2560"
+        boardModel="mega2560"
         ;;
     0042)
-        productName="mega2560"
+        boardModel="mega2560"
         ;;
     0043)
-        productName="uno"
+        boardModel="uno"
         ;;
 esac
 
-echo $productName > "/currentArduinoCode/$devName/ProductName"
+printf 'board-model = %s\nserial-port = /dev/%s' "$boardModel" "$devName"  > "/CurrentArduinoCode/$devName/ino.ini"
