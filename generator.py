@@ -2,6 +2,7 @@ import os
 import shutil
 import fileinput
 import getpass
+import json
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 CURRENT_ARDUINO_CODE_DIR = "/CurrentArduinoCode"
@@ -232,7 +233,7 @@ void parseAndExecuteCommand(String command) {
 }'''
         keys = self.appendage_dict.keys()
         for appendage in self.appendage_dict.values():
-            rv += self.appendage.get_extra_functions()
+            rv += appendage.get_extra_functions()
         return rv
 
     def write_shell_scripts(self, writeTo, arduino):
@@ -255,7 +256,7 @@ void parseAndExecuteCommand(String command) {
     def write_indices_file(self, writeTo, arduino):
         indices = {}
         for appendages in self.appendage_dict.values():
-            for i, appendaage in appendages.get_indices:
+            for i, appendage in appendages.get_indices():
                 indices[appendage.label] = i
         
         indices_text = json.dumps(indices)
@@ -263,4 +264,4 @@ void parseAndExecuteCommand(String command) {
         indices_fo = open("%s/%s_indices.json" % (writeTo, arduino), 'w')
         indices_fo.write(indices_text)
         indices_fo.close()
-        os.chmod("%s/%s_indices.json" % (writeTo, arduino), 'w')
+        os.chmod("%s/%s_indices.json" % (writeTo, arduino), 0777)

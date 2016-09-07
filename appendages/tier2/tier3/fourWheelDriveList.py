@@ -1,4 +1,4 @@
-class fourwheeldrivebase:
+class FourWheelDrive:
     def __init__(self, label, useVelocityControl, lf_motor, rf_motor, lb_motor, rb_motor):
         self.lf_motor = lf_motor
         self.rf_motor = rf_motor
@@ -7,10 +7,10 @@ class fourwheeldrivebase:
         self.useVelocityControl = useVelocityControl
 
 
-class fourwheeldrivebaseList:
+class fourWheelDriveList:
     def __init__(self):
         self.tier = 3
-        self.drivebase_list = []
+        self.drive_list = []
 
     def add(self, json_item, motors, velocitycontrolledmotors):
         useVelocityControl = json_item['useVelocityControl']
@@ -26,7 +26,7 @@ class fourwheeldrivebaseList:
             lb_motor = motors.get[json_item['leftBackDriveMotor']]
             rb_motor = motors.get[json_item['rightBackDriveMotor']]
 
-        self.drivebase_list.append(fourwheeldrivebase(json_item['label'], useVelocityControl, lf_motor, rf_motor, lb_motor, rb_motor))
+        self.drive_list.append(FourWheelDrive(json_item['label'], useVelocityControl, lf_motor, rf_motor, lb_motor, rb_motor))
 
     def get_includes(self):
         return "#include \"FourWheelDrive.h\""
@@ -38,9 +38,9 @@ class fourwheeldrivebaseList:
         rv = "FourWheelDrive fwds = {\n" % len(self.drivebase_list)
         for drivebase in self.drivebase_list:
             if drivebase.useVelocityControl:
-                rv += "    FourWheelDrive(vcms[%s_index], vcms[%s_index], vcms[%s_index], vcms[%s_index]),\n" % (drivebase.lf_motor.label, drivebase.rf_motor.label, drivebase.lb_motor.label, drivebase.rb_motor.label)
+                rv += "    FourWheelDrive(&vcms[%s_index], &vcms[%s_index], &vcms[%s_index], &vcms[%s_index]),\n" % (drivebase.lf_motor.label, drivebase.rf_motor.label, drivebase.lb_motor.label, drivebase.rb_motor.label)
             else:
-                rv += "    FourWheelDrive(motors[%s_index], motors[%s_index], motors[%s_index], motors[%s_index]),\n" % (drivebase.lf_motor.label, drivebase.rf_motor.label, drivebase.lb_motor.label, drivebase.rb_motor.label)
+                rv += "    FourWheelDrive(&motors[%s_index], &motors[%s_index], &motors[%s_index], &motors[%s_index]),\n" % (drivebase.lf_motor.label, drivebase.rf_motor.label, drivebase.lb_motor.label, drivebase.rb_motor.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
