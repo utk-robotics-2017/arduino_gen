@@ -39,7 +39,7 @@ class pidList:
 
 
     def get(self, label):
-        if label in list(self.vpidDict.keys()):
+        if label in self.vpidDict.keys():
             return self.vpidDict[label]
         else:
             return self.pidDict[label]

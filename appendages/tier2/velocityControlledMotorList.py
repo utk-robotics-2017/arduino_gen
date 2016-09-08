@@ -83,7 +83,7 @@ class velocityControlledMotorList:
         }
     }
     else if(args[0].equals(String("vcmsv"))){ // set velocity controlled motor's velocity
-        if(numArgs == 2) {
+        if(numArgs == 3) {
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < %d) {
                 vcms[indexNum].setVelocity(toDouble(args[2]));

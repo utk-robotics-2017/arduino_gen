@@ -9,7 +9,7 @@ import os
 import importlib
 import glob
 
-from generator import Generator
+from Generator import Generator
 
 # Import all the files in appendages
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -24,23 +24,23 @@ class ArduinoGen:
 
     def setupFolder(self):
         if not hasattr(self, 'folder'):
-            print "Folder has not been set"
+            print("Folder has not been set")
             sys.exit()
-        print "Making directory...",
+        print("Making directory...", end=' ')
         if os.path.exists(self.folder):
             shutil.rmtree(self.folder)
-        os.makedirs(self.folder, 0777)
-        os.chmod(self.folder, 0777)
-        os.makedirs("%s/src" % self.folder, 0777)
-        os.chmod("%s/src" % self.folder, 0777)
-        print "Done"
+        os.makedirs(self.folder, 0o777)
+        os.chmod(self.folder, 0o777)
+        os.makedirs("%s/src" % self.folder, 0o777)
+        os.chmod("%s/src" % self.folder, 0o777)
+        print("Done")
 
     def readConfig(self, f, copy=True):
         if copy:
             shutil.copyfile(f, "%s/%s.json" % (self.folder, self.arduino))
-            os.chmod("%s/%s.json" % (self.folder, self.arduino), 0777)
+            os.chmod("%s/%s.json" % (self.folder, self.arduino), 0o777)
 
-        print "Reading config file...",
+        print("Reading config file...", end=' ')
         fi = open(f)
         file_text = fi.read()
         json_data = json.loads(file_text)
@@ -94,79 +94,79 @@ class ArduinoGen:
                 else:
                     self.device_dict[json_item['type']].add(json_item)
         fi.close()
-        print "Done"
+        print("Done")
 
     def generateOutput(self):
         if not hasattr(self, 'folder'):
-            print "Parent folder has not been set"
+            print("Parent folder has not been set")
             sys.exit()
         elif not hasattr(self, 'device_dict'):
-            print "Config file has not been read"
+            print("Config file has not been read")
             sys.exit()
 
-        print "Generating output..."
+        print("Generating output...")
         fo = open("%s/src/%s.ino" % (self.folder, self.arduino), 'w')
         gen = Generator(self.device_dict)
-        print "\tWriting headers"
+        print("\tWriting headers")
         fo.write(gen.add_header())
-        print "\tWriting includes"
+        print("\tWriting includes")
         fo.write(gen.add_includes())
-        print "\tWriting pins"
+        print("\tWriting pins")
         fo.write(gen.add_pins())
-        print "\tWriting constructors"
+        print("\tWriting constructors")
         fo.write(gen.add_constructors())
-        print "\tWriting setup"
+        print("\tWriting setup")
         fo.write(gen.add_setup())
-        print "\tWriting loop"
+        print("\tWriting loop")
         fo.write(gen.add_loop())
-        print "\tWriting parse args"
+        print("\tWriting parse args")
         fo.write(gen.add_parse_args())
-        print "\tWriting check input"
+        print("\tWriting check input")
         fo.write(gen.add_check_input())
-        print "\tWriting parse and execute command"
+        print("\tWriting parse and execute command")
         fo.write(gen.add_parse_and_execute_command_beginning())
         fo.write(gen.add_commands())
         fo.write(gen.add_parse_and_execute_command_ending())
-        print "\tWriting extra functions"
+        print("\tWriting extra functions")
         fo.write(gen.add_extra_functions())
         fo.write("\n")
         fo.close()
-        os.chmod("%s/src/%s.ino" % (self.folder, self.arduino), 0777)
+        os.chmod("%s/src/%s.ino" % (self.folder, self.arduino), 0o777)
 
-        print "\tWriting indices file"
+        print("\tWriting indices file")
         gen.write_indices_file(self.folder, self.arduino)
 
-        print "\tWriting build, serial, and upload shell scripts"
+        print("\tWriting build, serial, and upload shell scripts")
         gen.write_shell_scripts(self.folder, self.arduino)
-        print "Done"
-        print "Your output can be found at %s" % (self.folder)
+        print("Done")
+        print("Your output can be found at %s" % (self.folder))
 
 
     def build(self):
         if not hasattr(self, 'folder'):
-            print "Parent folder has not been set"
+            print("Parent folder has not been set")
             sys.exit()
-        print "Building..."
+        print("Building...")
         os.chdir("%s/%s" % (self.folder, self.arduino))
         os.system("ino build")
-        print "Done"
+        print("Done")
 
     def upload(self):
         if not hasattr(self, 'folder'):
-            print "Parent folder has not been set"
+            print("Parent folder has not been set")
             sys.exit()
-        print "Uploading..."
+        print("Uploading...")
         ino_ini = open("%s%s/ino.ini" % (CURRENT_ARDUINO_CODE_DIR, self.arduino), 'r')
         ino_ini_text = ino_ini.read()
         shutil.rmtree("%s%s" % (CURRENT_ARDUINO_CODE_DIR, self.arduino))
         shutil.copytree(self.folder, "%s%s" % (CURRENT_ARDUINO_CODE_DIR, self.arduino))
         ino_ini = open("%s%s/ino.ini" % (CURRENT_ARDUINO_CODE_DIR, self.arduino), 'w')
         ino_ini.write(ino_ini_text)
-        os.chmod("%s%s/ino.ini" % (CURRENT_ARDUINO_CODE_DIR, self.arduino), 0777)
+        os.chmod("%s%s/ino.ini" % (CURRENT_ARDUINO_CODE_DIR, self.arduino), 0o777)
                 
         os.chdir("%s%s" % (CURRENT_ARDUINO_CODE_DIR, self.arduino))
         os.system("sh upload.sh")
-        print "Done"
+        print("Done")
 
 if __name__ == "__main__":
     # Collect command line arguments

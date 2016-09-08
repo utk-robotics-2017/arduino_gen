@@ -40,7 +40,7 @@ for arduino in arduinos:
     arduino["locked"] = os.path.exists(lockFolderAbsPath + "/" + arduino["name"] + ".lck")
 
 def log(wsId, message):
-    print(("{}\tClient {:2d}\t{}".format(time.strftime("%H:%M:%S", time.localtime()), wsId, message)))
+    print("{}\tClient {:2d}\t{}".format(time.strftime("%H:%M:%S", time.localtime()), wsId, message))
 
 class arduinoGen(tornado.websocket.WebSocketHandler):
     def check_origin(self, origin):
@@ -85,7 +85,7 @@ class arduinoGen(tornado.websocket.WebSocketHandler):
                 else:
                     devName = message[len(cmd):]
 
-                    dev = list([x for x in arduinos if x["name"] == devName])
+                    dev = list(filter(lambda x: x["name"] == devName, arduinos))
                     if len(dev):
                         dev = dev[0]
                     else:
@@ -253,5 +253,5 @@ if __name__ == "__main__":
     app = make_app()
     app.listen(port)
     signal.signal(signal.SIGINT, sigInt_handler)
-    print(("Pin: {:05d}".format(pin)))
+    print("Pin: {:05d}".format(pin))
     tornado.ioloop.IOLoop.current().start()
