@@ -26,7 +26,7 @@ class ArduinoGen:
         if not hasattr(self, 'folder'):
             print("Folder has not been set")
             sys.exit()
-        print("Making directory...", end=' ')
+        print("Making directory...")
         if os.path.exists(self.folder):
             shutil.rmtree(self.folder)
         os.makedirs(self.folder, 0o777)
@@ -40,7 +40,7 @@ class ArduinoGen:
             shutil.copyfile(f, "%s/%s.json" % (self.folder, self.arduino))
             os.chmod("%s/%s.json" % (self.folder, self.arduino), 0o777)
 
-        print("Reading config file...", end=' ')
+        print("Reading config file...")
         fi = open(f)
         file_text = fi.read()
         json_data = json.loads(file_text)
