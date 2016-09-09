@@ -22,9 +22,9 @@ class linesensorList:
     def get_pins(self):
         rv = ""
         for sensor in self.digital_sensor_list:
-            rv = rv + "const char %s_pin = %d;\n" % (sensor.label, sensor.pin)
+            rv += "const char {}_pin = {};\n".format(sensor.label, sensor.pin)
         for sensor in self.analog_sensor_list:
-            rv = rv + "const char %s_pin = %d;\n" % (sensor.label, sensor.pin)
+            rv += "const char {}_pin = {};\n".format(sensor.label, sensor.pin)
         return rv
 
     def get_constructor(self):
@@ -32,23 +32,23 @@ class linesensorList:
 
         if(len(self.digital_sensor_list) > 0):
             for i in range(len(self.digital_sensor_list)):
-                rv = rv + "const char %s_index = %d;\n" % (self.digital_sensor_list[i].label, i)
+                rv += "const char {}_index = {};\n".format(self.digital_sensor_list[i].label, i)
 
-            rv = "char digital_linesensors[%d] = {\n" % (len(self.digital_sensor_list))
+            rv += "char digital_linesensors[{}] = {\n".format(len(self.digital_sensor_list))
 
             for sensor in self.digital_sensor_list:
-                rv = rv + ("    %s_pin,\n") % (sensor.label)
+                rv += ("    {}_pin,\n").format(sensor.label)
 
             rv = rv[:-2] + "\n};\n"
 
         if(len(self.analog_sensor_list) > 0):
             for i in range(len(self.analog_sensor_list)):
-                rv = rv + "const char %s_index = %d;\n" % (self.analog_sensor_list[i].label, i)
+                rv += "const char {}_index = {};\n".format(self.analog_sensor_list[i].label, i)
 
-            rv = "char analog_linesensors[%d] = {\n" % (len(self.analog_sensor_list))
+            rv += "char analog_linesensors[{}] = {\n".format(len(self.analog_sensor_list))
 
             for sensor in self.analog_sensor_list:
-                rv = rv + ("    %s_pin,\n") % (sensor.label)
+                rv += ("    {}_pin,\n").format(sensor.label)
 
             rv = rv[:-2] + "\n};\n"
 
@@ -66,7 +66,7 @@ class linesensorList:
             rv += '''    else if(args[0].equals(String("rdls"))){ // read digital linesensors
         if(numArgs == 2){
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d){
+            if(indexNum > -1 && indexNum < {}){
                 Serial.println(digitalRead(digital_linesensors[indexNum]));
             } else {
                 Serial.println("Error: usage - rdls [id]");
@@ -75,13 +75,13 @@ class linesensorList:
             Serial.println("Error: usage - rdls [id]");
         }
     }
-''' % (len(self.digital_sensor_list))
+'''.format(len(self.digital_sensor_list))
 
         if(len(self.analog_sensor_list) > 0):
             rv += '''    else if(args[0].equals(String("rals"))){ // read analog linesensors
         if(numArgs == 2){
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d){
+            if(indexNum > -1 && indexNum < {}){
                 Serial.println(analogRead(analog_linesensors[indexNum]));
             } else {
                 Serial.println("Error: usage - rals [id]");
@@ -90,7 +90,7 @@ class linesensorList:
             Serial.println("Error: usage - rals [id]");
         }
     }
-''' % (len(self.analog_sensor_list))
+'''.format(len(self.analog_sensor_list))
 
         return rv
 

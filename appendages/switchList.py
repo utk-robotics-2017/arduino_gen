@@ -20,16 +20,16 @@ class switchList:
     def get_pins(self):
         rv = ""
         for sensor in self.switchList:
-            rv = rv + "const char %s_pin = %d;\n" % (sensor.label, sensor.pin)
+            rv += "const char {}_pin = {};\n".format(sensor.label, sensor.pin)
         return rv
 
     def get_constructor(self):
         rv = ""
         for i, sensor in enumerate(self.switchList):
-            rv += "const char %s_index = %d;\n" % (sensor.label, i)
-        rv += "char switches[%d] = {\n" % (len(self.switchList))
+            rv += "const char {}_index = {};\n".format(sensor.label, i)
+        rv += "char switches[{}] = {\n".format(len(self.switchList))
         for sensor in self.switchList:
-            rv += ("    %s_pin,\n") % (sensor.label)
+            rv += ("    {}_pin,\n").format(sensor.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
@@ -37,10 +37,10 @@ class switchList:
         rv = ""
         for sensor in self.switchList:
             if sensor.pullup:
-                rv = rv + "    pinMode(%s_pin, INPUT_PULLUP);\n" % sensor.label
+                rv += "    pinMode({}_pin, INPUT_PULLUP);\n".format(sensor.label)
             else:
-                rv = rv + "    pinMode(%s_pin, INPUT);\n" % sensor.label
-        rv = rv + "\n"
+                rv += "    pinMode({}_pin, INPUT);\n".format(sensor.label)
+        rv += "\n"
         return rv
 
     def get_loop_functions(self):
@@ -50,7 +50,7 @@ class switchList:
         return '''    else if(args[0].equals(String("rs"))){ // read switches
         if(numArgs == 2){
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d){
+            if(indexNum > -1 && indexNum < {}){
                 Serial.println(digitalRead(switches[indexNum]));
             } else {
                 Serial.println("Error: usage - rs [id]");
@@ -59,7 +59,7 @@ class switchList:
             Serial.println("Error: usage - rs [id]");
         }
     }
-''' % (len(self.switchList))
+'''.format(len(self.switchList))
 
     def get_extra_functions(self):
         return ""

@@ -55,21 +55,21 @@ class pidList:
         length_vpids = len(self.vpidList)
         if length_vpids > 0:
             for i, vpid in enumerate(self.vpidList):
-                rv += "const char %s_index = %d;\n" % (vpid.label, i)
-            rv += "double lastPositions_vpid[%d];\ndouble Inputs_vpid[%d], Setpoints_vpid[%d], Outputs_vpid[%d];\n" % (length_vpids, length_vpids, length_vpids, length_vpids)
-            rv += "vPID vpids[%d] = {\n" % (length_vpids)
+                rv += "const char {}_index = {};\n".format(vpid.label, i)
+            rv += "double lastPositions_vpid[{}];\ndouble Inputs_vpid[{}], Setpoints_vpid[{}], Outputs_vpid[{}];\n".format(length_vpids, length_vpids, length_vpids, length_vpids)
+            rv += "vPID vpids[{}] = {\n".format(length_vpids)
             for vpid in self.vpidList:
-                rv += "    vPID(&Inputs_vpid[%s_index], &Outputs_vpid[%s_index], &Setpoints_vpid[%s_index], %f, %f, %f, %s),\n" % (vpid.label, vpid.label, vpid.label, vpid.kp, vpid.ki, vpid.kd, "REVERSE" if vpid.reverse else "DIRECT")
+                rv += "    vPID(&Inputs_vpid[{}_index], &Outputs_vpid[{}_index], &Setpoints_vpid[{}_index], {}, {}, {}, {}),\n".format(vpid.label, vpid.label, vpid.label, vpid.kp, vpid.ki, vpid.kd, "REVERSE" if vpid.reverse else "DIRECT")
             rv = rv[:-2] + "\n};\n"
 
         length_pids = len(self.pidList)
         if length_pids > 0:
             for i, pid in enumerate(self.pidList):
-                rv += "const char %s_index = %d;\n" % (pid.label, i)
-            rv += "double lastPositions_pid[%d];\ndouble Inputs_pid[%d], Setpoints_pid[%d], Outputs_pid[%d];\n" % (length_pids, length_pids, length_pids, length_pids)
-            rv += "PID pids[%d] = {\n" % (length_pids)
+                rv += "const char {}_index = {};\n".format(pid.label, i)
+            rv += "double lastPositions_pid[{}];\ndouble Inputs_pid[{}], Setpoints_pid[{}], Outputs_pid[{}];\n".format(length_pids, length_pids, length_pids, length_pids)
+            rv += "PID pids[{}] = {\n".format(length_pids)
             for pid in self.pidList:
-                rv += "    PID(&Inputs_pid[%s_index], &Outputs_pid[%s_index], &Setpoints_pid[%s_index], %f, %f, %f, %s),\n" % (pid.label, pid.label, pid.label, pid.kp, pid.ki, pid.kd, "REVERSE" if pid.reverse else "DIRECT")
+                rv += "    PID(&Inputs_pid[{}_index], &Outputs_pid[{}_index], &Setpoints_pid[{}_index], {}, {}, {}, {}),\n".format(pid.label, pid.label, pid.label, pid.kp, pid.ki, pid.kd, "REVERSE" if pid.reverse else "DIRECT")
             rv = rv[:-2] + "\n};\n"
         return rv
 
@@ -77,10 +77,10 @@ class pidList:
         rv = ""
         for vpid in self.vpidList:
             if hasattr(vpid, 'minOutput'):
-                rv += "    vpids[%s_index].SetOutputLimits(%f, %f);\n" % (vpid.label, vpid.minOutput, vpid.maxOutput)
+                rv += "    vpids[{}_index].SetOutputLimits({}, {});\n".format(vpid.label, vpid.minOutput, vpid.maxOutput)
         for pid in self.pidList:
             if hasattr(pid, 'minOutput'):
-                rv += "    pids[%s_index].SetOutputLimits(%f, %f);\n" % (pid.label, pid.minOutput, pid.maxOutput)
+                rv += "    pids[{}_index].SetOutputLimits({}, {});\n".format(pid.label, pid.minOutput, pid.maxOutput)
         return rv
 
     def get_loop_functions(self):
@@ -94,7 +94,7 @@ class pidList:
             rv += '''    else if (args[0].equals(String("pc"))) { // Modify the pid constants
     if (numArgs == 5) {
       int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < %d) {
+      if (indexNum > -1 && indexNum < {}) {
         pids[indexNum].SetTunings(toDouble(args[2]), toDouble(args[3]), toDouble(args[4]));
         Serial.println("ok");
       } else {
@@ -107,7 +107,7 @@ class pidList:
   else if (args[0].equals(String("ps"))) { // Set the setpoint for a specific PID
     if (numArgs == 3) {
       int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < %d) {
+      if (indexNum > -1 && indexNum < {}) {
         pids[indexNum].SetMode(AUTOMATIC);
         Setpoints_pid[indexNum] = toDouble(args[2]);
         Serial.println(F("ok"));
@@ -121,7 +121,7 @@ class pidList:
   else if (args[0].equals(String("poff"))) { // Turn off the PID
     if (numArgs == 2) {
       int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < %d) {
+      if (indexNum > -1 && indexNum < {}) {
         pids[indexNum].SetMode(MANUAL);
         Serial.println(F("ok"));
       } else {
@@ -134,7 +134,7 @@ class pidList:
   else if (args[0].equals(String("pd"))) { // Display Inputs, Setpoints, and Outputs
     if (numArgs == 2) {
       int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < %d) {
+      if (indexNum > -1 && indexNum < {}) {
         String ret = "";
         char dts[256];
         dtostrf(Inputs_pid[indexNum], 0, 6, dts);
@@ -153,13 +153,13 @@ class pidList:
       Serial.println(F("error: usage - 'pd [index]'"));
     }
   }
-''' % (length_pids, length_pids, length_pids, length_pids)
+'''.format(length_pids, length_pids, length_pids, length_pids)
 
         if length_vpids > 0:
             rv += '''    else if (args[0].equals(String("vpc"))) { // Modify the velocity pid constants
     if (numArgs == 5) {
       int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < %d) {
+      if (indexNum > -1 && indexNum < {}) {
         vpids[indexNum].SetTunings(toDouble(args[2]), toDouble(args[3]), toDouble(args[4]));
         Serial.println("ok");
       } else {
@@ -172,7 +172,7 @@ class pidList:
   else if (args[0].equals(String("vps"))) { // Set the setpoint for a specific PID
     if (numArgs == 3) {
       int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < %d) {
+      if (indexNum > -1 && indexNum < {}) {
         vpids[indexNum].SetMode(AUTOMATIC);
         Setpoints_vpid[indexNum] = toDouble(args[2]);
         Serial.println(F("ok"));
@@ -186,7 +186,7 @@ class pidList:
   else if (args[0].equals(String("vpoff"))) { // Turn off the PID
     if (numArgs == 2) {
       int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < %d) {
+      if (indexNum > -1 && indexNum < {}) {
         vpids[indexNum].SetMode(MANUAL);
         Serial.println(F("ok"));
       } else {
@@ -199,7 +199,7 @@ class pidList:
   else if (args[0].equals(String("vpd"))) { // Display Inputs, Setpoints, and Outputs
     if (numArgs == 2) {
       int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < %d) {
+      if (indexNum > -1 && indexNum < {}) {
         String ret = "";
         char dts[256];
         dtostrf(Inputs_vpid[indexNum], 0, 6, dts);
@@ -218,7 +218,7 @@ class pidList:
       Serial.println(F("error: usage - 'vpd [index]'"));
     }
   }
-''' % (length_vpids, length_vpids, length_vpids, length_vpids)
+'''.format(length_vpids, length_vpids, length_vpids, length_vpids)
         return rv
 
     # extra functions for loop are written by the systems using the pid

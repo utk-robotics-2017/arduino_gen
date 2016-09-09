@@ -29,33 +29,33 @@ class stepperList:
     def get_pins(self):
         rv = ""
         for stepper in self.stepperList:
-            rv += "const char %s_pinA = %d;\n" % (stepper.label, stepper.pinA)
-            rv += "const char %s_pinB = %d;\n" % (stepper.label, stepper.pinB)
-            rv += "const char %s_pinC = %d;\n" % (stepper.label, stepper.pinC)
-            rv += "const char %s_pinD = %d;\n" % (stepper.label, stepper.pinD)
+            rv += "const char {}_pinA = %d;\n".format(stepper.label, stepper.pinA)
+            rv += "const char {}_pinB = %d;\n".format(stepper.label, stepper.pinB)
+            rv += "const char {}_pinC = %d;\n".format(stepper.label, stepper.pinC)
+            rv += "const char {}_pinD = %d;\n".format(stepper.label, stepper.pinD)
         return rv
 
     def get_constructor(self):
         rv = ""
         for i, stepper in enumerate(self.stepperList):
-            rv += "const char %s_index = %d;\n" % (stepper.label, i)
+            rv += "const char {}_index = %d;\n".format(stepper.label, i)
 
-        rv += ("Stepper steppers[%d] = {\n") % (len(self.stepperList))
+        rv += ("Stepper steppers[{}] = {\n").format(len(self.stepperList))
         for stepper in self.stepperList:
-            rv += "    Stepper(%d, %s_pinA, %s_pinB, %s_pinC, %_pinD)," % (stepper.steps, stepper.label, stepper.label, stepper.label, stepper.label)
+            rv += "    Stepper({}, {}_pinA, {}_pinB, {}_pinC, {}_pinD),".format(stepper.steps, stepper.label, stepper.label, stepper.label, stepper.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_setup(self):
         rv = ""
         for stepper in self.stepperList:
-            rv += "    pinMode(%s_pinA, OUTPUT);\n" % stepper.label
-            rv += "    pinMode(%s_pinB, OUTPUT);\n" % stepper.label
-            rv += "    pinMode(%s_pinC, OUTPUT);\n" % stepper.label
-            rv += "    pinMode(%s_pinD, OUTPUT);\n" % stepper.label
+            rv += "    pinMode({}_pinA, OUTPUT);\n".format(stepper.label)
+            rv += "    pinMode({}_pinB, OUTPUT);\n".format(stepper.label)
+            rv += "    pinMode({}_pinC, OUTPUT);\n".format(stepper.label)
+            rv += "    pinMode({}_pinD, OUTPUT);\n".format(stepper.label)
 
         for stepper in self.stepperList:
-            rv += "    steppers[%s_index].setSpeed(%s_pin);\n" % (stepper.label, stepper.initial_speed)
+            rv += "    steppers[{}_index].setSpeed({}_pin);\n".format(stepper.label, stepper.initial_speed)
         rv += "\n"
 
         return rv
@@ -66,7 +66,7 @@ class stepperList:
         return '''    else if(args[0].equals(String("sssp"))){ // set stepper speed
     if(numArgs == 3){
         int indexNum = args[1].toInt();
-        if(indexNum > -1 && indexNum < %d){
+        if(indexNum > -1 && indexNum < {}){
             int value = args[2].toInt();
             steppers[indexNum].setSpeed(balue);
             Serial.println("ok");
@@ -80,7 +80,7 @@ class stepperList:
 else if(args[0].equals(String("sss"))){ // step stepper
     if(numArgs == 3){
         int indexNum = args[1].toInt();
-        if(indexNum > -1 && indexNum < %d){
+        if(indexNum > -1 && indexNum < {}){
             int value = args[2].toInt();
             stepper[indexNum].step(value);
             Serial.println("ok");
@@ -91,7 +91,7 @@ else if(args[0].equals(String("sss"))){ // step stepper
         Serial.println("Error: usage - sss [id] [value]");
     }
 }
-''' % (len(self.stepperList), len(self.stepperList))
+'''.format(len(self.stepperList), len(self.stepperList))
 
     def get_extra_functions(self):
         return ""

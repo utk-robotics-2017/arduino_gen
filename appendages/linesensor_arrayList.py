@@ -28,47 +28,47 @@ class linesensor_arrayList:
 
         if len(self.digital_sensor_list) > 0:
             for i in range(len(self.digital_sensor_list)):
-                rv = rv + "const char %s_index = %d;\n" % (self.digital_sensor_list[i].label, i)
-            rv = rv + "QTRSensorsRC digital_linsensor_arrays[%d] = {\n" % len(self.digital_sensor_list)
+                rv += "const char {}_index = {};\n".format(self.digital_sensor_list[i].label, i)
+            rv += "QTRSensorsRC digital_linsensor_arrays[{}] = {\n".format(len(self.digital_sensor_list))
             for sensor in self.digital_sensor_list:
-                rv = rv + "    QTRSensorsRC((unsigned char[]){"
+                rv += "    QTRSensorsRC((unsigned char[]){"
                 for pin in sensor.pin_list:
-                    rv = rv + "%d, " % pin
+                    rv += "{}, ".format(pin)
                 rv = rv[:-2]
-                rv = rv + "}, %d, %d, %d),\n" % (len(sensor.pin_list), sensor.extra, sensor.emitter_pin)
+                rv += "}, {}, {}, {}),\n".format(len(sensor.pin_list), sensor.extra, sensor.emitter_pin)
             rv = rv[:-2] + "\n};\n"
 
             for sensor in self.digital_sensor_list:
-                rv = rv + "unsigned int %s_sensor_values[%d];\n" % (sensor.label, len(sensor.pin_list))
+                rv += "unsigned int {}_sensor_values[{}];\n".format(sensor.label, len(sensor.pin_list))
 
         if len(self.analog_sensor_list) > 0:
             for i in range(len(self.analog_sensor_list)):
-                rv = rv + "const char %s_index = %d;\n" % (self.analog_sensor_list[i].label, i)
-            rv = rv + "QTRSensorsAnalog analog_linsensor_arrays[%d] = {\n" % len(self.digital_sensor_list)
+                rv += "const char {}_index = {};\n".format(self.analog_sensor_list[i].label, i)
+            rv += "QTRSensorsAnalog analog_linsensor_arrays[{}] = {\n".format(len(self.digital_sensor_list))
             for sensor in self.analog_sensor_list:
-                rv = rv + "    QTRSensorsAnalog((unsigned char[]){"
+                rv += "    QTRSensorsAnalog((unsigned char[]){"
                 for pin in sensor.pin_list:
-                    rv = rv + "%d, " % pin
+                    rv += "{}, ".format(pin)
                 rv = rv[:-2]
-                rv = rv + "}, %d, %d, %d),\n" % (len(sensor.pin_list), sensor.extra, sensor.emitter_pin)
+                rv += "}, {}, {}, {}),\n".format(len(sensor.pin_list), sensor.extra, sensor.emitter_pin)
             rv = rv[:-2] + "\n};\n"
 
             for sensor in self.analog_sensor_list:
-                rv = rv + "unsigned int %s_sensor_values[%d];\n" % (sensor.label, len(sensor.pin_list))
+                rv += "unsigned int {}_sensor_values[{}];\n".format(sensor.label, len(sensor.pin_list))
         return rv
 
     def get_setup(self):
         rv = "    for (int i = 0; i < 400; i++) { // make the calibration take about 10 seconds\n"
         if len(self.digital_sensor_list) > 0:
-            rv = rv + "        for(int j = 0; j < %d; j++) {\n" % len(self.digital_sensor_list)
-            rv = rv + "            digital_linsensor_arrays[j].calibrate();\n"
-            rv = rv + "        }\n"
+            rv += "        for(int j = 0; j < {}; j++) {\n".format(len(self.digital_sensor_list))
+            rv += "            digital_linsensor_arrays[j].calibrate();\n"
+            rv += "        }\n"
 
         if len(self.analog_sensor_list) > 0:
-            rv = rv + "        for(int j = 0; j < %d; j++) {\n" % len(self.analog_sensor_list)
-            rv = rv + "            analog_linsensor_arrays[j].calibrate();\n"
-            rv = rv + "        }\n"
-        rv = rv + "    }\n"
+            rv += "        for(int j = 0; j < {}; j++) {\n".format(len(self.analog_sensor_list))
+            rv += "            analog_linsensor_arrays[j].calibrate();\n"
+            rv += "        }\n"
+        rv += "    }\n"
         return rv
 
     # TODO

@@ -30,9 +30,9 @@ class armList:
         return ""
 
     def get_constructor(self):
-        rv = "Arm arms[%d] = {\n" % len(self.arm_list)
+        rv = "Arm arms[{}] = {\n".format(len(self.arm_list))
         for arm in self.arm_list:
-            rv += "    Arm(%s_index, %s_index, %s_index, %s_index, %s_index, servo_pins, servos),\n" % (arm.base.label, arm.shoulder.label, arm.elbow.label, arm.wrist.label, arm.wrist_rotate.label)
+            rv += "    Arm({}_index, {}_index, {}_index, {}_index, {}_index, servo_pins, servos),\n".format(arm.base.label, arm.shoulder.label, arm.elbow.label, arm.wrist.label, arm.wrist_rotate.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
@@ -43,7 +43,7 @@ class armList:
         return '''    else if(args[0].equals(String("sa"))) { // set arm
         if(numArgs == 7) {
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d){
+            if(indexNum > -1 && indexNum < {}){
                 int posbase = args[2].toInt();
                 int posshoulder = args[3].toInt();
                 int poselbow = args[4].toInt();
@@ -62,7 +62,7 @@ class armList:
     else if(args[0].equals(String("das"))) { // detach arm servos
         if(numArgs == 2) {
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d){
+            if(indexNum > -1 && indexNum < {}){
                 arms[indexNum].detach();
                 Serial.println("ok");
             } else {
@@ -72,7 +72,7 @@ class armList:
             Serial.println("error: usage - 'ds [id]'");
         }
     }
-''' % (len(self.arm_list), len(self.arm_list))
+'''.format(len(self.arm_list), len(self.arm_list))
 
     def get_extra_functions(self):
         return ""

@@ -34,12 +34,12 @@ class velocityControlledMotorList:
         return ""
 
     def get_constructor(self):
-        rv = "VelocityControlledMotor vcms[%d] = {\n" % len(self.vcmList)
+        rv = "VelocityControlledMotor vcms[{}] = {\n".format(len(self.vcmList))
         for vcm in self.vcmList:
             if isinstance(vcm.encoder, i2cencoder):
-                rv += "    VelocityControlledMotor(motors[%s_index], i2cencoders[%s_index], vpids[%s_index], &Inputs_vpid[%s_index], &Setpoints_vpid[%s_index], &Outputs_vpid[%s_index]),\n" % (vcm.motor.label, vcm.encoder.label, vcm.vpid.label, vcm.vpid.label, vcm.vpid.label, vcm.vpid.label)
+                rv += "    VelocityControlledMotor(motors[{}_index], i2cencoders[{}_index], vpids[{}_index], &Inputs_vpid[{}_index], &Setpoints_vpid[{}_index], &Outputs_vpid[{}_index]),\n".format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label, vcm.vpid.label, vcm.vpid.label, vcm.vpid.label)
             else:
-                rv += "    VelocityControlledMotor(motors[%s_index], encoders[%s_index], vpids[%s_index], &Inputs_vpid[%s_index], &Setpoints_vpid[%s_index], &Outputs_vpid[%s_index]),\n" % (vcm.motor.label, vcm.encoder.label, vcm.vpid.label, vcm.vpid.label, vcm.vpid.label, vcm.vpid.label)
+                rv += "    VelocityControlledMotor(motors[{}_index], encoders[{}_index], vpids[{}_index], &Inputs_vpid[{}_index], &Setpoints_vpid[{}_index], &Outputs_vpid[{}_index]),\n".format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label, vcm.vpid.label, vcm.vpid.label, vcm.vpid.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
@@ -47,14 +47,14 @@ class velocityControlledMotorList:
         return ""
 
     def get_loop_functions(self):
-        return "for(int i = 0; i < %d; i++) {\n        vcms[i].runVPID();\n    }\n" % len(self.vcmList)
+        return "for(int i = 0; i < {}; i++) {\n        vcms[i].runVPID();\n    }\n".format(len(self.vcmList))
 
     def get_response_block(self):
         length = len(self.vcmList)
         return '''    else if(args[0].equals(String("vcmd"))) { // set velocity controlled motor voltage (no pid)
         if(numArgs == 7) {
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d){
+            if(indexNum > -1 && indexNum < {}){
                 int value = args[2].toInt();
                 if( value < -1023 || value > 1023) {
                     Serial.println("Error: usage - vcmd [id] [value]");
@@ -72,7 +72,7 @@ class velocityControlledMotorList:
     else if(args[0].equals(String("vcms"))){ // set velocity controlled motor to stop
         if(numArgs == 2) {
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d) {
+            if(indexNum > -1 && indexNum < {}) {
                 vcms[indexNum].stop();
                 Serial.println("ok");
             } else {
@@ -85,20 +85,20 @@ class velocityControlledMotorList:
     else if(args[0].equals(String("vcmsv"))){ // set velocity controlled motor's velocity
         if(numArgs == 3) {
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d) {
+            if(indexNum > -1 && indexNum < {}) {
                 vcms[indexNum].setVelocity(toDouble(args[2]));
                 Serial.println("ok");
             } else {
-                Serial.println("Error: usage - vcms [id]");
+                Serial.println("Error: usage - vcmsv [id] [vel]");
             }
         } else {
-            Serial.println("Error: usage - vcms [id]");
+            Serial.println("Error: usage - vcmsv [id] [vel]");
         }
     }
     else if(args[0].equals(String("vcmgv"))){ // get velocity controlled motor's velocity
         if(numArgs == 2) {
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d) {
+            if(indexNum > -1 && indexNum < {}) {
                 char dts[256];
                 dtostrf(vcms[indexNum].getVelocity(), 0, 6, dts);
                 Serial.println(dts);
@@ -112,7 +112,7 @@ class velocityControlledMotorList:
     else if(args[0].equals(String("vcmgp"))){ // get velocity controlled motor's position
         if(numArgs == 2) {
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d) {
+            if(indexNum > -1 && indexNum < {}) {
                 char dts[256];
                 dtostrf(vcms[indexNum].getPosition(), 0, 6, dts);
                 Serial.println(dts);
@@ -123,7 +123,7 @@ class velocityControlledMotorList:
             Serial.println("Error: usage - vcmgp [id]");
         }
     }
-''' % (length, length, length, length, length)
+'''.format(length, length, length, length, length)
 
     def get_extra_functions(self):
         return ""

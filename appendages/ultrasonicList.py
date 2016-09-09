@@ -19,17 +19,17 @@ class ultrasonicList:
     def get_pins(self):
         rv = ""
         for sensor in self.sensor_list:
-            rv += "const char %s_pin = %d;\n" % (sensor.label, sensor.pin)
+            rv += "const char {}_pin = {};\n".format(sensor.label, sensor.pin)
         return rv
 
     def get_constructor(self):
         rv = ""
         for i in range(len(self.sensor_list)):
-            rv += "const char %s_index = %d;\n" % (self.sensor_list[i].label, i)
-        rv += "NewPing ultrasonics[%d] = {\n" % len(self.sensor_list)
+            rv += "const char {}_index = {};\n".format(self.sensor_list[i].label, i)
+        rv += "NewPing ultrasonics[{}] = {\n".format(len(self.sensor_list))
 
         for sensor in self.sensor_list:
-            rv +="    NewPing(%s_pin, %s_pin),\n" % (sensor.label, sensor.label)
+            rv +="    NewPing({}_pin, {}_pin),\n".format(sensor.label, sensor.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
@@ -43,7 +43,7 @@ class ultrasonicList:
         return '''    else if(args[0].equals(String("rus"))){ // read ultrasonics
         if(numArgs == 2){
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d){
+            if(indexNum > -1 && indexNum < {}){
                 unsigned int response = ultrasonics[indexNum].ping();
                 Serial.println(response);
             } else {
@@ -53,7 +53,7 @@ class ultrasonicList:
             Serial.println("Error: usage - rus [id]");
         }
     }
-''' % (len(self.sensor_list))
+'''.format(len(self.sensor_list))
 
     def get_extra_functions(self):
         return ""

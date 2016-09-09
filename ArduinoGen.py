@@ -20,7 +20,7 @@ class ArduinoGen:
         self.arduino = arduino
 
     def setParentFolder(self, parentFolder):
-        self.folder = "%s/%s" % (parentFolder, self.arduino)
+        self.folder = "{}/{}".format(parentFolder, self.arduino)
 
     def setupFolder(self):
         if not hasattr(self, 'folder'):
@@ -31,14 +31,14 @@ class ArduinoGen:
             shutil.rmtree(self.folder)
         os.makedirs(self.folder, 0o777)
         os.chmod(self.folder, 0o777)
-        os.makedirs("%s/src" % self.folder, 0o777)
-        os.chmod("%s/src" % self.folder, 0o777)
+        os.makedirs("{}/src".format(self.folder), 0o777)
+        os.chmod("{}/src".format(self.folder), 0o777)
         print("Done")
 
     def readConfig(self, f, copy=True):
         if copy:
-            shutil.copyfile(f, "%s/%s.json" % (self.folder, self.arduino))
-            os.chmod("%s/%s.json" % (self.folder, self.arduino), 0o777)
+            shutil.copyfile(f, "{}/{}.json".format(self.folder, self.arduino))
+            os.chmod("{}/{}.json".format(self.folder, self.arduino), 0o777)
 
         print("Reading config file...")
         fi = open(f)
@@ -55,7 +55,7 @@ class ArduinoGen:
                 if os.path.isfile(current_search_path + f) and f[-3:] == ".py" and not f == "__init__.py"]
             device_type.append({})
             for f in file_list:
-                module = importlib.import_module("%s.%s" % (current_import_path, f[:-3]))
+                module = importlib.import_module("{}.{}".format(current_import_path, f[:-3]))
                 class_ = getattr(module, f[:-3])
                 device_type[current_depth_index][f[:-7]] = class_()
             dir_list = [f for f in os.listdir(current_search_path) if os.path.isdir(current_search_path + f)]
@@ -105,7 +105,7 @@ class ArduinoGen:
             sys.exit()
 
         print("Generating output...")
-        fo = open("%s/src/%s.ino" % (self.folder, self.arduino), 'w')
+        fo = open("{}/src/{}.ino".format(self.folder, self.arduino), 'w')
         gen = Generator(self.device_dict)
         print("\tWriting headers")
         fo.write(gen.add_header())
@@ -131,7 +131,7 @@ class ArduinoGen:
         fo.write(gen.add_extra_functions())
         fo.write("\n")
         fo.close()
-        os.chmod("%s/src/%s.ino" % (self.folder, self.arduino), 0o777)
+        os.chmod("{}/src/{}.ino".format(self.folder, self.arduino), 0o777)
 
         print("\tWriting indices file")
         gen.write_indices_file(self.folder, self.arduino)
@@ -139,7 +139,7 @@ class ArduinoGen:
         print("\tWriting build, serial, and upload shell scripts")
         gen.write_shell_scripts(self.folder, self.arduino)
         print("Done")
-        print("Your output can be found at %s" % (self.folder))
+        print("Your output can be found at {}".format(self.folder))
 
 
     def build(self):
@@ -147,7 +147,7 @@ class ArduinoGen:
             print("Parent folder has not been set")
             sys.exit()
         print("Building...")
-        os.chdir("%s/%s" % (self.folder, self.arduino))
+        os.chdir("{}/{}".format(self.folder, self.arduino))
         os.system("ino build")
         print("Done")
 
@@ -156,15 +156,15 @@ class ArduinoGen:
             print("Parent folder has not been set")
             sys.exit()
         print("Uploading...")
-        ino_ini = open("%s%s/ino.ini" % (CURRENT_ARDUINO_CODE_DIR, self.arduino), 'r')
+        ino_ini = open("{}{}/ino.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 'r')
         ino_ini_text = ino_ini.read()
-        shutil.rmtree("%s%s" % (CURRENT_ARDUINO_CODE_DIR, self.arduino))
-        shutil.copytree(self.folder, "%s%s" % (CURRENT_ARDUINO_CODE_DIR, self.arduino))
-        ino_ini = open("%s%s/ino.ini" % (CURRENT_ARDUINO_CODE_DIR, self.arduino), 'w')
+        shutil.rmtree("{}{}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
+        shutil.copytree(self.folder, "{}{}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
+        ino_ini = open("{}{}/ino.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 'w')
         ino_ini.write(ino_ini_text)
-        os.chmod("%s%s/ino.ini" % (CURRENT_ARDUINO_CODE_DIR, self.arduino), 0o777)
+        os.chmod("{}{}/ino.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 0o777)
                 
-        os.chdir("%s%s" % (CURRENT_ARDUINO_CODE_DIR, self.arduino))
+        os.chdir("{}{}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
         os.system("sh upload.sh")
         print("Done")
 

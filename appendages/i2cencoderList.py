@@ -28,20 +28,20 @@ class i2cencoderList:
     def get_constructor(self):
         rv = ""
         for i in range(len(self.sorted_sensors)):
-            rv += "const char %s_index = %d;\n" % (self.sorted_sensors[i].label, i)
-        rv += "I2CEncoder i2cencoders[%d];\n" % (len(self.sorted_sensors))
+            rv += "const char {}_index = {};\n".format(self.sorted_sensors[i].label, i)
+        rv += "I2CEncoder i2cencoders[{}];\n".format(len(self.sorted_sensors))
         return rv
 
     def get_setup(self):
         rv = "    Wire.begin();\n"
         for sensor in self.sorted_sensors:
-            rv = rv + "    i2cencoders[%s_index].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);\n" % sensor.label
+            rv += "    i2cencoders[{}_index].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);\n".format(sensor.label)
         for sensor in self.sorted_sensors:
             if sensor.reverse:
-                rv = rv + "    i2cencoders[%s_index].setReversed(true);\n" % sensor.label
+                rv += "    i2cencoders[{}_index].setReversed(true);\n".format(sensor.label)
         for sensor in self.sorted_sensors:
-            rv = rv + "    i2cencoders[%s_index].zero();\n" % sensor.label
-        rv = rv + "\n"
+            rv += "    i2cencoders[{}_index].zero();\n".format(sensor.label)
+        rv +="\n"
         return rv
 
     def get_loop_functions(self):
@@ -54,7 +54,7 @@ class i2cencoderList:
         return '''    else if(args[0].equals(String("ep"))){ // i2c encoder position (in rotations)
         if(numArgs == 2){
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d){
+            if(indexNum > -1 && indexNum < {}){
                 char dts[256];
                 dtostrf(i2cencoders[indexNum].getPosition(), 0, 6, dts);
                 Serial.println(dts);
@@ -68,7 +68,7 @@ class i2cencoderList:
     else if(args[0].equals(String("erp"))){ // i2c encoder raw position (in ticks)
         if(numArgs == 2){
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d){
+            if(indexNum > -1 && indexNum < {}){
                 char dts[256];
                 dtostrf(i2cencoders[indexNum].getRawPosition(), 0, 6, dts);
                 Serial.println(dts);
@@ -82,7 +82,7 @@ class i2cencoderList:
     else if(args[0].equals(String("es"))){ // i2c encoder speed (in revolutions per minute)
         if(numArgs == 2){
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d){
+            if(indexNum > -1 && indexNum < {}){
                 char dts[256];
                 dtostrf(i2cencoders[indexNum].getSpeed(), 0, 6, dts);
                 Serial.println(dts);
@@ -96,7 +96,7 @@ class i2cencoderList:
     else if(args[0].equals(String("ev"))){ // i2c encoder velocity (in revolutions per minute)
         if(numArgs == 2){
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d){
+            if(indexNum > -1 && indexNum < {}){
                 char dts[256];
                 dtostrf(i2cencoders[indexNum].getVelocity(), 0, 6, dts);
                 Serial.println(dts);
@@ -110,7 +110,7 @@ class i2cencoderList:
     else if(args[0].equals(String("ez"))){ // i2c encoder zero
         if(numArgs == 2){
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d){
+            if(indexNum > -1 && indexNum < {}){
                 i2cencoders[indexNum].zero();
                 Serial.println("ok");
             } else {
@@ -120,7 +120,7 @@ class i2cencoderList:
             Serial.println("Error: usage - ez [id]");
         }
     }
-''' % (numSensors, numSensors, numSensors, numSensors, numSensors)
+'''.format(numSensors, numSensors, numSensors, numSensors, numSensors)
 
     def get_extra_functions(self):
         return ""

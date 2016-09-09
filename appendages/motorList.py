@@ -36,20 +36,20 @@ class motorList:
     def get_constructor(self):
         rv = ""
         for i, motor in enumerate(self.motorList):
-            rv += "const char %s_index = %d;\n" % (motor.label, i)
-        rv += "Motor motors[%d] = {\n" % (len(self.motorList))
+            rv += "const char {}_index = {};\n".format(motor.label, i)
+        rv += "Motor motors[{}] = {\n".format(len(self.motorList))
         for motor in self.motorList:
-            rv += "    Motor(%d, %d, %d, %d, %s),\n" % (motor.inA_pin, motor.inB_pin, motor.pwm_pin, 1 if motor.reverse else 0, motor.motor_controller)
+            rv += "    Motor({}, {}, {}, {}, {}),\n".format(motor.inA_pin, motor.inB_pin, motor.pwm_pin, 1 if motor.reverse else 0, motor.motor_controller)
         rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_setup(self):
         rv = ""
         for motor in self.motorList:
-            rv += "    pinMode(%d, OUTPUT);\n" % motor.inA_pin
+            rv += "    pinMode({}, OUTPUT);\n".format(motor.inA_pin)
             if not motor.inB_pin == -1:
-                rv += "    pinMode(%d, OUTPUT);\n" % motor.inB_pin
-            rv += "    pinMode(%d, OUTPUT);\n" % motor.pwm_pin
+                rv += "    pinMode({}, OUTPUT);\n".format(motor.inB_pin)
+            rv += "    pinMode({}, OUTPUT);\n".format(motor.pwm_pin)
         return rv
 
     def get_loop_functions(self):
@@ -60,7 +60,7 @@ class motorList:
         return '''    else if(args[0].equals(String("mod"))){ // motor drive
         if(numArgs ==  3) {
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d) {
+            if(indexNum > -1 && indexNum < {}) {
                 int value = args[2].toInt();
                 if( value < -1023 || value > 1023) {
                     Serial.println("Error: usage - mod [id] [value]");
@@ -78,7 +78,7 @@ class motorList:
     else if(args[0].equals(String("mos"))){ // motor stop
         if(numArgs == 2) {
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d) {
+            if(indexNum > -1 && indexNum < {}) {
                 motors[indexNum].stop();
                 Serial.println("ok");
             } else {
@@ -88,7 +88,7 @@ class motorList:
             Serial.println("Error: usage - mos [id]");
         }
     }
-''' % (length, length)
+'''.format(length, length)
 
     def get_extra_functions(self):
         return ""

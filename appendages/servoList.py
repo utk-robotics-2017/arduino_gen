@@ -25,26 +25,26 @@ class servoList:
     def get_pins(self):
         rv = ""
         for actuator in self.servoList:
-            rv = rv + "const char %s_pin = %d;\n" % (actuator.label, actuator.pin)
+            rv += "const char {}_pin = {};\n".format(actuator.label, actuator.pin)
         return rv
 
     def get_constructor(self):
         rv = ""
         for i, servo in enumerate(self.servoList):
-            rv += "const char %s_index = %d;\n" % (servo.label, i)
+            rv += "const char {}_index = {};\n".format(servo.label, i)
 
-        rv += "char servo_pins[%d] = {\n" % (len(self.servoList))
+        rv += "char servo_pins[{}] = {\n".format(len(self.servoList))
         for servo in self.servoList:
-            rv += ("    %s_pin,\n") % (servo.label)
+            rv += ("    {}_pin,\n").format(servo.label)
         rv = rv[:-2] + "\n};\n"
 
-        rv = rv + ("Servo servos[%d];\n") % (len(self.servoList))
+        rv += ("Servo servos[{}];\n").format(len(self.servoList))
         return rv
 
     def get_setup(self):
         rv = ""
         for servo in self.servoList:
-            rv += "    servos[%s_index].attach(%s_pin);\n" % (servo.label, servo.label)
+            rv += "    servos[{}_index].attach({}_pin);\n".format(servo.label, servo.label)
         rv += "\n"
 
         return rv
@@ -56,7 +56,7 @@ class servoList:
         return '''    else if(args[0].equals(String("ss"))){ // set servo
         if(numArgs == 3){
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d){
+            if(indexNum > -1 && indexNum < {}){
                 int value = args[2].toInt();
                 if(!servos[indexNum].attached()){
                     servos[indexNum].attach(servo_pins[indexNum]);
@@ -73,7 +73,7 @@ class servoList:
     else if(args[0].equals(String("sd"))){ // detach servo
         if(numArgs == 2){
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < %d){
+            if(indexNum > -1 && indexNum < {}){
                 servos[indexNum].detach();
                 Serial.println("ok");
             } else {
@@ -83,7 +83,7 @@ class servoList:
             Serial.println("Error: usage - sd [id]");
         }
     }
-''' % (len(self.servoList), len(self.servoList))
+'''.format(len(self.servoList), len(self.servoList))
 
     def get_extra_functions(self):
         return ""
