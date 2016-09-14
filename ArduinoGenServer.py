@@ -17,7 +17,7 @@ clients = set()
 clientId = 0
 
 port = 9000
-currentArduinoCodeFolder = "/CurrentArduinoCode"
+currentArduinoCodeFolder = "/Robot/CurrentArduinoCode"
 confFolder = "./conf"
 lockFolder = "/var/lock"
 pin = random.randint(0, 99999)

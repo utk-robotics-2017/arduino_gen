@@ -13,7 +13,7 @@ from Generator import Generator
 
 # Import all the files in appendages
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
-CURRENT_ARDUINO_CODE_DIR = "/CurrentArduinoCode/"
+CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode/"
 
 class ArduinoGen:
     def __init__(self, arduino):

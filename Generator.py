@@ -5,7 +5,7 @@ import getpass
 import json
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
-CURRENT_ARDUINO_CODE_DIR = "/CurrentArduinoCode"
+CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode"
 
 class Generator:
     def __init__(self, appendage_dict):
