@@ -22,33 +22,33 @@ class linesensorList:
     def get_pins(self):
         rv = ""
         for sensor in self.digital_sensor_list:
-            rv += "const char {}_pin = {};\n".format(sensor.label, sensor.pin)
+            rv += "const char {0:s}_pin = {1:d};\n".format(sensor.label, sensor.pin)
         for sensor in self.analog_sensor_list:
-            rv += "const char {}_pin = {};\n".format(sensor.label, sensor.pin)
+            rv += "const char {0:s}_pin = {1:d};\n".format(sensor.label, sensor.pin)
         return rv
 
     def get_constructor(self):
         rv = ""
 
         if(len(self.digital_sensor_list) > 0):
-            for i in range(len(self.digital_sensor_list)):
-                rv += "const char {}_index = {};\n".format(self.digital_sensor_list[i].label, i)
+            for i, linesensor in enumerate(self.digital_sensor_list):
+                rv += "const char {0:s}_index = {0:d};\n".format(linesensor.label, i)
 
-            rv += "char digital_linesensors[{}] = {\n".format(len(self.digital_sensor_list))
+            rv += "char digital_linesensors[{0:d}] = \{\n".format(len(self.digital_sensor_list))
 
             for sensor in self.digital_sensor_list:
-                rv += ("    {}_pin,\n").format(sensor.label)
+                rv += ("\t{0:s}_pin,\n").format(sensor.label)
 
             rv = rv[:-2] + "\n};\n"
 
         if(len(self.analog_sensor_list) > 0):
-            for i in range(len(self.analog_sensor_list)):
-                rv += "const char {}_index = {};\n".format(self.analog_sensor_list[i].label, i)
+            for i, linesensor in enumerate(self.analog_sensor_list):
+                rv += "const char {0:s}_index = {1:d};\n".format(linesensor.label, i)
 
-            rv += "char analog_linesensors[{}] = {\n".format(len(self.analog_sensor_list))
+            rv += "char analog_linesensors[{0:d}] = {\n".format(len(self.analog_sensor_list))
 
             for sensor in self.analog_sensor_list:
-                rv += ("    {}_pin,\n").format(sensor.label)
+                rv += ("\t{0:s}_pin,\n").format(sensor.label)
 
             rv = rv[:-2] + "\n};\n"
 
@@ -63,33 +63,33 @@ class linesensorList:
     def get_response_block(self):
         rv = ""
         if(len(self.digital_sensor_list) > 0):
-            rv += '''    else if(args[0].equals(String("rdls"))){ // read digital linesensors
-        if(numArgs == 2){
+            rv += '''\t\telse if(args[0].equals(String("rdls"))){{ // read digital linesensors
+        if(numArgs == 2){{
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {}){
+            if(indexNum > -1 && indexNum < {0:d}){{
                 Serial.println(digitalRead(digital_linesensors[indexNum]));
-            } else {
+            }} else {{
                 Serial.println("Error: usage - rdls [id]");
-            }
-        } else {
+            }}
+        }} else {{
             Serial.println("Error: usage - rdls [id]");
-        }
-    }
+        }}
+    }}
 '''.format(len(self.digital_sensor_list))
 
         if(len(self.analog_sensor_list) > 0):
-            rv += '''    else if(args[0].equals(String("rals"))){ // read analog linesensors
-        if(numArgs == 2){
+            rv += '''\t\telse if(args[0].equals(String("rals"))){{ // read analog linesensors
+        if(numArgs == 2){{
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {}){
+            if(indexNum > -1 && indexNum < {0:d}){{
                 Serial.println(analogRead(analog_linesensors[indexNum]));
-            } else {
+            }} else {{
                 Serial.println("Error: usage - rals [id]");
-            }
-        } else {
+            }}
+        }} else {{
             Serial.println("Error: usage - rals [id]");
-        }
-    }
+        }}
+    }}
 '''.format(len(self.analog_sensor_list))
 
         return rv

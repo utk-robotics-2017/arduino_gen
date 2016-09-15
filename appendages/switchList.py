@@ -20,16 +20,16 @@ class switchList:
     def get_pins(self):
         rv = ""
         for sensor in self.switchList:
-            rv += "const char {}_pin = {};\n".format(sensor.label, sensor.pin)
+            rv += "const char {0:s}_pin = {1:d};\n".format(sensor.label, sensor.pin)
         return rv
 
     def get_constructor(self):
         rv = ""
         for i, sensor in enumerate(self.switchList):
-            rv += "const char {}_index = {};\n".format(sensor.label, i)
-        rv += "char switches[{}] = {\n".format(len(self.switchList))
+            rv += "const char {0:s}_index = {1:d};\n".format(sensor.label, i)
+        rv += "char switches[{0:d}] = {{\n".format(len(self.switchList))
         for sensor in self.switchList:
-            rv += ("    {}_pin,\n").format(sensor.label)
+            rv += ("\t{0:s}_pin,\n").format(sensor.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
@@ -37,9 +37,9 @@ class switchList:
         rv = ""
         for sensor in self.switchList:
             if sensor.pullup:
-                rv += "    pinMode({}_pin, INPUT_PULLUP);\n".format(sensor.label)
+                rv += "\tpinMode({0:s}_pin, INPUT_PULLUP);\n".format(sensor.label)
             else:
-                rv += "    pinMode({}_pin, INPUT);\n".format(sensor.label)
+                rv += "\tpinMode({0:s}_pin, INPUT);\n".format(sensor.label)
         rv += "\n"
         return rv
 
@@ -47,18 +47,18 @@ class switchList:
         return ""
 
     def get_response_block(self):
-        return '''    else if(args[0].equals(String("rs"))){ // read switches
-        if(numArgs == 2){
+        return '''\t\telse if(args[0].equals(String("rs"))){{ // read switches
+        if(numArgs == 2){{
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {}){
+            if(indexNum > -1 && indexNum < {0:d}){{
                 Serial.println(digitalRead(switches[indexNum]));
-            } else {
+            }} else {{
                 Serial.println("Error: usage - rs [id]");
-            }
-        } else {
+            }}
+        }} else {{
             Serial.println("Error: usage - rs [id]");
-        }
-    }
+        }}
+    }}
 '''.format(len(self.switchList))
 
     def get_extra_functions(self):

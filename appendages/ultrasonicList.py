@@ -19,17 +19,17 @@ class ultrasonicList:
     def get_pins(self):
         rv = ""
         for sensor in self.sensor_list:
-            rv += "const char {}_pin = {};\n".format(sensor.label, sensor.pin)
+            rv += "const char {0:s}_pin = {0:d};\n".format(sensor.label, sensor.pin)
         return rv
 
     def get_constructor(self):
         rv = ""
-        for i in range(len(self.sensor_list)):
-            rv += "const char {}_index = {};\n".format(self.sensor_list[i].label, i)
-        rv += "NewPing ultrasonics[{}] = {\n".format(len(self.sensor_list))
+        for i, sensor in enumerate(self.sensor_list):
+            rv += "const char {0:s}_index = {1:d};\n".format(sensor.label, i)
+        rv += "NewPing ultrasonics[{0:d}] = {\n".format(len(self.sensor_list))
 
         for sensor in self.sensor_list:
-            rv +="    NewPing({}_pin, {}_pin),\n".format(sensor.label, sensor.label)
+            rv += "\tNewPing({0:s}_pin, {0:s}_pin),\n".format(sensor.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
@@ -40,19 +40,19 @@ class ultrasonicList:
         return ""
 
     def get_response_block(self):
-        return '''    else if(args[0].equals(String("rus"))){ // read ultrasonics
-        if(numArgs == 2){
+        return '''\t\telse if(args[0].equals(String("rus"))){{ // read ultrasonics
+        if(numArgs == 2){{
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {}){
+            if(indexNum > -1 && indexNum < {0:d}){{
                 unsigned int response = ultrasonics[indexNum].ping();
                 Serial.println(response);
-            } else {
+            }} else {{
                 Serial.println("Error: usage - rus [id]");
-            }
-        } else {
+            }}
+        }} else {{
             Serial.println("Error: usage - rus [id]");
-        }
-    }
+        }}
+    }}
 '''.format(len(self.sensor_list))
 
     def get_extra_functions(self):
