@@ -1,4 +1,4 @@
-class Pid:
+class PID:
     def __init__(self, label, kp, ki, kd, minOutput=None, maxOutput=None, reverse=False):
         self.label = label
         self.kp = float(kp)
@@ -10,9 +10,10 @@ class Pid:
         self.reverse = reverse
 
 
-class pidList:
+class PidList:
+    TIER = 1
+
     def __init__(self):
-        self.tier = 1
         self.pidDict = {}
         self.pidList = []
         self.vpidDict = {}
@@ -27,25 +28,27 @@ class pidList:
             maxOutput = None
 
         if not json_item['vpid']:
-            pid = Pid(json_item['label'], json_item['kp'], json_item['ki'], json_item['kd'],
+            pid = PID(json_item['label'], json_item['kp'], json_item['ki'], json_item['kd'],
                       minOutput, maxOutput, json_item['reverse'])
             self.pidDict[pid.label] = pid
             self.pidList.append(pid)
             self.pidList.sort(key=lambda x: x.label, reverse=False)
         else:
-            pid = Pid(json_item['label'], json_item['kp'], json_item['ki'], json_item['kd'],
+            pid = PID(json_item['label'], json_item['kp'], json_item['ki'], json_item['kd'],
                       minOutput, maxOutput, json_item['reverse'])
             self.vpidDict[pid.label] = pid
             self.vpidList.append(pid)
             self.vpidList.sort(key=lambda x: x.label, reverse=False)
 
     def get(self, label):
-        if label in list(self.vpidDict.keys()):
+        if label in self.vpidDict:
             return self.vpidDict[label]
-        else:
+        elif label in self.pidDict:
             return self.pidDict[label]
+        else:
+            return None
 
-    def get_include(self):
+    def get_includes(self):
         return "#include \"PID.h\"\n#include \"vPID.h\""
 
     def get_pins(self):
@@ -73,7 +76,7 @@ class pidList:
                 rv += "const char {0:s}_index = {1:d};\n".format(pid.label, i)
             rv += ("double lastPositions_pid[{0:d}];\ndouble Inputs_pid[{0:d}], " +
                    "Setpoints_pid[{0:d}], Outputs_pid[{0:d}];\n").format(length_pids)
-            rv += "PID pids[{0:d}] = \{\n".format(length_pids)
+            rv += "PID pids[{0:d}] = {{\n".format(length_pids)
             for pid in self.pidList:
                 rv += ("\tPID(&Inputs_pid[{0:s}_index], &Outputs_pid[{0:s}_index], " +
                        "&Setpoints_pid[{0:s}_index], {1:f}, {2:f}, {3:f}, {4:s}),\n")\

@@ -5,16 +5,17 @@ class Switch:
         self.pullup = pullup
 
 
-class switchList:
+class SwitchList:
+    TIER = 1
+
     def __init__(self):
-        self.tier = 1
         self.switchList = []
 
     def add(self, json_item):
         self.switchList.append(Switch(json_item['label'], json_item['pin'], json_item['pullup']))
         self.switchList.sort(key=lambda x: x.label, reverse=False)
 
-    def get_include(self):
+    def get_includes(self):
         return ""
 
     def get_pins(self):

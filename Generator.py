@@ -1,11 +1,9 @@
 import os
-import shutil
-import fileinput
-import getpass
 import json
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode"
+
 
 class Generator:
     def __init__(self, appendage_dict):
@@ -20,9 +18,9 @@ class Generator:
         keys = list(self.appendage_dict.keys())
         for i in range(1, 3):
             for key in keys:
-                if not self.appendage_dict[key].tier == i:
+                if not self.appendage_dict[key].TIER == i:
                     continue
-                include = self.appendage_dict[key].get_include()
+                include = self.appendage_dict[key].get_includes()
                 if include != "":
                     rv += "%s\n" % include
         rv += "\n"
@@ -53,7 +51,7 @@ class Generator:
         keys = list(self.appendage_dict.keys())
         for i in range(1, 3):
             for key in keys:
-                if not self.appendage_dict[key].tier == i:
+                if not self.appendage_dict[key].TIER == i:
                     continue
                 constructor = self.appendage_dict[key].get_constructor()
                 if not constructor == "":
@@ -231,7 +229,6 @@ void parseAndExecuteCommand(String command) {
   s.toCharArray(buf, s.length() + 1);
   return atof(buf);
 }'''
-        keys = list(self.appendage_dict.keys())
         for appendage in list(self.appendage_dict.values()):
             rv += appendage.get_extra_functions()
         return rv
@@ -252,13 +249,13 @@ void parseAndExecuteCommand(String command) {
         serial_fo.write("picocom /dev/%s -b 115200 --echo\n" % arduino)
         serial_fo.close()
         os.chmod("%s/serial.sh" % writeTo, 0o777)
-    
+
     def write_indices_file(self, writeTo, arduino):
         indices = {}
         for appendages in list(self.appendage_dict.values()):
             for i, appendage in appendages.get_indices():
                 indices[appendage.label] = i
-        
+
         indices_text = json.dumps(indices)
 
         indices_fo = open("%s/%s_indices.json" % (writeTo, arduino), 'w')

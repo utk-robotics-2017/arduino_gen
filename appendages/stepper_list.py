@@ -1,5 +1,5 @@
 class Stepper:
-    def ___init__(self, label, steps, pinA, pinB, pinC, pinD, initial_speed):
+    def __init__(self, label, steps, pinA, pinB, pinC, pinD, initial_speed):
         self.label = label
         self.steps = steps
         self.pinA = pinA
@@ -9,15 +9,17 @@ class Stepper:
         self.initial_speed = initial_speed
 
 
-class stepperList:
+class StepperList:
+    TIER = 1
+
     def __init__(self):
-        self.tier = 1
         self.stepperDict = {}
         self.stepperList = []
 
     def add(self, json_item):
-        stepper = Stepper(json_item['label'], json_item['num_steps'], json_item['pinA'],
-                          json_item['pinB'], json_item['pinC'], json_item['pinD'],
+        stepper = Stepper(json_item['label'], json_item['steps'],
+                          json_item['pinA'], json_item['pinB'],
+                          json_item['pinC'], json_item['pinD'],
                           json_item['initial_speed'])
         self.stepperDict[json_item['label']] = stepper
         self.stepperList.append(stepper)
@@ -26,7 +28,7 @@ class stepperList:
     def get(self, label):
         return self.actuators[label]
 
-    def get_include(self):
+    def get_includes(self):
         return "#include \"Stepper.h\""
 
     def get_pins(self):
@@ -43,7 +45,7 @@ class stepperList:
         for i, stepper in enumerate(self.stepperList):
             rv += "const char {0:s}_index = {1:d};\n".format(stepper.label, i)
 
-        rv += ("Stepper steppers[{0:d}] = {\n").format(len(self.stepperList))
+        rv += ("Stepper steppers[{0:d}] = {{\n").format(len(self.stepperList))
         for stepper in self.stepperList:
             rv += ("\tStepper({0:d}, {1:s}_pinA, {1:s}_pinB, {1:s}_pinC, {1:s}_pinD),")\
                     .format(stepper.steps, stepper.label)

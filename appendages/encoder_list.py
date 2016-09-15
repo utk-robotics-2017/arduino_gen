@@ -1,3 +1,6 @@
+from appendages.component_list import ComponentList
+
+
 class Encoder:
     def __init__(self, label, pinA, pinB):
         self.label = label
@@ -5,9 +8,10 @@ class Encoder:
         self.pinB = pinB
 
 
-class encoderList:
+class EncoderList(ComponentList):
+    TIER = 1
+
     def __init__(self):
-        self.tier = 1
         self.encoderDict = {}
         self.encoderList = []
 
@@ -18,7 +22,10 @@ class encoderList:
         self.encoderList.sort(key=lambda x: x.label, reverse=False)
 
     def get(self, label):
-        return self.encoderDict['label']
+        if label in self.encoderDict:
+            return self.encoderDict[label]
+        else:
+            return None
 
     def get_includes(self):
         return '#include "Encoder.h"\n'
@@ -34,7 +41,7 @@ class encoderList:
         rv = ""
         for i, encoder in enumerate(self.encoderList):
             rv += "const char {0:s}_index = {1:d};\n".format(encoder.label, i)
-            rv += "Encoder encoders[{0:d}] = \{\n".format(len(self.encoderList))
+            rv += "Encoder encoders[{0:d}] = {{\n".format(len(self.encoderList))
 
         for encoder in self.encoderList:
             rv += "\tEncoder({0:s}_pinA, {0:s}_pinB),\n".format(encoder.label)
@@ -47,9 +54,6 @@ class encoderList:
             rv += "\tpinMode({0:s}_pinA, INPUT);\n".format(encoder.label)
             rv += "\tpinMode({0:s}_pinB, INPUT);\n".format(encoder.label)
         return rv
-
-    def get_loop_functions(self):
-        return ""
 
     def get_response_block(self):
         length = len(self.encoderList)
@@ -79,9 +83,6 @@ class encoderList:
         }}
     }}
 '''.format(length)
-
-    def get_extra_functions(self):
-        return ""
 
     def get_indices(self):
         for i, encoder in enumerate(self.encoderList):

@@ -8,9 +8,10 @@ class Motor:
         self.motor_controller = motor_controller
 
 
-class motorList:
+class MotorList:
+    TIER = 1
+
     def __init__(self):
-        self.tier = 1
         self.motorDict = {}
         self.motorList = []
 
@@ -29,8 +30,10 @@ class motorList:
     def get(self, label):
         if label in self.motorDict:
             return self.motorDict[label]
+        else:
+            return None
 
-    def get_include(self):
+    def get_includes(self):
         return "#include \"Motor.h\""
 
     def get_pins(self):

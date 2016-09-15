@@ -1,3 +1,6 @@
+from appendages.component_list import ComponentList
+
+
 class FourWheelDrive:
     def __init__(self, label, useVelocityControl, lf_motor, rf_motor, lb_motor, rb_motor):
         self.lf_motor = lf_motor
@@ -7,24 +10,25 @@ class FourWheelDrive:
         self.useVelocityControl = useVelocityControl
 
 
-class fourWheelDriveList:
+class FourWheelDriveList(ComponentList):
+    TIER = 3
+
     def __init__(self):
-        self.tier = 3
         self.drive_list = []
 
-    def add(self, json_item, motors, velocitycontrolledmotors):
+    def add(self, json_item, motors, vcms):
         useVelocityControl = json_item['useVelocityControl']
 
-        if self.useVelocityControl:
-            lf_motor = velocitycontrolledmotors.get[json_item['leftFrontDriveMotor']]
-            rf_motor = velocitycontrolledmotors.get[json_item['rightFrontDriveMotor']]
-            lb_motor = velocitycontrolledmotors.get[json_item['leftBackDriveMotor']]
-            rb_motor = velocitycontrolledmotors.get[json_item['rightBackDriveMotor']]
+        if useVelocityControl:
+            lf_motor = vcms.get(json_item['leftFrontDriveMotor'])
+            rf_motor = vcms.get(json_item['rightFrontDriveMotor'])
+            lb_motor = vcms.get(json_item['leftBackDriveMotor'])
+            rb_motor = vcms.get(json_item['rightBackDriveMotor'])
         else:
-            lf_motor = motors.get[json_item['leftFrontDriveMotor']]
-            rf_motor = motors.get[json_item['rightFrontDriveMotor']]
-            lb_motor = motors.get[json_item['leftBackDriveMotor']]
-            rb_motor = motors.get[json_item['rightBackDriveMotor']]
+            lf_motor = motors.get(json_item['leftFrontDriveMotor'])
+            rf_motor = motors.get(json_item['rightFrontDriveMotor'])
+            lb_motor = motors.get(json_item['leftBackDriveMotor'])
+            rb_motor = motors.get(json_item['rightBackDriveMotor'])
 
         self.drive_list.append(FourWheelDrive(json_item['label'], useVelocityControl, lf_motor,
                                               rf_motor, lb_motor, rb_motor))
@@ -32,36 +36,25 @@ class fourWheelDriveList:
     def get_includes(self):
         return "#include \"FourWheelDrive.h\""
 
-    def get_pins(self):
-        return ""
-
     def get_constructor(self):
         rv = "FourWheelDrive fwds = {{\n"
         for drivebase in self.drivebase_list:
             if drivebase.useVelocityControl:
-                rv += ("\tFourWheelDrive(&vcms[{0:s}_index], &vcms[{1:s}_index], &vcms[{2:s}_index], " +
-                       "&vcms[{3:s}_index]),\n").format(drivebase.lf_motor.label,
-                                                     drivebase.rf_motor.label,
-                                                     drivebase.lb_motor.label,
-                                                     drivebase.rb_motor.label)
+                rv += ("\tFourWheelDrive(&vcms[{0:s}_index], &vcms[{1:s}_index], " +
+                       "&vcms[{2:s}_index], &vcms[{3:s}_index]),\n")\
+                        .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
+                                drivebase.lb_motor.label, drivebase.rb_motor.label)
             else:
-                rv += "(\tFourWheelDrive(&motors[{0:s}_index], &motors[{1:s}_index], " +
-                "&motors[{2:s}_index], &motors[{3:s}_index]),\n").format(drivebase.lf_motor.label,
-                                                                         drivebase.rf_motor.label,
-                                                                         drivebase.lb_motor.label,
-                                                                         drivebase.rb_motor.label)
+                rv += ("\tFourWheelDrive(&motors[{0:s}_index], &motors[{1:s}_index], " +
+                       "&motors[{2:s}_index], &motors[{3:s}_index]),\n")\
+                        .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
+                                drivebase.lb_motor.label, drivebase.rb_motor.label)
         rv = rv[:-2] + "\n}};\n"
         return rv
 
-    def get_setup(self):
-        return ""
-
-    def get_loop_functions(self):
-        return ""
-
     def get_response_block(self):
         length = len(self.actuator_list)
-        return '''    else if(args[0].equals(String("dfwd"))){{ // drive four wheel drivebase
+        return '''\t\telse if(args[0].equals(String("dfwd"))){{ // drive four wheel drivebase
         if(numArgs == 6){{
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < {0:d}){{
@@ -70,17 +63,20 @@ class fourWheelDriveList:
                 int leftback = args[4].toInt();
                 int rightback = args[5].toInt();
 
-                if(leftfront > -1024 && leftfront < 1024 && rightfront > -1024 && rightfront < 1024 && leftback > -1024 && leftback < 1024 && rightback > -1024 && rightback < 1024) {{
+                if(leftfront > -1024 && leftfront < 1024 &&
+                   rightfront > -1024 && rightfront < 1024 &&
+                   leftback > -1024 && leftback < 1024 &&
+                   rightback > -1024 && rightback < 1024) {{
                     fwds[indexNum].drive(leftfront, rightfront, leftback, rightback)
                     Serial.println("ok");
                 }} else {{
-                    Serial.println("Error: usage - dfwd [id] [left front value] [right front value] [left back value] [right back value]");
+                    Serial.println("Error: usage - dfwd [id] [lf] [rf] [lb] [rb]");
                 }}
             }} else {{
-                Serial.println("Error: usage - dfwd [id] [left front value] [right front value] [left back value] [right back value]");
+                Serial.println("Error: usage - dfwd [id] [lf] [rf] [lb] [rb]");
             }}
         }} else {{
-            Serial.println("Error: usage - dfwd [id] [left front value] [right front value] [left back value] [right back value]");
+            Serial.println("Error: usage - dfwd [id] [lf] [rf] [lb] [rb]");
         }}
     }}
     else if(args[0].equals(String("sfwd"))){{ // stop four wheel drivebase
@@ -108,10 +104,10 @@ class fourWheelDriveList:
                 fwds[indexNum].drivePID(leftfront, rightfront, leftback, rightback)
                 Serial.println("ok");
             }} else {{
-                Serial.println("Error: usage - dfwdp [id] [left front value] [right front value] [left back value] [right back value]");
+                Serial.println("Error: usage - dfwdp [id] [lf] [rf] [lb] [rb]");
             }}
         }} else {{
-            Serial.println("Error: usage - dfwdp [id] [left front value] [right front value] [left back value] [right back value]");
+            Serial.println("Error: usage - dfwdp [id] [lf] [rf] [lb] [rb]");
         }}
     }}
     else if(args[0].equals(String("fwdfl"))){{ // get left side position
@@ -143,9 +139,6 @@ class fourWheelDriveList:
         }}
     }}
 ''' % (length)
-
-    def get_extra_functions(self):
-        return ""
 
     def get_indices(self):
         for i, drivebase in enumerate(self.drivebase_list):

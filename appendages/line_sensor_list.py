@@ -1,22 +1,23 @@
-class linesensor:
+class LineSensor:
     def __init__(self, label, pin):
         self.label = label
         self.pin = pin
 
 
-class linesensorList:
+class LineSensorList:
+    TIER = 1
+
     def __init__(self):
-        self.tier = 1
         self.digital_sensor_list = []
         self.analog_sensor_list = []
 
     def add(self, json_item):
         if(json_item['digital']):
-            self.digital_sensor_list.append(linesensor(json_item['label'], json_item['pin']))
+            self.digital_sensor_list.append(LineSensor(json_item['label'], json_item['pin']))
         else:
-            self.analog_sensor_list.append(linesensor(json_item['label'], json_item['pin']))
+            self.analog_sensor_list.append(LineSensor(json_item['label'], json_item['pin']))
 
-    def get_include(self):
+    def get_includes(self):
         return ""
 
     def get_pins(self):
@@ -32,9 +33,9 @@ class linesensorList:
 
         if(len(self.digital_sensor_list) > 0):
             for i, linesensor in enumerate(self.digital_sensor_list):
-                rv += "const char {0:s}_index = {0:d};\n".format(linesensor.label, i)
+                rv += "const char {0:s}_index = {1:d};\n".format(linesensor.label, i)
 
-            rv += "char digital_linesensors[{0:d}] = \{\n".format(len(self.digital_sensor_list))
+            rv += "char digital_linesensors[{0:d}] = {{\n".format(len(self.digital_sensor_list))
 
             for sensor in self.digital_sensor_list:
                 rv += ("\t{0:s}_pin,\n").format(sensor.label)
@@ -45,7 +46,7 @@ class linesensorList:
             for i, linesensor in enumerate(self.analog_sensor_list):
                 rv += "const char {0:s}_index = {1:d};\n".format(linesensor.label, i)
 
-            rv += "char analog_linesensors[{0:d}] = {\n".format(len(self.analog_sensor_list))
+            rv += "char analog_linesensors[{0:d}] = {{\n".format(len(self.analog_sensor_list))
 
             for sensor in self.analog_sensor_list:
                 rv += ("\t{0:s}_pin,\n").format(sensor.label)
