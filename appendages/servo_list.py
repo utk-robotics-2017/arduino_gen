@@ -1,10 +1,13 @@
+from appendages.component_list import ComponentList
+
+
 class Servo:
     def __init__(self, label, pin):
         self.label = label
         self.pin = pin
 
 
-class ServoList:
+class ServoList(ComponentList):
     TIER = 1
 
     def __init__(self):
@@ -53,9 +56,6 @@ class ServoList:
 
         return rv
 
-    def get_loop_functions(self):
-        return ""
-
     def get_response_block(self):
         return '''\t\telse if(args[0].equals(String("ss"))){{ // set servo
         if(numArgs == 3){{
@@ -88,9 +88,6 @@ class ServoList:
         }}
     }}
 '''.format(len(self.servoList))
-
-    def get_extra_functions(self):
-        return ""
 
     def get_indices(self):
         for i, servo in enumerate(self.servoList):

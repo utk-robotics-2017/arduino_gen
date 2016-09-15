@@ -1,3 +1,6 @@
+from appendages.component_list import ComponentList
+
+
 class PID:
     def __init__(self, label, kp, ki, kd, minOutput=None, maxOutput=None, reverse=False):
         self.label = label
@@ -10,7 +13,7 @@ class PID:
         self.reverse = reverse
 
 
-class PidList:
+class PidList(ComponentList):
     TIER = 1
 
     def __init__(self):
@@ -50,9 +53,6 @@ class PidList:
 
     def get_includes(self):
         return "#include \"PID.h\"\n#include \"vPID.h\""
-
-    def get_pins(self):
-        return ""
 
     def get_constructor(self):
         rv = ""
@@ -96,9 +96,6 @@ class PidList:
                 rv += ("\tpids[{0:s}_index].SetOutputLimits({1:f}, {2:f});\n")\
                         .format(pid.label, pid.minOutput, pid.maxOutput)
         return rv
-
-    def get_loop_functions(self):
-        return ""
 
     def get_response_block(self):
         length_vpids = len(self.vpidList)
@@ -234,10 +231,6 @@ class PidList:
 }}
 '''.format(length_vpids)
         return rv
-
-    # extra functions for loop are written by the systems using the pid
-    def get_extra_functions(self):
-        return ""
 
     def get_indices(self):
         for i, vpid in enumerate(self.vpidList):

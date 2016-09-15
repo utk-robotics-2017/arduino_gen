@@ -1,10 +1,13 @@
+from appendages.component_list import ComponentList
+
+
 class Ultrasonic:
     def __init__(self, label, pin):
         self.label = label
         self.pin = pin
 
 
-class UltrasonicList:
+class UltrasonicList(ComponentList):
     TIER = 1
 
     def __init__(self):
@@ -33,12 +36,6 @@ class UltrasonicList:
         rv = rv[:-2] + "\n};\n"
         return rv
 
-    def get_setup(self):
-        return ""
-
-    def get_loop_functions(self):
-        return ""
-
     def get_response_block(self):
         return '''\t\telse if(args[0].equals(String("rus"))){{ // read ultrasonics
         if(numArgs == 2){{
@@ -54,9 +51,6 @@ class UltrasonicList:
         }}
     }}
 '''.format(len(self.sensor_list))
-
-    def get_extra_functions(self):
-        return ""
 
     def get_indices(self):
         for i, ultrasonic in enumerate(self.sensor_list):

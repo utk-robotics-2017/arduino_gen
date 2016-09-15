@@ -1,3 +1,6 @@
+from appendages.component_list import ComponentList
+
+
 class Motor:
     def __init__(self, label, inA_pin, inB_pin, pwm_pin, reverse, motor_controller):
         self.label = label
@@ -8,7 +11,7 @@ class Motor:
         self.motor_controller = motor_controller
 
 
-class MotorList:
+class MotorList(ComponentList):
     TIER = 1
 
     def __init__(self):
@@ -36,9 +39,6 @@ class MotorList:
     def get_includes(self):
         return "#include \"Motor.h\""
 
-    def get_pins(self):
-        return ""
-
     def get_constructor(self):
         rv = ""
         for i, motor in enumerate(self.motorList):
@@ -59,9 +59,6 @@ class MotorList:
                 rv += "\tpinMode({0:d}, OUTPUT);\n".format(motor.inB_pin)
                 rv += "\tpinMode({0:d}, OUTPUT);\n".format(motor.pwm_pin)
         return rv
-
-    def get_loop_functions(self):
-        return ""
 
     def get_response_block(self):
         length = len(self.motorList)
@@ -97,9 +94,6 @@ class MotorList:
         }}
     }}
 '''.format(length)
-
-    def get_extra_functions(self):
-        return ""
 
     def get_indices(self):
         for i, motor in enumerate(self.motorList):

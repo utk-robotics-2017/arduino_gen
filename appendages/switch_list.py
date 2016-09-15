@@ -1,3 +1,6 @@
+from appendages.component_list import ComponentList
+
+
 class Switch:
     def __init__(self, label, pin, pullup):
         self.label = label
@@ -5,7 +8,7 @@ class Switch:
         self.pullup = pullup
 
 
-class SwitchList:
+class SwitchList(ComponentList):
     TIER = 1
 
     def __init__(self):
@@ -14,9 +17,6 @@ class SwitchList:
     def add(self, json_item):
         self.switchList.append(Switch(json_item['label'], json_item['pin'], json_item['pullup']))
         self.switchList.sort(key=lambda x: x.label, reverse=False)
-
-    def get_includes(self):
-        return ""
 
     def get_pins(self):
         rv = ""
@@ -44,9 +44,6 @@ class SwitchList:
         rv += "\n"
         return rv
 
-    def get_loop_functions(self):
-        return ""
-
     def get_response_block(self):
         return '''\t\telse if(args[0].equals(String("rs"))){{ // read switches
         if(numArgs == 2){{
@@ -61,9 +58,6 @@ class SwitchList:
         }}
     }}
 '''.format(len(self.switchList))
-
-    def get_extra_functions(self):
-        return ""
 
     def get_indices(self):
         for i, switch in enumerate(self.switchList):

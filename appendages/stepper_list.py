@@ -1,3 +1,6 @@
+from appendages.component_list import ComponentList
+
+
 class Stepper:
     def __init__(self, label, steps, pinA, pinB, pinC, pinD, initial_speed):
         self.label = label
@@ -9,7 +12,7 @@ class Stepper:
         self.initial_speed = initial_speed
 
 
-class StepperList:
+class StepperList(ComponentList):
     TIER = 1
 
     def __init__(self):
@@ -67,9 +70,6 @@ class StepperList:
 
         return rv
 
-    def get_loop_functions(self):
-        return ""
-
     def get_response_block(self):
         return '''\t\telse if(args[0].equals(String("sssp"))){{ // set stepper speed
     if(numArgs == 3){{
@@ -100,9 +100,6 @@ else if(args[0].equals(String("sss"))){{ // step stepper
     }}
 }}
 '''.format(len(self.stepperList))
-
-    def get_extra_functions(self):
-        return ""
 
     def get_indices(self):
         for i, stepper in enumerate(self.stepperList):

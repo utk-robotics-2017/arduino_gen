@@ -82,9 +82,10 @@ class LineSensorArrayList(ComponentList):
         rv += "\t}\n"
         return rv
 
-    # TODO
     def get_response_block(self):
-        return """\t\telse if(args[0].equals(String("rdlsa"))){{ // read digital line sensor array
+        rv =""
+        if len(self.digital_sensor_list) > 0:
+            rv += """\t\telse if(args[0].equals(String("rdlsa"))){{ // read digital line sensor array
         if(numArgs == 3){{
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < {0:d}){{
@@ -100,4 +101,22 @@ class LineSensorArrayList(ComponentList):
         }} else {{
             Serial.println("Error: usage - rdlsa [id] white");
         }}
-    }}"""
+    }}""".format(len(self.digital_sensor_list))
+    if len(self.analog_sensor_list) > 0:
+        rv += """else if(args[0].equals(String("ralsa"))){{ // read analog line sensor array
+    if(numArgs == 3){{
+        int indexNum = args[1].toInt();
+        if(indexNum > -1 && indexNum < {1:d}){{
+            int white = args[2].toInt();
+            if(white > -1 && white < 2){{
+                Serial.println(analog_linesensor_array[indexNum].readline(analog_linesensor_values_arrays[indexNum], 1, white));
+            }} else {{
+                Serial.println("Error: usage - ralsa [id] [white]");
+            }}
+        }} else {{
+            Serial.println("Error: usage - ralsa [id] [white]");
+        }}
+    }} else {{
+        Serial.println("Error: usage - ralsa [id] white");
+    }}
+}}""".format(len(self.analog_sensor_list))

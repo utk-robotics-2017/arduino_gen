@@ -1,4 +1,5 @@
 from appendages.i2c_encoder_list import I2CEncoder
+from appendages.component_list import ComponentList
 
 
 class VelocityControlledMotor:
@@ -9,7 +10,7 @@ class VelocityControlledMotor:
         self.vpid = vpid
 
 
-class VelocityControlledMotorList:
+class VelocityControlledMotorList(ComponentList):
     TIER = 2
 
     def __init__(self):
@@ -38,9 +39,6 @@ class VelocityControlledMotorList:
     def get_includes(self):
         return "#include \"VelocityControlledMotor.h\";"
 
-    def get_pins(self):
-        return ""
-
     def get_constructor(self):
         rv = "VelocityControlledMotor vcms[{0:d}] = \{{\n".format(len(self.vcmList))
         for vcm in self.vcmList:
@@ -57,11 +55,8 @@ class VelocityControlledMotorList:
         rv = rv[:-2] + "\n}};\n"
         return rv
 
-    def get_setup(self):
-        return ""
-
     def get_loop_functions(self):
-        return "for(int i = 0; i < {}; i++) {{\n\t\t\tvcms[i].runVPID();\n\t\t}}\n".format(
+        return "for(int i = 0; i < {0:d}; i++) {{\n\t\t\tvcms[i].runVPID();\n\t\t}}\n".format(
             len(self.vcmList))
 
     def get_response_block(self):
@@ -139,9 +134,6 @@ class VelocityControlledMotorList:
         }}
     }}
 '''.format(length)
-
-    def get_extra_functions(self):
-        return ""
 
     def get_indices(self):
         for i, vcm in enumerate(self.vcmList):

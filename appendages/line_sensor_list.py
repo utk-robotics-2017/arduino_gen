@@ -1,10 +1,13 @@
+from appendages.component_list import ComponentList
+
+
 class LineSensor:
     def __init__(self, label, pin):
         self.label = label
         self.pin = pin
 
 
-class LineSensorList:
+class LineSensorList(ComponentList):
     TIER = 1
 
     def __init__(self):
@@ -17,9 +20,6 @@ class LineSensorList:
         else:
             self.analog_sensor_list.append(LineSensor(json_item['label'], json_item['pin']))
 
-    def get_includes(self):
-        return ""
-
     def get_pins(self):
         rv = ""
         for sensor in self.digital_sensor_list:
@@ -30,7 +30,6 @@ class LineSensorList:
 
     def get_constructor(self):
         rv = ""
-
         if(len(self.digital_sensor_list) > 0):
             for i, linesensor in enumerate(self.digital_sensor_list):
                 rv += "const char {0:s}_index = {1:d};\n".format(linesensor.label, i)
@@ -54,12 +53,6 @@ class LineSensorList:
             rv = rv[:-2] + "\n};\n"
 
         return rv
-
-    def get_setup(self):
-        return ""
-
-    def get_loop_functions(self):
-        return ""
 
     def get_response_block(self):
         rv = ""
@@ -94,9 +87,6 @@ class LineSensorList:
 '''.format(len(self.analog_sensor_list))
 
         return rv
-
-    def get_extra_functions(self):
-        return ""
 
     def get_indices(self):
         for i, linesensor in enumerate(self.digital_sensor_list):
