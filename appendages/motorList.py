@@ -7,6 +7,7 @@ class Motor:
         self.reverse = reverse
         self.motor_controller = motor_controller
 
+
 class motorList:
     def __init__(self):
         self.tier = 1
@@ -15,9 +16,11 @@ class motorList:
 
     def add(self, json_item):
         if json_item['motorController'].lower() == 'monstermoto':
-            motor = Motor(json_item['label'], json_item['inA_pin'], json_item['inB_pin'], json_item['pwm_pin'], json_item['reverse'], 'MonsterMoto')
+            motor = Motor(json_item['label'], json_item['inA_pin'], json_item['inB_pin'],
+                          json_item['pwm_pin'], json_item['reverse'], 'MonsterMoto')
         elif json_item['motorController'].lower() == 'roverfive':
-            motor = Motor(json_item['label'], json_item['dir_pin'], -1, json_item['pwm_pin'], json_item['reverse'], 'RoverFive')
+            motor = Motor(json_item['label'], json_item['dir_pin'], -1, json_item['pwm_pin'],
+                          json_item['reverse'], 'RoverFive')
 
         self.motorDict[motor.label] = motor
         self.motorList.append(motor)
@@ -36,20 +39,22 @@ class motorList:
     def get_constructor(self):
         rv = ""
         for i, motor in enumerate(self.motorList):
-            rv += "const char {}_index = {};\n".format(motor.label, i)
-        rv += "Motor motors[{}] = {\n".format(len(self.motorList))
+            rv += "const char {0:s}_index = {1:d};\n".format(motor.label, i)
+            rv += "Motor motors[{0:d}] = {{\n".format(len(self.motorList))
         for motor in self.motorList:
-            rv += "    Motor({}, {}, {}, {}, {}),\n".format(motor.inA_pin, motor.inB_pin, motor.pwm_pin, 1 if motor.reverse else 0, motor.motor_controller)
+            rv += "\tMotor({0:d}, {1:d}, {2:d}, {3:d}, {4:s}),\n"\
+                    .format(motor.inA_pin, motor.inB_pin, motor.pwm_pin, 1 if motor.reverse else 0,
+                            motor.motor_controller)
         rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_setup(self):
         rv = ""
         for motor in self.motorList:
-            rv += "    pinMode({}, OUTPUT);\n".format(motor.inA_pin)
+            rv += "\tpinMode({0:d}, OUTPUT);\n".format(motor.inA_pin)
             if not motor.inB_pin == -1:
-                rv += "    pinMode({}, OUTPUT);\n".format(motor.inB_pin)
-            rv += "    pinMode({}, OUTPUT);\n".format(motor.pwm_pin)
+                rv += "\tpinMode({0:d}, OUTPUT);\n".format(motor.inB_pin)
+                rv += "\tpinMode({0:d}, OUTPUT);\n".format(motor.pwm_pin)
         return rv
 
     def get_loop_functions(self):
@@ -57,38 +62,38 @@ class motorList:
 
     def get_response_block(self):
         length = len(self.motorList)
-        return '''    else if(args[0].equals(String("mod"))){ // motor drive
-        if(numArgs ==  3) {
+        return '''\t\telse if(args[0].equals(String("mod"))){{ // motor drive
+        if(numArgs ==  3) {{
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {}) {
+            if(indexNum > -1 && indexNum < {0:d}) {{
                 int value = args[2].toInt();
-                if( value < -1023 || value > 1023) {
+                if( value < -1023 || value > 1023) {{
                     Serial.println("Error: usage - mod [id] [value]");
-                } else {
+                }} else {{
                     motors[indexNum].drive(value);
                     Serial.println("ok");
-                }
-            } else {
+                }}
+            }} else {{
                 Serial.println("Error: usage - mod [id] [value]");
-            }
-        } else {
+            }}
+        }} else {{
             Serial.println("Error: usage - mod [id] [value]");
-        }
-    }
-    else if(args[0].equals(String("mos"))){ // motor stop
-        if(numArgs == 2) {
+        }}
+    }}
+    else if(args[0].equals(String("mos"))){{ // motor stop
+        if(numArgs == 2) {{
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {}) {
+            if(indexNum > -1 && indexNum < {0:d}) {{
                 motors[indexNum].stop();
                 Serial.println("ok");
-            } else {
+            }} else {{
                 Serial.println("Error: usage - mos [id]");
-            }
-        } else {
+            }}
+        }} else {{
             Serial.println("Error: usage - mos [id]");
-        }
-    }
-'''.format(length, length)
+        }}
+    }}
+'''.format(length)
 
     def get_extra_functions(self):
         return ""

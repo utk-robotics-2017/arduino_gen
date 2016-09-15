@@ -42,7 +42,7 @@ for arduino in arduinos:
 def log(wsId, message):
     print(("{}\tClient {:2d}\t{}".format(time.strftime("%H:%M:%S", time.localtime()), wsId, message)))
 
-class arduinoGen(tornado.websocket.WebSocketHandler):
+class Server(tornado.websocket.WebSocketHandler):
     def check_origin(self, origin):
         return True
 
@@ -230,7 +230,7 @@ class SetupTLS(tornado.web.RequestHandler):
 
 def make_app():
     return tornado.httpserver.HTTPServer(tornado.web.Application([
-        (r"/", arduinoGen),
+        (r"/", Server),
         (r"/setuptls", SetupTLS)
     ]), ssl_options={
         "certfile": "/etc/ssl/certs/tornado.crt",

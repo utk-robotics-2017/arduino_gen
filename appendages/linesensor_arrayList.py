@@ -29,7 +29,7 @@ class linesensor_arrayList:
         if len(self.digital_sensor_list) > 0:
             for i in range(len(self.digital_sensor_list)):
                 rv += "const char {}_index = {};\n".format(self.digital_sensor_list[i].label, i)
-            rv += "QTRSensorsRC digital_linsensor_arrays[{}] = {\n".format(len(self.digital_sensor_list))
+            rv += "QTRSensorsRC digital_linsensor_arrays[{}] = {{\n".format(len(self.digital_sensor_list))
             for sensor in self.digital_sensor_list:
                 rv += "    QTRSensorsRC((unsigned char[]){"
                 for pin in sensor.pin_list:

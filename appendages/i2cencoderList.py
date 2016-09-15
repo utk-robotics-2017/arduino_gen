@@ -4,6 +4,7 @@ class i2cencoder:
         self.reverse = reverse
         self.init_number = init_number
 
+
 class i2cencoderList:
     def __init__(self):
         self.tier = 1
@@ -28,20 +29,21 @@ class i2cencoderList:
     def get_constructor(self):
         rv = ""
         for i in range(len(self.sorted_sensors)):
-            rv += "const char {}_index = {};\n".format(self.sorted_sensors[i].label, i)
-        rv += "I2CEncoder i2cencoders[{}];\n".format(len(self.sorted_sensors))
+            rv += "const char {0:s}_index = {1:d};\n".format(self.sorted_sensors[i].label, i)
+            rv += "I2CEncoder i2cencoders[{0:d}];\n".format(len(self.sorted_sensors))
         return rv
 
     def get_setup(self):
         rv = "    Wire.begin();\n"
         for sensor in self.sorted_sensors:
-            rv += "    i2cencoders[{}_index].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);\n".format(sensor.label)
+            rv += ("\ti2cencoders[{0:s}_index].init(MOTOR_393_TORQUE_ROTATIONS, " +
+                   "MOTOR_393_TIME_DELTA);\n").format(sensor.label)
         for sensor in self.sorted_sensors:
             if sensor.reverse:
-                rv += "    i2cencoders[{}_index].setReversed(true);\n".format(sensor.label)
+                rv += "\ti2cencoders[{0:s}_index].setReversed(true);\n".format(sensor.label)
         for sensor in self.sorted_sensors:
-            rv += "    i2cencoders[{}_index].zero();\n".format(sensor.label)
-        rv +="\n"
+            rv += "\ti2cencoders[{0:s}_index].zero();\n".format(sensor.label)
+        rv += "\n"
         return rv
 
     def get_loop_functions(self):
@@ -51,76 +53,76 @@ class i2cencoderList:
 
         numSensors = len(self.sorted_sensors)
 
-        return '''    else if(args[0].equals(String("ep"))){ // i2c encoder position (in rotations)
-        if(numArgs == 2){
+        return '''\t\telse if(args[0].equals(String("ep"))){{ // i2c encoder position (in rotations)
+        if(numArgs == 2){{
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {}){
+            if(indexNum > -1 && indexNum < {0:d}){{
                 char dts[256];
                 dtostrf(i2cencoders[indexNum].getPosition(), 0, 6, dts);
                 Serial.println(dts);
-            } else {
+            }} else {{
                 Serial.println("Error: usage - ep [id]");
-            }
-        } else {
+            }}
+        }} else {{
             Serial.println("Error: usage - ep [id]");
-        }
-    }
-    else if(args[0].equals(String("erp"))){ // i2c encoder raw position (in ticks)
-        if(numArgs == 2){
+        }}
+    }}
+    else if(args[0].equals(String("erp"))){{ // i2c encoder raw position (in ticks)
+        if(numArgs == 2){{
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {}){
+            if(indexNum > -1 && indexNum < {0:d}){{
                 char dts[256];
                 dtostrf(i2cencoders[indexNum].getRawPosition(), 0, 6, dts);
                 Serial.println(dts);
-            } else {
+            }} else {{
                 Serial.println("Error: usage - erp [id]");
-            }
-        } else {
+            }}
+        }} else {{
             Serial.println("Error: usage - erp [id]");
-        }
-    }
-    else if(args[0].equals(String("es"))){ // i2c encoder speed (in revolutions per minute)
-        if(numArgs == 2){
+        }}
+    }}
+    else if(args[0].equals(String("es"))){{ // i2c encoder speed (in revolutions per minute)
+        if(numArgs == 2){{
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {}){
+            if(indexNum > -1 && indexNum < {0:d}){{
                 char dts[256];
                 dtostrf(i2cencoders[indexNum].getSpeed(), 0, 6, dts);
                 Serial.println(dts);
-            } else {
+            }} else {{
                 Serial.println("Error: usage - es [id]");
-            }
-        } else {
+            }}
+        }} else {{
             Serial.println("Error: usage - es [id]");
-        }
-    }
-    else if(args[0].equals(String("ev"))){ // i2c encoder velocity (in revolutions per minute)
-        if(numArgs == 2){
+        }}
+    }}
+    else if(args[0].equals(String("ev"))){{ // i2c encoder velocity (in revolutions per minute)
+        if(numArgs == 2){{
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {}){
+            if(indexNum > -1 && indexNum < {0:d}){{
                 char dts[256];
                 dtostrf(i2cencoders[indexNum].getVelocity(), 0, 6, dts);
                 Serial.println(dts);
-            } else {
+            }} else {{
                 Serial.println("Error: usage - ev [id]");
-            }
-        } else {
+            }}
+        }} else {{
             Serial.println("Error: usage - ev [id]");
-        }
-    }
-    else if(args[0].equals(String("ez"))){ // i2c encoder zero
-        if(numArgs == 2){
+        }}
+    }}
+    else if(args[0].equals(String("ez"))){{ // i2c encoder zero
+        if(numArgs == 2){{
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {}){
+            if(indexNum > -1 && indexNum < {0:d}){{
                 i2cencoders[indexNum].zero();
                 Serial.println("ok");
-            } else {
+            }} else {{
                 Serial.println("Error: usage - ez [id]");
-            }
-        } else {
+            }}
+        }} else {{
             Serial.println("Error: usage - ez [id]");
-        }
-    }
-'''.format(numSensors, numSensors, numSensors, numSensors, numSensors)
+        }}
+    }}
+'''.format(numSensors)
 
     def get_extra_functions(self):
         return ""
