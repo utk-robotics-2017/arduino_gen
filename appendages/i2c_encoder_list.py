@@ -34,7 +34,7 @@ class I2CEncoderList(ComponentList):
         rv = ""
         for i in range(len(self.sorted_sensors)):
             rv += "const char {0:s}_index = {1:d};\n".format(self.sorted_sensors[i].label, i)
-            rv += "I2CEncoder i2cencoders[{0:d}];\n".format(len(self.sorted_sensors))
+        rv += "I2CEncoder i2cencoders[{0:d}];\n".format(len(self.sorted_sensors))
         return rv
 
     def get_setup(self):

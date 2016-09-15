@@ -16,7 +16,7 @@ class Generator:
         rv = "// Includes\n"
 
         keys = list(self.appendage_dict.keys())
-        for i in range(1, 3):
+        for i in range(1, 4):
             for key in keys:
                 if not self.appendage_dict[key].TIER == i:
                     continue
@@ -49,7 +49,7 @@ class Generator:
     def add_constructors(self):
         rv = "// Constructors\n"
         keys = list(self.appendage_dict.keys())
-        for i in range(1, 3):
+        for i in range(1, 4):
             for key in keys:
                 if not self.appendage_dict[key].TIER == i:
                     continue

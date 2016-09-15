@@ -51,10 +51,10 @@ class ArduinoGen:
             if os.path.isfile(current_search_path + f) and f[-3:] == ".py" and not f == "__init__.py":
                 file_list.append(f)
         for f in file_list:
-            print("Module: {0:s}.{1:s}".format(current_import_path, f[:-3]))
+            print("\tModule: {0:s}.{1:s}".format(current_import_path, f[:-3]))
             module = importlib.import_module("{0:s}.{1:s}".format(current_import_path, f[:-3]))
             class_name = f[:-3].replace('_', ' ').title().replace(' ', '')
-            print("Class: {0:s}".format(class_name))
+            print("\tClass: {0:s}".format(class_name))
             class_ = getattr(module, class_name)
             while class_.TIER > len(device_type):
                 device_type.append({})

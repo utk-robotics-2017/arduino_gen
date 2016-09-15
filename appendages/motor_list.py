@@ -43,7 +43,7 @@ class MotorList(ComponentList):
         rv = ""
         for i, motor in enumerate(self.motorList):
             rv += "const char {0:s}_index = {1:d};\n".format(motor.label, i)
-            rv += "Motor motors[{0:d}] = {{\n".format(len(self.motorList))
+        rv += "Motor motors[{0:d}] = {{\n".format(len(self.motorList))
         for motor in self.motorList:
             rv += "\tMotor({0:d}, {1:d}, {2:d}, {3:d}, {4:s}),\n"\
                     .format(motor.inA_pin, motor.inB_pin, motor.pwm_pin, 1 if motor.reverse else 0,

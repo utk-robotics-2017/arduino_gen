@@ -3,6 +3,7 @@ from appendages.component_list import ComponentList
 
 class FourWheelDrive:
     def __init__(self, label, useVelocityControl, lf_motor, rf_motor, lb_motor, rb_motor):
+        self.label = label
         self.lf_motor = lf_motor
         self.rf_motor = rf_motor
         self.lb_motor = lb_motor
@@ -38,7 +39,7 @@ class FourWheelDriveList(ComponentList):
 
     def get_constructor(self):
         rv = "FourWheelDrive fwds = {{\n"
-        for drivebase in self.drivebase_list:
+        for drivebase in self.drive_list:
             if drivebase.useVelocityControl:
                 rv += ("\tFourWheelDrive(&vcms[{0:s}_index], &vcms[{1:s}_index], " +
                        "&vcms[{2:s}_index], &vcms[{3:s}_index]),\n")\
@@ -53,8 +54,8 @@ class FourWheelDriveList(ComponentList):
         return rv
 
     def get_response_block(self):
-        length = len(self.actuator_list)
-        return '''\t\telse if(args[0].equals(String("dfwd"))){{ // drive four wheel drivebase
+        length = len(self.drive_list)
+        return """\t\telse if(args[0].equals(String("dfwd"))){{ // drive four wheel drivebase
         if(numArgs == 6){{
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < {0:d}){{
@@ -95,7 +96,7 @@ class FourWheelDriveList(ComponentList):
     else if(args[0].equals(String("dfwdp"))){{ // drive four wheel drivebase with pid
         if(numArgs == 6){{
             int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}){
+            if(indexNum > -1 && indexNum < {0:d}){{
                 double leftfront = toDouble(args[2]);
                 double rightfront = toDouble(args[3]);
                 double leftback = toDouble(args[4]);
@@ -138,8 +139,8 @@ class FourWheelDriveList(ComponentList):
             Serial.println("Error: usage - fwdgr [id]");
         }}
     }}
-''' % (length)
+""".format(length)
 
     def get_indices(self):
-        for i, drivebase in enumerate(self.drivebase_list):
+        for i, drivebase in enumerate(self.drive_list):
             yield i, drivebase

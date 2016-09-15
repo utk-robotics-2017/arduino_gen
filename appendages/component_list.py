@@ -1,4 +1,6 @@
 class ComponentList:
+    TIER = 0
+
     def __init__(self):
         pass
 

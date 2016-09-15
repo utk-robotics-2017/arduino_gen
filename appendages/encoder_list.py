@@ -41,8 +41,7 @@ class EncoderList(ComponentList):
         rv = ""
         for i, encoder in enumerate(self.encoderList):
             rv += "const char {0:s}_index = {1:d};\n".format(encoder.label, i)
-            rv += "Encoder encoders[{0:d}] = {{\n".format(len(self.encoderList))
-
+        rv += "Encoder encoders[{0:d}] = {{\n".format(len(self.encoderList))
         for encoder in self.encoderList:
             rv += "\tEncoder({0:s}_pinA, {0:s}_pinB),\n".format(encoder.label)
         rv = rv[:-2] + "\n};\n"

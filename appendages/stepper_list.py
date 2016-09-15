@@ -50,7 +50,7 @@ class StepperList(ComponentList):
 
         rv += ("Stepper steppers[{0:d}] = {{\n").format(len(self.stepperList))
         for stepper in self.stepperList:
-            rv += ("\tStepper({0:d}, {1:s}_pinA, {1:s}_pinB, {1:s}_pinC, {1:s}_pinD),")\
+            rv += ("\tStepper({0:d}, {1:s}_pinA, {1:s}_pinB, {1:s}_pinC, {1:s}_pinD), ")\
                     .format(stepper.steps, stepper.label)
         rv = rv[:-2] + "\n};\n"
         return rv

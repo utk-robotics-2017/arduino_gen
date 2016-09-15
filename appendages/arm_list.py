@@ -38,7 +38,7 @@ class ArmList(ComponentList):
                    "servo_pins, servos),\n").format(arm.base.label, arm.shoulder.label,
                                                     arm.elbow.label, arm.wrist.label,
                                                     arm.wrist_rotate.label)
-        rv = rv[:-2] + "\n}};\n"
+        rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_response_block(self):
@@ -77,5 +77,5 @@ class ArmList(ComponentList):
 '''.format(len(self.arm_list))
 
     def get_indices(self):
-        for i, arm in enumerate(self.armList):
+        for i, arm in enumerate(self.arm_list):
             yield i, arm
