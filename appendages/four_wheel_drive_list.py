@@ -38,7 +38,7 @@ class FourWheelDriveList(ComponentList):
         return "#include \"FourWheelDrive.h\""
 
     def get_constructor(self):
-        rv = "FourWheelDrive fwds = {{\n"
+        rv = "FourWheelDrive fwds[] = {\n"
         for drivebase in self.drive_list:
             if drivebase.useVelocityControl:
                 rv += ("\tFourWheelDrive(&vcms[{0:s}_index], &vcms[{1:s}_index], " +
@@ -50,7 +50,7 @@ class FourWheelDriveList(ComponentList):
                        "&motors[{2:s}_index], &motors[{3:s}_index]),\n")\
                         .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
                                 drivebase.lb_motor.label, drivebase.rb_motor.label)
-        rv = rv[:-2] + "\n}};\n"
+        rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_response_block(self):
@@ -68,7 +68,8 @@ class FourWheelDriveList(ComponentList):
                    rightfront > -1024 && rightfront < 1024 &&
                    leftback > -1024 && leftback < 1024 &&
                    rightback > -1024 && rightback < 1024) {{
-                    fwds[indexNum].drive(leftfront, rightfront, leftback, rightback)
+                    fwds[indexNum].drive(leftfront, rightfront, leftback,
+                    rightback);
                     Serial.println("ok");
                 }} else {{
                     Serial.println("Error: usage - dfwd [id] [lf] [rf] [lb] [rb]");
@@ -84,7 +85,7 @@ class FourWheelDriveList(ComponentList):
         if(numArgs == 2){{
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < {0:d}){{
-                fwds[indexNum].stop()
+                fwds[indexNum].stop();
                 Serial.println("ok");
             }} else {{
                 Serial.println("Error: usage - sfwd [id]");
@@ -102,7 +103,7 @@ class FourWheelDriveList(ComponentList):
                 double leftback = toDouble(args[4]);
                 double rightback = toDouble(args[5]);
 
-                fwds[indexNum].drivePID(leftfront, rightfront, leftback, rightback)
+                fwds[indexNum].drivePID(leftfront, rightfront, leftback, rightback);
                 Serial.println("ok");
             }} else {{
                 Serial.println("Error: usage - dfwdp [id] [lf] [rf] [lb] [rb]");

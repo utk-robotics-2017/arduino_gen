@@ -43,10 +43,7 @@ class VelocityControlledMotorList(ComponentList):
         rv = ""
         for i, vcm in enumerate(self.vcmList):
             rv += "const char {0:s}_index = {1:d};\n".format(vcm.label, i)
-        return rv
-
-    def get_constructor(self):
-        rv = "VelocityControlledMotor vcms[{0:d}] = {{\n".format(len(self.vcmList))
+        rv += "VelocityControlledMotor vcms[{0:d}] = {{\n".format(len(self.vcmList))
         for vcm in self.vcmList:
             if isinstance(vcm.encoder, I2CEncoder):
                 rv += ("\tVelocityControlledMotor(motors[{0:s}_index], i2cencoders[{1:s}_index], " +

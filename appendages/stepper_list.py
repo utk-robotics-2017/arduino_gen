@@ -76,7 +76,7 @@ class StepperList(ComponentList):
         int indexNum = args[1].toInt();
         if(indexNum > -1 && indexNum < {0:d}){{
             int value = args[2].toInt();
-            steppers[indexNum].setSpeed(balue);
+            steppers[indexNum].setSpeed(value);
             Serial.println("ok");
         }} else {{
             Serial.println("Error: usage - sssp [id] [value]");
@@ -90,7 +90,7 @@ else if(args[0].equals(String("sss"))){{ // step stepper
         int indexNum = args[1].toInt();
         if(indexNum > -1 && indexNum < {0:d}){{
             int value = args[2].toInt();
-            stepper[indexNum].step(value);
+            steppers[indexNum].step(value);
             Serial.println("ok");
         }} else {{
             Serial.println("Error: usage - sss [id] [value]");

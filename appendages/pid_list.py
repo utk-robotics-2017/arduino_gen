@@ -151,7 +151,7 @@ class PidList(ComponentList):
         dtostrf(Inputs_pid[indexNum], 0, 6, dts);
         ret += dts;
         ret += " ";
-        dtostrf(Setpoints_pid[indexNUm], 0, 6, dts);
+        dtostrf(Setpoints_pid[indexNum], 0, 6, dts);
         ret += dts;
         ret += " ";
         dtostrf(Outputs_pid[indexNum], 0, 6, dts);
