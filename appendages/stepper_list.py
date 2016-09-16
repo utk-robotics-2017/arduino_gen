@@ -1,5 +1,8 @@
+from appendages.component_list import ComponentList
+
+
 class Stepper:
-    def ___init__(self, label, steps, pinA, pinB, pinC, pinD, initial_speed):
+    def __init__(self, label, steps, pinA, pinB, pinC, pinD, initial_speed):
         self.label = label
         self.steps = steps
         self.pinA = pinA
@@ -9,15 +12,17 @@ class Stepper:
         self.initial_speed = initial_speed
 
 
-class stepperList:
+class StepperList(ComponentList):
+    TIER = 1
+
     def __init__(self):
-        self.tier = 1
         self.stepperDict = {}
         self.stepperList = []
 
     def add(self, json_item):
-        stepper = Stepper(json_item['label'], json_item['num_steps'], json_item['pinA'],
-                          json_item['pinB'], json_item['pinC'], json_item['pinD'],
+        stepper = Stepper(json_item['label'], json_item['steps'],
+                          json_item['pinA'], json_item['pinB'],
+                          json_item['pinC'], json_item['pinD'],
                           json_item['initial_speed'])
         self.stepperDict[json_item['label']] = stepper
         self.stepperList.append(stepper)
@@ -26,7 +31,7 @@ class stepperList:
     def get(self, label):
         return self.actuators[label]
 
-    def get_include(self):
+    def get_includes(self):
         return "#include \"Stepper.h\""
 
     def get_pins(self):
@@ -43,9 +48,9 @@ class stepperList:
         for i, stepper in enumerate(self.stepperList):
             rv += "const char {0:s}_index = {1:d};\n".format(stepper.label, i)
 
-        rv += ("Stepper steppers[{0:d}] = {\n").format(len(self.stepperList))
+        rv += ("Stepper steppers[{0:d}] = {{\n").format(len(self.stepperList))
         for stepper in self.stepperList:
-            rv += ("\tStepper({0:d}, {1:s}_pinA, {1:s}_pinB, {1:s}_pinC, {1:s}_pinD),")\
+            rv += ("\tStepper({0:d}, {1:s}_pinA, {1:s}_pinB, {1:s}_pinC, {1:s}_pinD), ")\
                     .format(stepper.steps, stepper.label)
         rv = rv[:-2] + "\n};\n"
         return rv
@@ -65,16 +70,13 @@ class stepperList:
 
         return rv
 
-    def get_loop_functions(self):
-        return ""
-
     def get_response_block(self):
         return '''\t\telse if(args[0].equals(String("sssp"))){{ // set stepper speed
     if(numArgs == 3){{
         int indexNum = args[1].toInt();
         if(indexNum > -1 && indexNum < {0:d}){{
             int value = args[2].toInt();
-            steppers[indexNum].setSpeed(balue);
+            steppers[indexNum].setSpeed(value);
             Serial.println("ok");
         }} else {{
             Serial.println("Error: usage - sssp [id] [value]");
@@ -88,7 +90,7 @@ else if(args[0].equals(String("sss"))){{ // step stepper
         int indexNum = args[1].toInt();
         if(indexNum > -1 && indexNum < {0:d}){{
             int value = args[2].toInt();
-            stepper[indexNum].step(value);
+            steppers[indexNum].step(value);
             Serial.println("ok");
         }} else {{
             Serial.println("Error: usage - sss [id] [value]");
@@ -98,9 +100,6 @@ else if(args[0].equals(String("sss"))){{ // step stepper
     }}
 }}
 '''.format(len(self.stepperList))
-
-    def get_extra_functions(self):
-        return ""
 
     def get_indices(self):
         for i, stepper in enumerate(self.stepperList):

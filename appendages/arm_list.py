@@ -1,4 +1,7 @@
-class arm:
+from appendages.component_list import ComponentList
+
+
+class Arm:
     def __init__(self, label, base, shoulder, elbow, wrist, wrist_rotate):
         self.label = label
         self.base = base
@@ -8,9 +11,10 @@ class arm:
         self.wrist_rotate = wrist_rotate
 
 
-class armList:
+class ArmList(ComponentList):
+    TIER = 2
+
     def __init__(self):
-        self.tier = 2
         self.arm_list = []
 
     def add(self, json_item, servos):
@@ -21,30 +25,24 @@ class armList:
         wrist_servo = servos.get(json_item['wrist_label'])
         wrist_rotate_servo = servos.get(json_item['wrist_rotate_label'])
 
-        self.arm_list.append(arm(json_item['label'], base_servo, shoulder_servo, elbow_servo,
+        self.arm_list.append(Arm(json_item['label'], base_servo, shoulder_servo, elbow_servo,
                                  wrist_servo, wrist_rotate_servo))
 
-    def get_include(self):
+    def get_includes(self):
         return "#include \"Arm.h\";"
 
-    def get_pins(self):
-        return ""
-
     def get_constructor(self):
-        rv = "Arm arms[{}] = {{\n".format(len(self.arm_list))
+        rv = "Arm arms[{0:d}] = {{\n".format(len(self.arm_list))
         for arm in self.arm_list:
             rv += ("\tArm({0:s}_index, {1:s}_index, {2:s}_index, {3:s}_index, {4:s}_index, " +
                    "servo_pins, servos),\n").format(arm.base.label, arm.shoulder.label,
                                                     arm.elbow.label, arm.wrist.label,
                                                     arm.wrist_rotate.label)
-        rv = rv[:-2] + "\n}};\n"
+        rv = rv[:-2] + "\n};\n"
         return rv
 
-    def get_setup(self):
-        return ""
-
     def get_response_block(self):
-        return '''    else if(args[0].equals(String("sa"))) {{ // set arm
+        return '''\t\telse if(args[0].equals(String("sa"))) {{ // set arm
         if(numArgs == 7) {{
             int indexNum = args[1].toInt();
             if(indexNum > -1 && indexNum < {0:d}){{
@@ -78,9 +76,6 @@ class armList:
     }}
 '''.format(len(self.arm_list))
 
-    def get_extra_functions(self):
-        return ""
-
     def get_indices(self):
-        for i, arm in enumerate(self.armList):
+        for i, arm in enumerate(self.arm_list):
             yield i, arm

@@ -1,12 +1,16 @@
+from appendages.component_list import ComponentList
+
+
 class Servo:
     def __init__(self, label, pin):
         self.label = label
         self.pin = pin
 
 
-class servoList:
+class ServoList(ComponentList):
+    TIER = 1
+
     def __init__(self):
-        self.tier = 1
         self.servoDict = {}
         self.servoList = []
 
@@ -17,9 +21,12 @@ class servoList:
         self.servoList.sort(key=lambda x: x.label, reverse=False)
 
     def get(self, label):
-        return self.servoDict[label]
+        if label in self.servoDict:
+            return self.servoDict[label]
+        else:
+            return None
 
-    def get_include(self):
+    def get_includes(self):
         return "#include \"Servo.h\""
 
     def get_pins(self):
@@ -33,7 +40,7 @@ class servoList:
         for i, servo in enumerate(self.servoList):
             rv += "const char {0:s}_index = {1:d};\n".format(servo.label, i)
 
-        rv += "char servo_pins[{0:d}] = {\n".format(len(self.servoList))
+        rv += "char servo_pins[{0:d}] = {{\n".format(len(self.servoList))
         for servo in self.servoList:
             rv += ("\t{0:s}_pin,\n").format(servo.label)
         rv = rv[:-2] + "\n};\n"
@@ -48,9 +55,6 @@ class servoList:
         rv += "\n"
 
         return rv
-
-    def get_loop_functions(self):
-        return ""
 
     def get_response_block(self):
         return '''\t\telse if(args[0].equals(String("ss"))){{ // set servo
@@ -84,9 +88,6 @@ class servoList:
         }}
     }}
 '''.format(len(self.servoList))
-
-    def get_extra_functions(self):
-        return ""
 
     def get_indices(self):
         for i, servo in enumerate(self.servoList):

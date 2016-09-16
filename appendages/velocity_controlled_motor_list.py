@@ -1,6 +1,8 @@
-from ..i2cencoderList import i2cencoder
+from appendages.i2c_encoder_list import I2CEncoder
+from appendages.component_list import ComponentList
 
-class velocitycontrolledmotor:
+
+class VelocityControlledMotor:
     def __init__(self, label, motor, encoder, vpid):
         self.label = label
         self.motor = motor
@@ -8,52 +10,56 @@ class velocitycontrolledmotor:
         self.vpid = vpid
 
 
-class velocityControlledMotorList:
+class VelocityControlledMotorList(ComponentList):
+    TIER = 2
+
     def __init__(self):
-        self.tier = 2
         self.vcmDict = {}
         self.vcmList = []
 
     def add(self, json_item, motors, i2cencoders, encoders, vpids):
         motor = motors.get(json_item['motor_label'])
         encoder = None
-        if not i2cencoders is None:
+        if i2cencoders is not None:
             encoder = i2cencoders.get(json_item['encoder_label'])
         if encoder is None:
             encoder = encoders.get(json_item['encoder_label'])
         vpid = vpids.get(json_item['vpid_label'])
-        vcm = velocitycontrolledmotor(json_item['label'], motor, encoder, vpid)
+        vcm = VelocityControlledMotor(json_item['label'], motor, encoder, vpid)
         self.vcmDict[json_item['label']] = vcm
         self.vcmList.append(vcm)
-        self.vcmList.sort(key=lambda x:x.label, reverse=False)
+        self.vcmList.sort(key=lambda x: x.label, reverse=False)
 
-    def get_include(self):
+    def get(self, label):
+        if label in self.vcmDict:
+            return self.vcmDict[label]
+        else:
+            return None
+
+    def get_includes(self):
         return "#include \"VelocityControlledMotor.h\";"
 
-    def get_pins(self):
-        return ""
-
     def get_constructor(self):
-        rv = "VelocityControlledMotor vcms[{0:d}] = \{{\n".format(len(self.vcmList))
+        rv = ""
+        for i, vcm in enumerate(self.vcmList):
+            rv += "const char {0:s}_index = {1:d};\n".format(vcm.label, i)
+        rv += "VelocityControlledMotor vcms[{0:d}] = {{\n".format(len(self.vcmList))
         for vcm in self.vcmList:
-            if isinstance(vcm.encoder, i2cencoder):
+            if isinstance(vcm.encoder, I2CEncoder):
                 rv += ("\tVelocityControlledMotor(motors[{0:s}_index], i2cencoders[{1:s}_index], " +
-                "vpids[{2:s}_index], &Inputs_vpid[{2:s}_index], &Setpoints_vpid[{2:s}_index], " +
-                "&Outputs_vpid[{2:s}_index]),\n").format(vcm.motor.label, vcm.encoder.label, 
-                                                         vcm.vpid.label)
-            else:
-                rv += ("\tVelocityControlledMotor(motors[{0:s}_index], encoders[{1:s}_index], " + 
                        "vpids[{2:s}_index], &Inputs_vpid[{2:s}_index], " +
                        "&Setpoints_vpid[{2:s}_index], &Outputs_vpid[{2:s}_index]),\n")\
                         .format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
-        rv = rv[:-2] + "\n}};\n"
+            else:
+                rv += ("\tVelocityControlledMotor(motors[{0:s}_index], encoders[{1:s}_index], " +
+                       "vpids[{2:s}_index], &Inputs_vpid[{2:s}_index], " +
+                       "&Setpoints_vpid[{2:s}_index], &Outputs_vpid[{2:s}_index]),\n")\
+                        .format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
+        rv = rv[:-2] + "\n};\n"
         return rv
 
-    def get_setup(self):
-        return ""
-
     def get_loop_functions(self):
-        return "for(int i = 0; i < {}; i++) {{\n\t\t\tvcms[i].runVPID();\n\t\t}}\n".format(
+        return "for(int i = 0; i < {0:d}; i++) {{\n\t\t\tvcms[i].runVPID();\n\t\t}}\n".format(
             len(self.vcmList))
 
     def get_response_block(self):
@@ -131,9 +137,6 @@ class velocityControlledMotorList:
         }}
     }}
 '''.format(length)
-
-    def get_extra_functions(self):
-        return ""
 
     def get_indices(self):
         for i, vcm in enumerate(self.vcmList):

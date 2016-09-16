@@ -1,36 +1,40 @@
-class i2cencoder:
+from appendages.component_list import ComponentList
+
+
+class I2CEncoder:
     def __init__(self, label, reverse, init_number):
         self.label = label
         self.reverse = reverse
         self.init_number = init_number
 
 
-class i2cencoderList:
+class I2CEncoderList(ComponentList):
+    TIER = 1
+
     def __init__(self):
-        self.tier = 1
         self.sensors = dict()
         self.sorted_sensors = []
 
     def add(self, json_item):
-        sensor = i2cencoder(json_item['label'], json_item['reverse'], json_item['init_number'])
+        sensor = I2CEncoder(json_item['label'], json_item['reverse'], json_item['init_number'])
         self.sensors[json_item['label']] = sensor
         self.sorted_sensors.append(sensor)
         self.sorted_sensors.sort(key=lambda x: x.init_number, reverse=False)
 
     def get(self, label):
-        return self.sensors[label]
+        if label in self.sensors:
+            return self.sensors[label]
+        else:
+            return None
 
-    def get_include(self):
+    def get_includes(self):
         return "#include <Wire.h>\n#include \"I2CEncoder.h\""
-
-    def get_pins(self):
-        return ""
 
     def get_constructor(self):
         rv = ""
         for i in range(len(self.sorted_sensors)):
             rv += "const char {0:s}_index = {1:d};\n".format(self.sorted_sensors[i].label, i)
-            rv += "I2CEncoder i2cencoders[{0:d}];\n".format(len(self.sorted_sensors))
+        rv += "I2CEncoder i2cencoders[{0:d}];\n".format(len(self.sorted_sensors))
         return rv
 
     def get_setup(self):
@@ -46,11 +50,7 @@ class i2cencoderList:
         rv += "\n"
         return rv
 
-    def get_loop_functions(self):
-        return ""
-
     def get_response_block(self):
-
         numSensors = len(self.sorted_sensors)
 
         return '''\t\telse if(args[0].equals(String("ep"))){{ // i2c encoder position (in rotations)
@@ -123,9 +123,6 @@ class i2cencoderList:
         }}
     }}
 '''.format(numSensors)
-
-    def get_extra_functions(self):
-        return ""
 
     def get_indices(self):
         for i, i2cencoder in enumerate(self.sorted_sensors):

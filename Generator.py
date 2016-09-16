@@ -1,11 +1,9 @@
 import os
-import shutil
-import fileinput
-import getpass
 import json
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode"
+
 
 class Generator:
     def __init__(self, appendage_dict):
@@ -18,11 +16,11 @@ class Generator:
         rv = "// Includes\n"
 
         keys = list(self.appendage_dict.keys())
-        for i in range(1, 3):
+        for i in range(1, 4):
             for key in keys:
-                if not self.appendage_dict[key].tier == i:
+                if not self.appendage_dict[key].TIER == i:
                     continue
-                include = self.appendage_dict[key].get_include()
+                include = self.appendage_dict[key].get_includes()
                 if include != "":
                     rv += "%s\n" % include
         rv += "\n"
@@ -51,9 +49,9 @@ class Generator:
     def add_constructors(self):
         rv = "// Constructors\n"
         keys = list(self.appendage_dict.keys())
-        for i in range(1, 3):
+        for i in range(1, 4):
             for key in keys:
-                if not self.appendage_dict[key].tier == i:
+                if not self.appendage_dict[key].TIER == i:
                     continue
                 constructor = self.appendage_dict[key].get_constructor()
                 if not constructor == "":
@@ -74,22 +72,22 @@ class Generator:
         keys = list(self.appendage_dict.keys())
         for key in keys:
             extra += self.appendage_dict[key].get_loop_functions()
-        return '''/* The loop is set up in two parts. First the Arduino does the work it needs to
+        return """/* The loop is set up in two parts. First the Arduino does the work it needs to
  * do for every loop, next is runs the checkInput() routine to check and act on
  * any input from the serial connection.
  */
-void loop() {
+void loop() {{
     int inbyte;
 
     // Accept and parse serial input
     checkInput();
-    %s
-}
+    {0:s}
+}}
 
-''' % extra
+""".format(extra)
 
     def add_parse_args(self):
-        return '''void parse_args(String command) {
+        return """void parse_args(String command) {
     numArgs = 0;
     int beginIdx = 0;
     int idx = command.indexOf(" ");
@@ -111,10 +109,10 @@ void loop() {
     args[numArgs++] = arg;
 }
 
-'''
+"""
 
     def add_check_input(self):
-        return '''/* This routine checks for any input waiting on the serial line. If any is
+        return """/* This routine checks for any input waiting on the serial line. If any is
  * available it is read in and added to a 128 character buffer. It sends back
  * an error should the buffer overflow, and starts overwriting the buffer
  * at that point. It only reads one character per call. If it receives a
@@ -148,10 +146,10 @@ void checkInput() {
     }
 }
 
-'''
+"""
 
     def add_parse_and_execute_command_beginning(self):
-        return '''/* This routine parses and executes any command received. It will have to be
+        return """/* This routine parses and executes any command received. It will have to be
  * rewritten for any sketch to use the appropriate commands and arguments for
  * the program you design. I find it easier to separate the input assembly
  * from parsing so that I only have to modify this function and can keep the
@@ -191,7 +189,7 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'rl'");
         }
     }
-'''
+"""
 
     def add_commands(self):
         rv = ""
@@ -201,7 +199,7 @@ void parseAndExecuteCommand(String command) {
         return rv
 
     def add_parse_and_execute_command_ending(self):
-        return '''    else if(args[0].equals(String("ver"))) { // version information
+        return """    else if(args[0].equals(String("ver"))) { // version information
         if(numArgs == 1) {
             String out = "Source last modified: ";
             out += __TIMESTAMP__;
@@ -222,16 +220,15 @@ void parseAndExecuteCommand(String command) {
     }
 }
 
-'''
+"""
 
     def add_extra_functions(self):
-        rv = '''double toDouble(String s)
+        rv = """double toDouble(String s)
 {
   char buf[s.length() + 1];
   s.toCharArray(buf, s.length() + 1);
   return atof(buf);
-}'''
-        keys = list(self.appendage_dict.keys())
+}"""
         for appendage in list(self.appendage_dict.values()):
             rv += appendage.get_extra_functions()
         return rv
@@ -252,13 +249,13 @@ void parseAndExecuteCommand(String command) {
         serial_fo.write("picocom /dev/%s -b 115200 --echo\n" % arduino)
         serial_fo.close()
         os.chmod("%s/serial.sh" % writeTo, 0o777)
-    
+
     def write_indices_file(self, writeTo, arduino):
         indices = {}
         for appendages in list(self.appendage_dict.values()):
             for i, appendage in appendages.get_indices():
                 indices[appendage.label] = i
-        
+
         indices_text = json.dumps(indices)
 
         indices_fo = open("%s/%s_indices.json" % (writeTo, arduino), 'w')
