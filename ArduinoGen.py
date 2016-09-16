@@ -162,12 +162,14 @@ class ArduinoGen:
         ino_ini = open("{0:s}/{1:s}/ino.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 'r')
         ino_ini_text = ino_ini.read()
         shutil.rmtree("{0:s}/{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
-        shutil.copytree(self.folder, "{0:s}{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
+        print("\tCopying {0:s} to {1:s}/{2:s}".format(self.folder, CURRENT_ARDUINO_CODE_DIR,
+                                                      self.arduino))
+        shutil.copytree(self.folder, "{0:s}/{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
         ino_ini = open("{0:s}/{1:s}/ino.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 'w')
         ino_ini.write(ino_ini_text)
         os.chmod("{0:s}/{1:s}/ino.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 0o777)
 
-        os.chdir("{0:s}{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
+        os.chdir("{0:s}/{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
         os.system("sh upload.sh")
         print("Done")
 
