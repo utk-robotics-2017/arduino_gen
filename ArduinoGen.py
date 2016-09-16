@@ -138,7 +138,7 @@ class ArduinoGen:
         os.chmod("{0:s}/src/{1:s}.ino".format(self.folder, self.arduino), 0o777)
 
         print("\tWriting indices file")
-        gen.write_indices_file(self.folder, self.arduino)
+        gen.write_core_config_file(self.folder, self.arduino)
 
         print("\tWriting build, serial, and upload shell scripts")
         gen.write_shell_scripts(self.folder, self.arduino)
@@ -194,6 +194,8 @@ if __name__ == "__main__":
                     help="Build the ino file into something that can be uploaded to the arduino")
     ap.add_argument("-u", "--upload", required=False, help="Build the ino file and upload that on to the arduino")
     args = vars(ap.parse_args())
+
+    # TODO:Add creating lock file
 
     ag = ArduinoGen(args['arduino'])
     ag.setParentFolder(args['parent_folder'])

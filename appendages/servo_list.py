@@ -27,12 +27,13 @@ class ServoList(ComponentList):
             return None
 
     def get_includes(self):
-        return "#include \"Servo.h\""
+        return '#include "Servo.h"\n'
 
     def get_pins(self):
         rv = ""
         for actuator in self.servoList:
             rv += "const char {0:s}_pin = {1:d};\n".format(actuator.label, actuator.pin)
+        rv += "\n"
         return rv
 
     def get_constructor(self):
@@ -56,39 +57,56 @@ class ServoList(ComponentList):
 
         return rv
 
-    def get_response_block(self):
-        return '''\t\telse if(args[0].equals(String("ss"))){{ // set servo
-        if(numArgs == 3){{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}){{
-                int value = args[2].toInt();
-                if(!servos[indexNum].attached()){{
-                    servos[indexNum].attach(servo_pins[indexNum]);
-                }}
-                servos[indexNum].write(value);
-                Serial.println("ok");
-            }} else {{
-                Serial.println("Error: usage - ss [id] [value]");
-            }}
-        }} else {{
-            Serial.println("Error: usage - ss [id] [value]");
-        }}
-    }}
-    else if(args[0].equals(String("sd"))){{ // detach servo
-        if(numArgs == 2){{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}){{
-                servos[indexNum].detach();
-                Serial.println("ok");
-            }} else {{
-                Serial.println("Error: usage - sd [id]");
-            }}
-        }} else {{
-            Serial.println("Error: usage - sd [id]");
-        }}
-    }}
-'''.format(len(self.servoList))
+    def get_commands(self):
+        return "\tkSetServo,\n\tkDetachServo,\n"
 
-    def get_indices(self):
+    def get_command_attaches(self):
+        rv = "\tcmdMessenger.attach(kSetServo, setServo);\n"
+        rv += "\tcmdMessenger.attach(kDetachServo, detachServo);\n"
+        return rv
+
+    def get_command_functions(self):
+        rv = "void setServo() {\n"
+        rv += "\tif(cmdMessenger.available()) {\n"
+        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.servoList))
+        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kSetArm)\n'
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t\tif(cmdMessenger.available()) {\n"
+        rv += "\t\t\tint value = cmdMessenger.readBinArg<int>()\n"
+        rv += "\t\t\tif(!servos[indexNum].attached()){\n"
+        rv += "\t\t\t\tservos[indexNum].attach(servo_pins[indexNum]);\n"
+        rv += "\t\t\t}\n"
+        rv += "\t\t\tservos[indexNum].write(value);\n"
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kSetServo);\n"
+        rv += "\t\t} else {\n"
+        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kSetServo);\n'
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t} else {\n"
+        rv += '\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n'
+        rv += "\t}\n
+        rv += "}\n\n"
+
+        rv += "void detachServo() {\n"
+        rv += "\tif(cmdMessenger.available()) {\n"
+        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.servoList))
+        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kDetachServo)\n'
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t\tservos[indexNum].detach();\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kDetachServo);\n"
+        rv += "\t} else {\n"
+        rv += '\t\tcmdMessenger.sendBinCmd(kError, kDetachServo);\n'
+        rv += "\t}\n
+        rv += "}\n\n"
+        return rv
+
+    def get_core_values(self):
         for i, servo in enumerate(self.servoList):
-            yield i, servo
+            a = {}
+            a['index'] = i
+            a['label'] = servo['label']
+            yield a
