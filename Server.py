@@ -102,7 +102,7 @@ class Server(tornado.websocket.WebSocketHandler):
                         lockFileName = lockFolderAbsPath + "/" + self.device["name"] + ".lck"
                         with open(lockFileName, "w") as f:
                             f.write("Locked by ArduinoGenServer")
-
+                        os.chmod(lockFileName, 0o777)
                         for client in clients:
                             client.write_message("DeviceList" + json.dumps(arduinos))
                         log(self.id, "updated devices")

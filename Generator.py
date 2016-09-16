@@ -236,6 +236,7 @@ void parseAndExecuteCommand(String command) {
     def write_shell_scripts(self, writeTo, arduino):
         upload_fo = open("%s/upload.sh" % writeTo, 'w')
         upload_fo.write("#!/usr/bin/env bash\n")
+        upload_fo.write("cd {0:s}\n".format(writeTo))
         upload_fo.write("ino build\n")
         upload_fo.write("git add -A\n")
         upload_fo.write('git commit -m "new uploaded arduino code for %s"\n' % arduino)

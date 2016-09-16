@@ -54,10 +54,10 @@ class MotorList(ComponentList):
     def get_setup(self):
         rv = ""
         for motor in self.motorList:
-            rv += "\tpinMode({0:d}, OUTPUT);\n".format(motor.inA_pin)
+            rv += "pinMode({0:d}, OUTPUT);\n".format(motor.inA_pin)
             if not motor.inB_pin == -1:
-                rv += "\tpinMode({0:d}, OUTPUT);\n".format(motor.inB_pin)
-                rv += "\tpinMode({0:d}, OUTPUT);\n".format(motor.pwm_pin)
+                rv += "pinMode({0:d}, OUTPUT);\n".format(motor.inB_pin)
+            rv += "pinMode({0:d}, OUTPUT);\n".format(motor.pwm_pin)
         return rv
 
     def get_response_block(self):

@@ -161,6 +161,9 @@ class ArduinoGen:
         print("Uploading...")
         ino_ini = open("{0:s}/{1:s}/ino.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 'r')
         ino_ini_text = ino_ini.read()
+
+        pio_ini = open("{0:s}/{1:s}/platformio.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
+        pio_ini_text = pio_ini.read()
         shutil.rmtree("{0:s}/{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
         print("\tCopying {0:s} to {1:s}/{2:s}".format(self.folder, CURRENT_ARDUINO_CODE_DIR,
                                                       self.arduino))
@@ -169,8 +172,15 @@ class ArduinoGen:
         ino_ini.write(ino_ini_text)
         os.chmod("{0:s}/{1:s}/ino.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 0o777)
 
+        pio_ini = open("{0:s}/{1:s}/platformio.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 'w')
+        pio_ini.write(pio_ini_text)
+        os.chmod("{0:s}/{1:s}/platformio.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 0o777)
+
+        print("\tYou have moved to {0:s}/{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
         os.chdir("{0:s}/{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
+        print(os.getcwd())
         os.system("sh upload.sh")
+        #os.system("pio run -t upload")
         print("Done")
 
 if __name__ == "__main__":
