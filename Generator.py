@@ -237,11 +237,10 @@ void parseAndExecuteCommand(String command) {
         upload_fo = open("%s/upload.sh" % writeTo, 'w')
         upload_fo.write("#!/usr/bin/env bash\n")
         upload_fo.write("cd {0:s}\n".format(writeTo))
-        upload_fo.write("ino build\n")
         upload_fo.write("git add -A\n")
         upload_fo.write('git commit -m "new uploaded arduino code for %s"\n' % arduino)
         upload_fo.write("git push\n")
-        upload_fo.write("ino upload\n")
+        upload_fo.write("pio run -t upload\n")
         upload_fo.close()
         os.chmod("%s/upload.sh" % writeTo, 0o777)
 
