@@ -180,7 +180,7 @@ class ArduinoGen:
         os.chdir("{0:s}/{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
         print(os.getcwd())
         os.system("sh upload.sh")
-        #os.system("pio run -t upload")
+        # os.system("pio run -t upload")
         print("Done")
 
 if __name__ == "__main__":
