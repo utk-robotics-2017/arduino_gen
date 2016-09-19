@@ -60,36 +60,36 @@ class EncoderList(ComponentList):
 
     def get_command_attaches(self):
         rv = "\tcmdMessenger.attach(kReadEncoder, readEncoder);\n"
-        rv += "\tcmdMessenger.attach(tkZeroEncoder, zerEncoder);\n"
+        rv += "\tcmdMessenger.attach(kZeroEncoder, zeroEncoder);\n"
         return rv
 
     def get_command_functions(self):
-        rv = "void readEncoder() {"
+        rv = "void readEncoder() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.encoderList))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kReadEncoder)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.encoderList))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadEncoder);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadEncoder);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kResult, encoders[indexNum].read());\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kReadEncoder);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadEncoder);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
 
-        rv += "void zeroEncoder() {"
+        rv += "void zeroEncoder() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.encoderList))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kZeroEncoder)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.encoderList))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kZeroEncoder);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tencoders[indexNum].write(0);\n"
-        rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kZeroEncoder);\n""
+        rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kZeroEncoder);\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kZeroEncoder);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kZeroEncoder);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
         return rv
 
@@ -101,5 +101,6 @@ class EncoderList(ComponentList):
         for i, encoder in enumerate(self.encoderList):
             a = {}
             a['index'] = i
-            a['label'] = encoder['label']
+            a['label'] = encoder.label
+            a['type'] = "Encoder"
             yield a

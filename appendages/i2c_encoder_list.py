@@ -56,6 +56,7 @@ class I2CEncoderList(ComponentList):
         rv += "\tkI2CEncoderSpeed,\n"
         rv += "\tkI2CEncoderVelocity,\n"
         rv += "\tkI2CEncoderZero,\n"
+        return rv
 
     def get_command_attaches(self):
         rv = "\tcmdMessenger.attach(kI2CEncoderPosition,i2cEncoderPosition);\n"
@@ -66,74 +67,74 @@ class I2CEncoderList(ComponentList):
         return rv
 
     def get_command_functions(self):
-        rv = "void i2cEncoderPosition() {"
+        rv = "void i2cEncoderPosition() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.sorted_sensors))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderPosition)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sorted_sensors))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderPosition);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderPosition);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kResult, i2cencoders[indexNum].getPosition());\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderPosition);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderPosition);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
 
-        rv += "void i2cEncoderRawPosition() {"
+        rv += "void i2cEncoderRawPosition() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.sorted_sensors))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderRawPosition)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sorted_sensors))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderRawPosition);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderRawPosition);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kResult, i2cencoders[indexNum].getRawPosition());\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderRawPosition);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderRawPosition);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
 
-        rv += "void i2cEncoderSpeed() {"
+        rv += "void i2cEncoderSpeed() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.sorted_sensors))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderSpeed)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sorted_sensors))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderSpeed);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderSpeed);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kResult, i2cencoders[indexNum].getSpeed());\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderSpeed);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderSpeed);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
 
-        rv += "void i2cEncoderVelocity() {"
+        rv += "void i2cEncoderVelocity() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.sorted_sensors))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderVelocity)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sorted_sensors))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderVelocity);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderVelocity);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kResult, i2cencoders[indexNum].getVelocity());\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderVelocity);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderVelocity);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
 
-        rv += "void i2cEncoderZero() {"
+        rv += "void i2cEncoderZero() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.sorted_sensors))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderZero)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sorted_sensors))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderZero);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\ti2cencoders[indexNum].zero();\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderZero);\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderZero);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderZero);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
 
         return rv
@@ -142,5 +143,5 @@ class I2CEncoderList(ComponentList):
         for i, encoder in enumerate(self.sorted_sensors):
             a = {}
             a['index'] = i
-            a['label'] = encoder['label']
+            a['label'] = encoder.label
             yield a

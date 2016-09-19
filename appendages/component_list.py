@@ -31,6 +31,9 @@ class ComponentList:
     def get_command_functions(self):
         raise NotImplementedError("ComponentList: get_command_functions not implemented")
 
+    def get_loop_functions(self):
+        return ""
+
     def get_extra_functions(self):
         return ""
 

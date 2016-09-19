@@ -46,7 +46,7 @@ class SwitchList(ComponentList):
         return rv
 
     def get_commands(self):
-        return "kReadSwitch,\n\t"
+        return "\tkReadSwitch,\n"
 
     def get_command_attaches(self):
         return "\tcmdMessenger.attach(kReadSwitch, readSwitch);\n"
@@ -55,21 +55,15 @@ class SwitchList(ComponentList):
         rv = "void readSwitch() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.switchList))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kReadSwitch)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.switchList))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadSwitch);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
-        rv += "\t\tif(cmdMessenger.available()) {\n"
-        rv += "\t\t\tint value = cmdMessenger.readBinArg<int>()\n"
         rv += "\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadSwitch);\n"
-        rv += "\t\t\tcmdMessenger.sendBinCmd(kResult, digitalRead(switches[indexNum]))\n"
-        rv += "\t\t} else {\n"
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kReadSwitch);\n'
-        rv += "\t\t\treturn;\n"
-        rv += "\t\t}\n"
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kResult, digitalRead(switches[indexNum]));\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kReadSwitch);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadSwitch);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
         return rv
 
@@ -77,5 +71,5 @@ class SwitchList(ComponentList):
         for i, switch in enumerate(self.switchList):
             a = {}
             a['index'] = i
-            a['label'] = switch['label']
+            a['label'] = switch.label
             yield a

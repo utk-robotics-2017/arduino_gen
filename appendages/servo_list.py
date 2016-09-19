@@ -69,38 +69,38 @@ class ServoList(ComponentList):
         rv = "void setServo() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.servoList))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kSetArm)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.servoList))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tif(cmdMessenger.available()) {\n"
-        rv += "\t\t\tint value = cmdMessenger.readBinArg<int>()\n"
+        rv += "\t\t\tint value = cmdMessenger.readBinArg<int>();\n"
         rv += "\t\t\tif(!servos[indexNum].attached()){\n"
         rv += "\t\t\t\tservos[indexNum].attach(servo_pins[indexNum]);\n"
         rv += "\t\t\t}\n"
         rv += "\t\t\tservos[indexNum].write(value);\n"
         rv += "\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kSetServo);\n"
         rv += "\t\t} else {\n"
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kSetServo);\n'
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetServo);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
 
         rv += "void detachServo() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.servoList))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kDetachServo)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.servoList))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kDetachServo);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tservos[indexNum].detach();\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kDetachServo);\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kDetachServo);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kDetachServo);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
         return rv
 
@@ -108,5 +108,5 @@ class ServoList(ComponentList):
         for i, servo in enumerate(self.servoList):
             a = {}
             a['index'] = i
-            a['label'] = servo['label']
+            a['label'] = servo.label
             yield a

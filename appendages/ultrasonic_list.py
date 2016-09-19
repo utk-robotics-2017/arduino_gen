@@ -38,7 +38,7 @@ class UltrasonicList(ComponentList):
         return rv
 
     def get_commands(self):
-        return "kReadUltrasonic,\n\t"
+        return "\tkReadUltrasonic,\n"
 
     def get_command_attaches(self):
         return "\tcmdMessenger.attach(kReadUltrasonic, readUltrasonic);\n"
@@ -47,20 +47,21 @@ class UltrasonicList(ComponentList):
         rv = "void readUltrasonic() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.sensor_list))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kReadUltrasonic)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sensor_list))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadUltrasonic);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadUltrasonic);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kResult, ultrasonics[indexNum].ping());\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kReadUltrasonic);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadUltrasonic);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
+        return rv
 
     def get_core_values(self):
         for i, ultrasonic in enumerate(self.sensor_list):
             a = {}
             a['index'] = i
-            a['label'] = ultrasonic['label']
+            a['label'] = ultrasonic.label
             yield a

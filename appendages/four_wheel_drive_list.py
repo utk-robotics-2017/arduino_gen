@@ -67,131 +67,131 @@ class FourWheelDriveList(ComponentList):
         rv = "\tcmdMessenger.attach(kDriveFWD, driveFWD);\n"
         rv += "\tcmdMessenger.attach(kStopFWD, stopFWD);\n"
         rv += "\tcmdMessenger.attach(kDriveFWD_PID, driveFWD_PID);\n"
-        rv += "\tcmdMessenger.attach(kGetFWDLeftVelocity, getFWDLeftVelocity)\n"
-        rv += "\tcmdMessenger.attach(kGetFWDRightVelocity, getFWDRightVelocity)\n"
-        rv += "\tcmdMessenger.attach(kGetFWDLeftPosition, getFWDLeftPosition)\n"
-        rv += "\tcmdMessenger.attach(kGetFWDRightPosition, getFWDRightPosition)\n"
+        rv += "\tcmdMessenger.attach(kGetFWDLeftVelocity, getFWDLeftVelocity);\n"
+        rv += "\tcmdMessenger.attach(kGetFWDRightVelocity, getFWDRightVelocity);\n"
+        rv += "\tcmdMessenger.attach(kGetFWDLeftPosition, getFWDLeftPosition);\n"
+        rv += "\tcmdMessenger.attach(kGetFWDRightPosition, getFWDRightPosition);\n"
         return rv
 
     def get_command_functions(self):
         rv = "void driveFWD() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.drive_list))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
-        rv += "\t\tint values[4];\n:
+        rv += "\t\tint values[4];\n"
         rv += "\t\tfor(int i = 0; i < 4; i++) {\n"
         rv += "\t\t\tif(cmdMessenger.available()) {\n"
         rv += "\t\t\t\tvalues[i] = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\t\t\tif(values[i] < -1023 || values[i] > 1023)\n"
+        rv += "\t\t\t\tif(values[i] < -1023 || values[i] > 1023) {\n"
         rv += "\t\t\t\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD);\n"
         rv += "\t\t\t\t\treturn;\n"
         rv += "\t\t\t\t}\n"
         rv += "\t\t\t} else {\n"
-        rv += '\t\t\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD);\n'
+        rv += "\t\t\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD);\n"
         rv += "\t\t\t\treturn;\n"
         rv += "\t\t\t}\n"
         rv += "\t\t}\n"
-        rv += "\t\tfwds[indexNum].drive(values[0], values[1], values[2]], values[3]);\n"
+        rv += "\t\tfwds[indexNum].drive(values[0], values[1], values[2], values[3]);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kDriveFWD);\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
 
         rv += "void stopFWD() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.drive_list))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kStopFWD)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kStopFWD);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tfwds[indexNum].stop();\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kStopFWD);\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kStopFWD);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kStopFWD);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
 
         rv += "void driveFWD_PID() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.drive_list))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD_PID)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD_PID);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
-        rv += "\t\tfloat values[4];\n:
+        rv += "\t\tfloat values[4];\n"
         rv += "\t\tfor(int i = 0; i < 4; i++) {\n"
         rv += "\t\t\tif(cmdMessenger.available()) {\n"
-        rv += "\t\t\t\tvalues[i] = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\t\t\tvalues[i] = cmdMessenger.readBinArg<float>();\n"
         rv += "\t\t\t} else {\n"
-        rv += '\t\t\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD_PID);\n'
+        rv += "\t\t\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD_PID);\n"
         rv += "\t\t\t\treturn;\n"
         rv += "\t\t\t}\n"
         rv += "\t\t}\n"
-        rv += "\t\tfwds[indexNum].drivePID(values[0], values[1], values[2]], values[3]);\n"
+        rv += "\t\tfwds[indexNum].drivePID(values[0], values[1], values[2], values[3]);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kDriveFWD_PID);\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD_PID);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD_PID);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
 
         rv += "void getFWDLeftVelocity() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.drive_list))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kGetFWDLeftVelocity)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kGetFWDLeftVelocity);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kGetFWDLeftVelocity);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kResult, fwds[indexNum].getLeftVelocity());\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kGetFWDLeftVelocity);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDLeftVelocity);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
 
         rv += "void getFWDRightVelocity() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.drive_list))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kGetFWDRightVelocity)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kGetFWDRightVelocity);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kGetFWDRightVelocity);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kResult, fwds[indexNum].getRightVelocity());\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kGetFWDRightVelocity);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDRightVelocity);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
 
-        rv += "void getFWDLeftPosition) {\n"
+        rv += "void getFWDLeftPosition() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.drive_list))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kGetFWDLeftPosition)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kGetFWDLeftPosition);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kGetFWDLeftPosition);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kResult, fwds[indexNum].getLeftPosition());\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kGetFWDLeftPosition);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDLeftPosition);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
 
         rv += "void getFWDRightPosition() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.drive_list))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kGetFWDRightPosition)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kGetFWDRightPosition);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kGetFWDRightPosition);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kResult, fwds[indexNum].getRightPosition());\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kGetFWDRightPosition);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDRightPosition);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
 
         return rv
@@ -200,6 +200,7 @@ class FourWheelDriveList(ComponentList):
         for i, drivebase in enumerate(self.drive_list):
             a = {}
             a['index'] = i
-            a['label'] = drivebase['label']
+            a['label'] = drivebase.label
+            a['type'] = "Four Wheel Drive"
             a['useVelocityControl'] = drivebase.useVelocityControl
             yield a

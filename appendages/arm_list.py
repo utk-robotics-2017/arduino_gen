@@ -29,7 +29,7 @@ class ArmList(ComponentList):
                                  wrist_servo, wrist_rotate_servo))
 
     def get_includes(self):
-        return '#include "Arm.h";\n'
+        return '#include "Arm.h"\n'
 
     def get_constructor(self):
         rv = "Arm arms[{0:d}] = {{\n".format(len(self.arm_list))
@@ -53,37 +53,37 @@ class ArmList(ComponentList):
         rv = "void setArm() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.arm_list))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kSetArm)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.arm_list))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
-        rv += "\t\tint pos[5];\n:
+        rv += "\t\tint pos[5];\n"
         rv += "\t\tfor(int i = 0; i < 5; i++) {\n"
         rv += "\t\t\tif(cmdMessenger.available()) {\n"
         rv += "\t\t\t\tpos[i] = cmdMessenger.readBinArg<int>();\n"
         rv += "\t\t\t} else {\n"
-        rv += '\t\t\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n'
+        rv += "\t\t\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n"
         rv += "\t\t\t\treturn;\n"
         rv += "\t\t\t}\n"
         rv += "\t\t}\n"
-        rv += "\t\tarms[indexNum].set(pos[0], pos[1], pos[2]], pos[3], pos[4]);\n"
+        rv += "\t\tarms[indexNum].set(pos[0], pos[1], pos[2], pos[3], pos[4]);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kSetArm);\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
         rv += "void detachArm() {\n"
         rv += "\tif(cmdMessenger.available()) {\n"
         rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.arm_list))
-        rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kDetachArm)\n'
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.arm_list))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kDetachArm);\n"
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tarms[indexNum].detach();\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kDetachArm);\n"
         rv += "\t} else {\n"
-        rv += '\t\tcmdMessenger.sendBinCmd(kError, kDetachArm);\n'
-        rv += "\t}\n
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kDetachArm);\n"
+        rv += "\t}\n"
         rv += "}\n\n"
         return rv
 
@@ -91,5 +91,6 @@ class ArmList(ComponentList):
         for i, arm in enumerate(self.arm_list):
             a = {}
             a['index'] = i
-            a['label'] = arm['label']
+            a['type'] = "Arm"
+            a['label'] = arm.label
             yield a

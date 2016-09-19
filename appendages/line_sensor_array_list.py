@@ -91,7 +91,7 @@ class LineSensorArrayList(ComponentList):
             return rv
 
         def get_command_attaches(self):
-            rv += ""
+            rv = ""
             if(len(self.digital_sensor_list) > 0):
                 rv += "\tcmdMessenger.attach(kReadDigitalLineSensor, readDigitalLineSensor);\n"
             if(len(self.analog_sensor_list) > 0):
@@ -104,15 +104,16 @@ class LineSensorArrayList(ComponentList):
                 rv += "void readDigitalLineSensor() {\n"
                 rv += "\tif(cmdMessenger.available()) {\n"
                 rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-                rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.digital_sensor_list))
-                rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor)\n'
+                rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.digital_sensor_list))
+                rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);\n"
                 rv += "\t\t\treturn;\n"
                 rv += "\t\t}\n"
                 rv += "\t\tif(cmdMessenger.available()) {\n"
-                rv += "\t\t\tchar white = cmdMessenger.readBoolArg()\n"
+                rv += "\t\t\tchar white = cmdMessenger.readBoolArg();\n"
                 rv += "\t\t\tif(white > -1 && white < 2){"
                 rv += "\t\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadDigitalLineSensor);\n"
-                rv += "\t\t\t\tcmdMessenger.sendBinCmd(kResult, digital_linesensor_array[indexNum].readline(digital_linesensor_values_arrays[indexNum], 1, white));\n"
+                rv += ("\t\t\t\tcmdMessenger.sendBinCmd(kResult, digital_linesensor_array" +
+                       "[indexNum].readline(digital_linesensor_values_arrays[indexNum], 1, white));\n")
                 rv += "\t\t\t} else {\n"
                 rv += "\t\t\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);\n"
                 rv += "\t\t\t}\n"
@@ -121,21 +122,22 @@ class LineSensorArrayList(ComponentList):
                 rv += "\t\t}\n"
                 rv += "\t} else {\n"
                 rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);\n"
-                rv += "\t}\n
+                rv += "\t}\n"
                 rv += "}\n\n"
             if(len(self.analog_sensor_list) > 0):
                 rv += "void readAnalogLineSensor() {\n"
                 rv += "\tif(cmdMessenger.available()) {\n"
                 rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-                rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.analog_sensor_list))
-                rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kReadAnalogLineSensor)\n'
+                rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.analog_sensor_list))
+                rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadAnalogLineSensor);\n"
                 rv += "\t\t\treturn;\n"
                 rv += "\t\t}\n"
                 rv += "\t\tif(cmdMessenger.available()) {\n"
-                rv += "\t\t\tchar white = cmdMessenger.readBoolArg()\n"
+                rv += "\t\t\tchar white = cmdMessenger.readBoolArg();\n"
                 rv += "\t\t\tif(white > -1 && white < 2){"
                 rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadAnalogLineSensor);\n"
-                rv ++ "\t\tcmdMessenger.sendBinCmd(kResult, analog_linesensor_array[indexNum].readline(analog_linesensor_values_arrays[indexNum], 1, white));\n"
+                rv += ("\t\tcmdMessenger.sendBinCmd(kResult, analog_linesensor_array[indexNum]" +
+                       ".readline(analog_linesensor_values_arrays[indexNum], 1, white));\n")
                 rv += "\t\t\t} else {\n"
                 rv += "\t\t\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);\n"
                 rv += "\t\t\t}\n"
@@ -144,7 +146,7 @@ class LineSensorArrayList(ComponentList):
                 rv += "\t\t}\n"
                 rv += "\t} else {\n"
                 rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);\n"
-                rv += "\t}\n
+                rv += "\t}\n"
                 rv += "}\n\n"
             return rv
 

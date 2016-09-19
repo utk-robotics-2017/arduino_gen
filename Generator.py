@@ -23,15 +23,15 @@ class Generator:
                 include = self.appendage_dict[key].get_includes()
                 if include != "":
                     rv += include
-        rv += "\n"
+        rv += "\n\n"
 
         rv += "// Globals\n"
-        rv += "int ledState = HIGH;\n"
+        rv += "int ledState = HIGH;\n\n"
 
         return rv
 
     def add_pins(self):
-        rv = "// Pin definitions\nconst char LED = 13;\n"
+        rv = "// Pin definitions\nconst char LED = 13;\n\n"
         for appendage in self.appendage_dict.values():
             pins = appendage.get_pins()
             if not pins == "":
@@ -47,9 +47,9 @@ class Generator:
         rv += "// Attach a new CmdMessenger object to the default Serial port\n"
         rv += "CmdMessenger cmdMessenger = CmdMessenger(Serial);\n\n"
         rv += ("// This is the list of recognized commands. These can be " +
-               "commands that can either be sent or received. ")
-        rv += ("// In order to receive, attach a callback function to these events")
-        rv += "enum {"
+               "commands that can either be sent or received.\n")
+        rv += ("// In order to receive, attach a callback function to these events\n")
+        rv += "enum {\n"
         rv += "\tkAcknowledge,\n"
         self.commands['kAcknowledge'] = 0
         rv += "\tkStart,\n"
@@ -64,13 +64,13 @@ class Generator:
         self.commands['kSetLed'] = 5
         cmd_idx = 6
         for appendage in self.appendage_dict.values():
-            cmds = appendages.get_commands()
+            cmds = appendage.get_commands()
+            rv += cmds
             cmds = cmds.split(',\n')
             for cmd in cmds:
-                cmd = cmd.replace('\t','').replace('\n','').replace(',','')
+                cmd = cmd.replace('\t', '').replace('\n', '').replace(',', '')
                 self.commands[cmd] = cmd_idx
                 cmd_idx += 1
-            rv += cmds
         rv = rv[:-2] + "\n};\n"
 
         for i in range(1, 4):
@@ -93,21 +93,30 @@ class Generator:
         rv += "\t// Note that this is a good debug function: it will let you also know\n"
         rv += "\t// if your program had a bug and the arduino restarted\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kStart);\n"
+        rv += "\n\t// Flash led 3 times at the end of setup\n"
+        rv += "\tfor(int i = 0; i < 3; i++) {\n"
+        rv += "\t\tdigitalWrite(LED, HIGH);\n"
+        rv += "\t\tdelay(250);\n"
+        rv += "\t\tdigitalWrite(LED, LOW);\n"
+        rv += "\t\tdelay(250);\n"
+        rv += "\t}\n"
+        rv += "\tledState = LOW;\n"
         rv += "}\n"
         return rv
 
     def add_loop(self):
         rv = "void loop() {\n"
         rv += "\t// Process incoming serial data, and perform callbacks\n"
-        rv += "cmdMessenger.feedinSerialData();\n"
+        rv += "\tcmdMessenger.feedinSerialData();\n"
         for appendage in self.appendage_dict.values():
             rv += appendage.get_loop_functions()
         rv += "}\n"
+        return rv
 
     def add_commands(self):
-        rv = "// Callbacks define on which received commands we take action"
+        rv = "// Callbacks define on which received commands we take action\n"
         rv += "void attachCommandCallbacks() {\n"
-        rv += "\t// Attach callback methods"
+        rv += "\t// Attach callback methods\n"
         for appendage in self.appendage_dict.values():
             rv += appendage.get_command_attaches()
         rv += "}\n\n"
@@ -127,6 +136,7 @@ class Generator:
         return rv
 
     def add_extra_functions(self):
+        rv = ""
         for appendage in self.appendage_dict.values():
             rv += appendage.get_extra_functions()
         return rv
@@ -158,6 +168,6 @@ class Generator:
 
         core_config['commands'] = self.commands
 
-        with open("{0:s}/{0:s}_core.json".format(writeTo, arduino), 'w') as fo:
-            fo.write(json.dumps(core_config), indent=4)
-        os.chmod("{0:s}/{0:s}_core.json".format(writeTo, arduino), 0o777)
+        with open("{0:s}/{1:s}_core.json".format(writeTo, arduino), 'w') as fo:
+            fo.write(json.dumps(core_config, indent=4))
+        os.chmod("{0:s}/{1:s}_core.json".format(writeTo, arduino), 0o777)

@@ -98,14 +98,14 @@ class PidList(ComponentList):
         return rv
 
     def get_commands(self):
-        rv = "\tkModifyPidConstants\n"
-        rv += "\tkSetPidSetpoint\n"
-        rv += "\tkPidOff\n"
-        rv += "\tkPidDisplay\n"
-        rv += "\ttModifyVpidConstants\n"
-        rv += "\tkSetVpidSetpoint\n"
-        rv += "\tkVpidOff\n"
-        rv += "\tkVpidDisplay\n"
+        rv = "\tkModifyPidConstants,\n"
+        rv += "\tkSetPidSetpoint,\n"
+        rv += "\tkPidOff,\n"
+        rv += "\tkPidDisplay,\n"
+        rv += "\tkModifyVpidConstants,\n"
+        rv += "\tkSetVpidSetpoint,\n"
+        rv += "\tkVpidOff,\n"
+        rv += "\tkVpidDisplay,\n"
         return rv
 
     def get_command_attaches(self):
@@ -122,69 +122,69 @@ class PidList(ComponentList):
     def get_command_functions(self):
         rv = ""
         if len(self.pidList) > 0:
-            rv += "void modifyPidConstants() {"
+            rv += "void modifyPidConstants() {\n"
             rv += "\tif(cmdMessenger.available()) {\n"
             rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.pidList))
-            rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kModifyPidConstants)\n'
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kModifyPidConstants);\n"
             rv += "\t\t\treturn;\n"
             rv += "\t\t}\n"
-            rv += "\t\tfloat gains[3];\n:
+            rv += "\t\tfloat gains[3];\n"
             rv += "\t\tfor(int i = 0; i < 3; i++) {\n"
             rv += "\t\t\tif(cmdMessenger.available()) {\n"
             rv += "\t\t\t\tgains[i] = cmdMessenger.readBinArg<float>();\n"
             rv += "\t\t\t} else {\n"
-            rv += '\t\t\t\tcmdMessenger.sendBinCmd(kError, kModifyPidConstants);\n'
+            rv += "\t\t\t\tcmdMessenger.sendBinCmd(kError, kModifyPidConstants);\n"
             rv += "\t\t\t\treturn;\n"
             rv += "\t\t\t}\n"
             rv += "\t\t}\n"
             rv += "\t\tpids[indexNum].SetTunings(gains[0], gains[1], gains[2]);\n"
-            rv += '\t\tcmdMessenger.sendBinCmd(kAcknowledge, kModifyPidConstants);\n'
+            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kModifyPidConstants);\n"
             rv += "\t} else {\n"
-            rv += '\t\tcmdMessenger.sendBinCmd(kError, kModifyPidConstants);\n'
-            rv += "\t}\n
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kModifyPidConstants);\n"
+            rv += "\t}\n"
             rv += "}\n\n"
 
             rv += "void setPidSetpoint() {\n"
             rv += "\tif(cmdMessenger.available()) {\n"
             rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.pidList))
-            rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kSetPidSetpoint)\n'
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetPidSetpoint);\n"
             rv += "\t\t\treturn;\n"
             rv += "\t\t}\n"
             rv += "\t\tif(cmdMessenger.available()) {\n"
-            rv += "\t\t\tfloat value = cmdMessenger.readBinArg<float>()\n"
+            rv += "\t\t\tfloat value = cmdMessenger.readBinArg<float>();\n"
             rv += "\t\t\tpids[indexNum].SetMode(AUTOMATIC);\n"
             rv += "\t\t\tSetpoints_pid[indexNum] = value;\n"
             rv += "\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kSetPidSetpoint);\n"
             rv += "\t\t} else {\n"
-            rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kSetPidSetpoint);\n'
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetPidSetpoint);\n"
             rv += "\t\t\treturn;\n"
             rv += "\t\t}\n"
             rv += "\t} else {\n"
-            rv += '\t\tcmdMessenger.sendBinCmd(kError, kSetPidSetpoint);\n'
-            rv += "\t}\n
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetPidSetpoint);\n"
+            rv += "\t}\n"
             rv += "}\n\n"
 
             rv += "void pidOff() {\n"
             rv += "\tif(cmdMessenger.available()) {\n"
             rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.pidList))
-            rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kPidOff)\n'
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kPidOff);\n"
             rv += "\t\t\treturn;\n"
             rv += "\t\t}\n"
             rv += "\t\tpids[indexNum].SetMode(MANUAL);\n"
-            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kPidOff)\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kPidOff);\n"
             rv += "\t} else {\n"
-            rv += '\t\tcmdMessenger.sendBinCmd(kError, kPidOff);\n'
-            rv += "\t}\n
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kPidOff);\n"
+            rv += "\t}\n"
             rv += "}\n\n"
 
             rv += "void pidDisplay() {\n"
             rv += "\tif(cmdMessenger.available()) {\n"
             rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.pidList))
-            rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kPidDisplay)\n'
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kPidDisplay);\n"
             rv += "\t\t\treturn;\n"
             rv += "\t\t}\n"
             rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kPidDisplay);\n"
@@ -194,74 +194,73 @@ class PidList(ComponentList):
             rv += "\t\tcmdMessenger.sendCmdBinArg(Outputs_pid[indexNum]);\n"
             rv += "\t\tcmdMessenger.sendCmdEnd();\n"
             rv += "\t} else {\n"
-            rv += '\t\tcmdMessenger.sendBinCmd(kError, kPidDisplay);\n'
-            rv += "\t}\n
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kPidDisplay);\n"
+            rv += "\t}\n"
             rv += "}\n\n"
 
         if len(self.vpidList) > 0:
-            rv += "void modifyVpidConstants() {"
+            rv += "void modifyVpidConstants() {\n"
             rv += "\tif(cmdMessenger.available()) {\n"
             rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.vpidList))
-            rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kModifyVpidConstants)\n'
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kModifyVpidConstants);\n"
             rv += "\t\t\treturn;\n"
             rv += "\t\t}\n"
-            rv += "\t\tfloat gains[3];\n:
+            rv += "\t\tfloat gains[3];\n"
             rv += "\t\tfor(int i = 0; i < 3; i++) {\n"
             rv += "\t\t\tif(cmdMessenger.available()) {\n"
             rv += "\t\t\t\tgains[i] = cmdMessenger.readBinArg<float>();\n"
             rv += "\t\t\t} else {\n"
-            rv += '\t\t\t\tcmdMessenger.sendBinCmd(kError, kModifyVpidConstants);\n'
+            rv += "\t\t\t\tcmdMessenger.sendBinCmd(kError, kModifyVpidConstants);\n"
             rv += "\t\t\t\treturn;\n"
             rv += "\t\t\t}\n"
             rv += "\t\t}\n"
             rv += "\t\tvpids[indexNum].SetTunings(gains[0], gains[1], gains[2]);\n"
-            rv += '\t\tcmdMessenger.sendBinCmd(kAcknowledge, kModifyVpidConstants);\n'
+            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kModifyVpidConstants);\n"
             rv += "\t} else {\n"
-            rv += '\t\tcmdMessenger.sendBinCmd(kError, kModifyVpidConstants);\n'
-            rv += "\t}\n
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kModifyVpidConstants);\n"
+            rv += "\t}\n"
             rv += "}\n\n"
 
             rv += "void setVpidSetpoint() {\n"
             rv += "\tif(cmdMessenger.available()) {\n"
             rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.vpidList))
-            rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kSetVpidSetpoint)\n'
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetVpidSetpoint);\n"
             rv += "\t\t\treturn;\n"
             rv += "\t\t}\n"
             rv += "\t\tif(cmdMessenger.available()) {\n"
-            rv += "\t\t\tfloat value = cmdMessenger.readBinArg<float>()\n"
+            rv += "\t\t\tfloat value = cmdMessenger.readBinArg<float>();\n"
             rv += "\t\t\tvpids[indexNum].SetMode(AUTOMATIC);\n"
             rv += "\t\t\tSetpoints_vpid[indexNum] = value;\n"
             rv += "\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kSetVpidSetpoint);\n"
             rv += "\t\t} else {\n"
-            rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kSetVpidSetpoint);\n'
-            rv += "\t\t\treturn;\n"
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetVpidSetpoint);\n"
             rv += "\t\t}\n"
             rv += "\t} else {\n"
-            rv += '\t\tcmdMessenger.sendBinCmd(kError, kSetVpidSetpoint);\n'
-            rv += "\t}\n
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetVpidSetpoint);\n"
+            rv += "\t}\n"
             rv += "}\n\n"
 
             rv += "void vpidOff() {\n"
             rv += "\tif(cmdMessenger.available()) {\n"
             rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.vpidList))
-            rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kVpidOff)\n'
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kVpidOff);\n"
             rv += "\t\t\treturn;\n"
             rv += "\t\t}\n"
             rv += "\t\tpids[indexNum].SetMode(MANUAL);\n"
-            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kVpidOff)\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kVpidOff);\n"
             rv += "\t} else {\n"
-            rv += '\t\tcmdMessenger.sendBinCmd(kError, kVpidOff);\n'
-            rv += "\t}\n
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kVpidOff);\n"
+            rv += "\t}\n"
             rv += "}\n\n"
 
             rv += "void vpidDisplay() {\n"
             rv += "\tif(cmdMessenger.available()) {\n"
             rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\t\tif(indexNum < 0 || index > {0:d}) {{\n".format(len(self.vpidList))
-            rv += '\t\t\tcmdMessenger.sendBinCmd(kError, kVpidDisplay)\n'
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kVpidDisplay);\n"
             rv += "\t\t\treturn;\n"
             rv += "\t\t}\n"
             rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kVpidDisplay);\n"
@@ -271,8 +270,8 @@ class PidList(ComponentList):
             rv += "\t\tcmdMessenger.sendCmdBinArg(Outputs_vpid[indexNum]);\n"
             rv += "\t\tcmdMessenger.sendCmdEnd();\n"
             rv += "\t} else {\n"
-            rv += '\t\tcmdMessenger.sendBinCmd(kError, kVpidDisplay);\n'
-            rv += "\t}\n
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kVpidDisplay);\n"
+            rv += "\t}\n"
             rv += "}\n\n"
 
         return rv
@@ -281,12 +280,12 @@ class PidList(ComponentList):
         for i, vpid in enumerate(self.vpidList):
             a = {}
             a['index'] = i
-            a['label'] = vpid['label']
+            a['label'] = vpid.label
             a['vpid'] = True
             yield a
         for i, pid in enumerate(self.pidList):
             a = {}
             a['index'] = i
-            a['label'] = pid['label']
+            a['label'] = pid.label
             a['vpid'] = False
             yield a
