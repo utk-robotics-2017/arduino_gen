@@ -38,7 +38,7 @@ class UltrasonicList(ComponentList):
         return rv
 
     def get_commands(self):
-        return "\tkReadUltrasonic,\n"
+        return "\tkReadUltrasonic,\n\tkReadUltrasonicResult,\n"
 
     def get_command_attaches(self):
         return "\tcmdMessenger.attach(kReadUltrasonic, readUltrasonic);\n"
@@ -52,7 +52,7 @@ class UltrasonicList(ComponentList):
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadUltrasonic);\n"
-        rv += "\t\tcmdMessenger.sendBinCmd(kResult, ultrasonics[indexNum].ping());\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kReadUltrasonicResult, ultrasonics[indexNum].ping());\n"
         rv += "\t} else {\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadUltrasonic);\n"
         rv += "\t}\n"

@@ -56,7 +56,7 @@ class EncoderList(ComponentList):
         return rv
 
     def get_commands(self):
-        return "\tkReadEncoder,\n\tkZeroEncoder,\n"
+        return "\tkReadEncoder,\n\tkReadEncoderResult,\n\tkZeroEncoder,\n"
 
     def get_command_attaches(self):
         rv = "\tcmdMessenger.attach(kReadEncoder, readEncoder);\n"
@@ -72,7 +72,7 @@ class EncoderList(ComponentList):
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadEncoder);\n"
-        rv += "\t\tcmdMessenger.sendBinCmd(kResult, encoders[indexNum].read());\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kReadEncoderResult, encoders[indexNum].read());\n"
         rv += "\t} else {\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadEncoder);\n"
         rv += "\t}\n"

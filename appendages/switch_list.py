@@ -46,7 +46,7 @@ class SwitchList(ComponentList):
         return rv
 
     def get_commands(self):
-        return "\tkReadSwitch,\n"
+        return "\tkReadSwitch,\n\tkReadSwitchResult,\n"
 
     def get_command_attaches(self):
         return "\tcmdMessenger.attach(kReadSwitch, readSwitch);\n"
@@ -60,7 +60,7 @@ class SwitchList(ComponentList):
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadSwitch);\n"
-        rv += "\t\t\tcmdMessenger.sendBinCmd(kResult, digitalRead(switches[indexNum]));\n"
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kReadSwitchResult, digitalRead(switches[indexNum]));\n"
         rv += "\t} else {\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadSwitch);\n"
         rv += "\t}\n"

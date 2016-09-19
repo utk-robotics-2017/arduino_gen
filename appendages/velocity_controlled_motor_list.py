@@ -67,7 +67,9 @@ class VelocityControlledMotorList(ComponentList):
         rv += "\tkSetVCMVelocity,\n"
         rv += "\tkStopVCM,\n"
         rv += "\tkGetVCMVelocity,\n"
+        rv += "\tkGetVCMVelocityResult,\n"
         rv += "\tkGetVCMPosition,\n"
+        rv += "\tkGetVCMPositionResult,\n"
         return rv
 
     def get_command_attaches(self):
@@ -145,7 +147,7 @@ class VelocityControlledMotorList(ComponentList):
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kSetVCMVelocity);\n"
-        rv += "\t\tcmdMessenger.sendBinCmd(kResult, vcms[indexNum].getVelocity());\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kGetVCMVelocityResult, vcms[indexNum].getVelocity());\n"
         rv += "\t} else {\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetVCMVelocity);\n"
         rv += "\t}\n"
@@ -159,7 +161,7 @@ class VelocityControlledMotorList(ComponentList):
         rv += "\t\t\treturn;\n"
         rv += "\t\t}\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kGetVCMPosition);\n"
-        rv += "\t\tcmdMessenger.sendBinCmd(kResult, vcms[indexNum].getPosition());\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kGetVCMPositionResult, vcms[indexNum].getPosition());\n"
         rv += "\t} else {\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetVCMPosition);\n"
         rv += "\t}\n"

@@ -54,14 +54,14 @@ class Generator:
         self.commands['kAcknowledge'] = 0
         rv += "\tkStart,\n"
         self.commands['kStart'] = 1
-        rv += "\tkResult,\n"
-        self.commands['kResult'] = 2
         rv += "\tkError,\n"
-        self.commands['kError'] = 3
+        self.commands['kError'] = 2
         rv += "\tkUnknown,\n"
-        self.commands['kUnknown'] = 4
+        self.commands['kUnknown'] = 3
         rv += "\tkSetLed,\n"
-        self.commands['kSetLed'] = 5
+        self.commands['kSetLed'] = 4
+        rv += "\tkPing,\n"
+        self.commands['kPing'] = 5
         cmd_idx = 6
         for appendage in self.appendage_dict.values():
             cmds = appendage.get_commands()

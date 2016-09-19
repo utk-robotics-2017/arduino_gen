@@ -102,10 +102,12 @@ class PidList(ComponentList):
         rv += "\tkSetPidSetpoint,\n"
         rv += "\tkPidOff,\n"
         rv += "\tkPidDisplay,\n"
+        rv += "\tkPidDisplayResult,\n"
         rv += "\tkModifyVpidConstants,\n"
         rv += "\tkSetVpidSetpoint,\n"
         rv += "\tkVpidOff,\n"
         rv += "\tkVpidDisplay,\n"
+        rv += "\tkVpidDisplayResult,\n"
         return rv
 
     def get_command_attaches(self):
@@ -188,7 +190,7 @@ class PidList(ComponentList):
             rv += "\t\t\treturn;\n"
             rv += "\t\t}\n"
             rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kPidDisplay);\n"
-            rv += "\t\tcmdMessenger.sendCmdStart(kResult);\n"
+            rv += "\t\tcmdMessenger.sendCmdStart(kPidDisplayResult);\n"
             rv += "\t\tcmdMessenger.sendCmdBinArg(Inputs_pid[indexNum]);\n"
             rv += "\t\tcmdMessenger.sendCmdBinArg(Setpoints_pid[indexNum]);\n"
             rv += "\t\tcmdMessenger.sendCmdBinArg(Outputs_pid[indexNum]);\n"
@@ -264,7 +266,7 @@ class PidList(ComponentList):
             rv += "\t\t\treturn;\n"
             rv += "\t\t}\n"
             rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kVpidDisplay);\n"
-            rv += "\t\tcmdMessenger.sendCmdStart(kResult);\n"
+            rv += "\t\tcmdMessenger.sendCmdStart(kVpidDisplayResult);\n"
             rv += "\t\tcmdMessenger.sendCmdBinArg(Inputs_vpid[indexNum]);\n"
             rv += "\t\tcmdMessenger.sendCmdBinArg(Setpoints_vpid[indexNum]);\n"
             rv += "\t\tcmdMessenger.sendCmdBinArg(Outputs_vpid[indexNum]);\n"

@@ -59,8 +59,10 @@ class LineSensorList(ComponentList):
         rv = ""
         if(len(self.digital_sensor_list) > 0):
             rv += "\tkReadDigitalLineSensor,\n"
+            rv += "\tkReadDigitalLineSensorResult,\n"
         if(len(self.analog_sensor_list) > 0):
             rv += "\tkReadAnalogLineSensor,\n"
+            rv += "\tkReadAnalogLineSensorResult,\n"
         return rv
 
     def get_command_attaches(self):
@@ -82,7 +84,8 @@ class LineSensorList(ComponentList):
             rv += "\t\t\treturn;\n"
             rv += "\t\t}\n"
             rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadDigitalLineSensor);\n"
-            rv += "\t\tcmdMessenger.sendBinCmd(kResult, digitalRead(digital_linesensors[indexNum]));\n"
+            rv += ("\t\tcmdMessenger.sendBinCmd(kReadDigitalLineSensorResult, " +
+                   "digitalRead(digital_linesensors[indexNum]));\n")
             rv += "\t} else {\n"
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);\n"
             rv += "\t}\n"
@@ -96,7 +99,8 @@ class LineSensorList(ComponentList):
             rv += "\t\t\treturn;\n"
             rv += "\t\t}\n"
             rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadAnalogLineSensor);\n"
-            rv += "\t\tcmdMessenger.sendBinCmd(kResult, analogRead(analog_linesensors[indexNum]));\n"
+            rv += ("\t\tcmdMessenger.sendBinCmd(kReadAnalogLineSensorResult, " +
+                   "analogRead(analog_linesensors[indexNum]));\n")
             rv += "\t} else {\n"
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadAnalogLineSensor);\n"
             rv += "\t}\n"

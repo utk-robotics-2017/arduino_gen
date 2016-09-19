@@ -2,15 +2,15 @@
 
 // Includes
 #include "CmdMessenger.h"
-#include <Wire.h>
-#include "I2CEncoder.h"
-#include "Servo.h"
-#include "Motor.h"
-#include "Stepper.h"
 #include "Encoder.h"
-#include "NewPing.h"
+#include "Servo.h"
+#include "Stepper.h"
+#include "Motor.h"
 #include "PID.h"
 #include "vPID.h"
+#include <Wire.h>
+#include "I2CEncoder.h"
+#include "NewPing.h"
 #include "VelocityControlledMotor.h"
 #include "Arm.h"
 #include "FourWheelDrive.h"
@@ -20,6 +20,18 @@ int ledState = HIGH;
 
 // Pin definitions
 const char LED = 13;
+
+const char template_encoder0_pinA = 4;
+const char template_encoder0_pinB = 8;
+const char template_encoder1_pinA = 16;
+const char template_encoder1_pinB = 6;
+
+const char template_servo_pin = 5;
+
+const char template_stepper_pinA = 16;
+const char template_stepper_pinB = 14;
+const char template_stepper_pinC = 6;
+const char template_stepper_pinD = 9;
 
 const char template_button0_pin = 10;
 const char template_button1_pin = 15;
@@ -34,8 +46,6 @@ const char template_switch1_pin = 2;
 const char template_switch2_pin = 5;
 const char template_switch3_pin = 14;
 
-const char template_servo_pin = 5;
-
 const char template_monster_moto_motor0_Apin = 9;
 const char template_monster_moto_motor0_Bpin = 13;
 const char template_monster_moto_motor0_PWMpin = 5;
@@ -48,16 +58,6 @@ const char template_rover_five_motor0_PWMpin = 8;
 const char template_rover_five_motor1_Apin = 11;
 const char template_rover_five_motor1_Bpin = -1;
 const char template_rover_five_motor1_PWMpin = 15;
-const char template_stepper_pinA = 16;
-const char template_stepper_pinB = 14;
-const char template_stepper_pinC = 6;
-const char template_stepper_pinD = 9;
-
-const char template_encoder0_pinA = 4;
-const char template_encoder0_pinB = 8;
-const char template_encoder1_pinA = 16;
-const char template_encoder1_pinB = 6;
-
 const char template_line_sensor1_pin = 13;
 const char template_line_sensor0_pin = 4;
 
@@ -73,53 +73,84 @@ CmdMessenger cmdMessenger = CmdMessenger(Serial);
 enum {
 	kAcknowledge,
 	kStart,
-	kResult,
 	kError,
 	kUnknown,
 	kSetLed,
-	kI2CEncoderPosition,
-	kI2CEncoderRawPosition,
-	kI2CEncoderSpeed,
-	kI2CEncoderVelocity,
-	kI2CEncoderZero,
-	kReadSwitch,
+	kPing,
+	kReadEncoder,
+	kReadEncoderResult,
+	kZeroEncoder,
 	kSetServo,
 	kDetachServo,
-	kDriveMotor,
-	kStopMotor,
 	kSetStepperSpeed,
 	kStepStepper,
 	kSetVCMVoltage,
 	kSetVCMVelocity,
 	kStopVCM,
 	kGetVCMVelocity,
+	kGetVCMVelocityResult,
 	kGetVCMPosition,
-	kSetArm,
-	kDetachArm,
+	kGetVCMPositionResult,
+	kReadSwitch,
+	kReadSwitchResult,
 	kDriveFWD,
 	kStopFWD,
 	kDriveFWD_PID,
 	kGetFWDLeftVelocity,
+	kGetFWDLeftVelocityResult,
 	kGetFWDRightVelocity,
+	kGetFWDRightVelocityResult,
 	kGetFWDLeftPosition,
+	kGetFWDLeftPositionResult,
 	kGetFWDRightPosition,
-	kReadEncoder,
-	kZeroEncoder,
-	kReadDigitalLineSensor,
-	kReadAnalogLineSensor,
-	kReadUltrasonic,
+	kGetFWDRightPositionResult,
+	kDriveMotor,
+	kStopMotor,
 	kModifyPidConstants,
 	kSetPidSetpoint,
 	kPidOff,
 	kPidDisplay,
+	kPidDisplayResult,
 	kModifyVpidConstants,
 	kSetVpidSetpoint,
 	kVpidOff,
-	kVpidDisplay
+	kVpidDisplay,
+	kVpidDisplayResult,
+	kI2CEncoderPosition,
+	kI2CEncoderPositionResult,
+	kI2CEncoderRawPosition,
+	kI2CEncoderRawPositionResult,
+	kI2CEncoderSpeed,
+	kI2CEncoderSpeedResult,
+	kI2CEncoderVelocity,
+	kI2CEncoderVelocityResult,
+	kI2CEncoderZero,
+	kReadDigitalLineSensor,
+	kReadDigitalLineSensorResult,
+	kReadAnalogLineSensor,
+	kReadAnalogLineSensorResult,
+	kSetArm,
+	kDetachArm,
+	kReadUltrasonic,
+	kReadUltrasonicResult
 };
-const char template_i2c_encoder1_index = 0;
-const char template_i2c_encoder0_index = 1;
-I2CEncoder i2cencoders[2];
+const char template_encoder0_index = 0;
+const char template_encoder1_index = 1;
+Encoder encoders[2] = {
+	Encoder(template_encoder0_pinA, template_encoder0_pinB),
+	Encoder(template_encoder1_pinA, template_encoder1_pinB)
+};
+
+const char template_servo_index = 0;
+char servo_pins[1] = {
+	template_servo_pin
+};
+Servo servos[1];
+
+const char template_stepper_index = 0;
+Stepper steppers[1] = {
+	Stepper(3, template_stepper_pinA, template_stepper_pinB, template_stepper_pinC, template_stepper_pinD)
+};
 
 const char template_button0_index = 0;
 const char template_button1_index = 1;
@@ -148,12 +179,6 @@ char switches[12] = {
 	template_switch3_pin
 };
 
-const char template_servo_index = 0;
-char servo_pins[1] = {
-	template_servo_pin
-};
-Servo servos[1];
-
 const char template_monster_moto_motor0_index = 0;
 const char template_monster_moto_motor1_index = 1;
 const char template_rover_five_motor0_index = 2;
@@ -163,32 +188,6 @@ Motor motors[4] = {
 	Motor(template_monster_moto_motor1_Apin, template_monster_moto_motor1_Bpin, template_monster_moto_motor1_PWMpin, 1, MonsterMoto),
 	Motor(template_rover_five_motor0_Apin, template_rover_five_motor0_Bpin, template_rover_five_motor0_PWMpin, 0, RoverFive),
 	Motor(template_rover_five_motor1_Apin, template_rover_five_motor1_Bpin, template_rover_five_motor1_PWMpin, 1, RoverFive)
-};
-
-const char template_stepper_index = 0;
-Stepper steppers[1] = {
-	Stepper(3, template_stepper_pinA, template_stepper_pinB, template_stepper_pinC, template_stepper_pinD)
-};
-
-const char template_encoder0_index = 0;
-const char template_encoder1_index = 1;
-Encoder encoders[2] = {
-	Encoder(template_encoder0_pinA, template_encoder0_pinB),
-	Encoder(template_encoder1_pinA, template_encoder1_pinB)
-};
-
-const char template_line_sensor1_index = 0;
-char digital_linesensors[1] = {
-	template_line_sensor1_pin
-};
-const char template_line_sensor0_index = 0;
-char analog_linesensors[1] = {
-	template_line_sensor0_pin
-};
-
-const char template_ultrasonic_index = 0;
-NewPing ultrasonics[1] = {
-	NewPing(template_ultrasonic_pin, template_ultrasonic_pin)
 };
 
 const char template_pid0_index = 0;
@@ -206,6 +205,24 @@ double Inputs_pid[2], Setpoints_pid[2], Outputs_pid[2];
 PID pids[2] = {
 	PID(&Inputs_pid[template_pid1_index], &Outputs_pid[template_pid1_index], &Setpoints_pid[template_pid1_index], 4.100000, 0.200000, 2.100000, REVERSE),
 	PID(&Inputs_pid[template_pid2_index], &Outputs_pid[template_pid2_index], &Setpoints_pid[template_pid2_index], 4.100000, 0.200000, 2.100000, REVERSE)
+};
+
+const char template_i2c_encoder1_index = 0;
+const char template_i2c_encoder0_index = 1;
+I2CEncoder i2cencoders[2];
+
+const char template_line_sensor1_index = 0;
+char digital_linesensors[1] = {
+	template_line_sensor1_pin
+};
+const char template_line_sensor0_index = 0;
+char analog_linesensors[1] = {
+	template_line_sensor0_pin
+};
+
+const char template_ultrasonic_index = 0;
+NewPing ultrasonics[1] = {
+	NewPing(template_ultrasonic_pin, template_ultrasonic_pin)
 };
 
 const char template_velocity_controlled_motor_index = 0;
@@ -227,12 +244,17 @@ void setup() {
 	// Init LED pin
 	pinMode(LED, OUTPUT);
 
-	Wire.begin();
-	i2cencoders[template_i2c_encoder1_index].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
-	i2cencoders[template_i2c_encoder0_index].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
-	i2cencoders[template_i2c_encoder1_index].setReversed(true);
-	i2cencoders[template_i2c_encoder1_index].zero();
-	i2cencoders[template_i2c_encoder0_index].zero();
+	pinMode(template_encoder0_pinA, INPUT);
+	pinMode(template_encoder0_pinB, INPUT);
+	pinMode(template_encoder1_pinA, INPUT);
+	pinMode(template_encoder1_pinB, INPUT);
+	servos[template_servo_index].attach(template_servo_pin);
+
+	pinMode(template_stepper_pinA, OUTPUT);
+	pinMode(template_stepper_pinB, OUTPUT);
+	pinMode(template_stepper_pinC, OUTPUT);
+	pinMode(template_stepper_pinD, OUTPUT);
+	steppers[template_stepper_index].setSpeed(9.000000);
 
 	pinMode(template_button0_pin, INPUT_PULLUP);
 	pinMode(template_button1_pin, INPUT);
@@ -247,8 +269,6 @@ void setup() {
 	pinMode(template_switch2_pin, INPUT);
 	pinMode(template_switch3_pin, INPUT_PULLUP);
 
-	servos[template_servo_index].attach(template_servo_pin);
-
 	pinMode(template_monster_moto_motor0_Apin, OUTPUT);
 	pinMode(template_monster_moto_motor0_Bpin, OUTPUT);
 	pinMode(template_monster_moto_motor0_PWMpin, OUTPUT);
@@ -259,16 +279,13 @@ void setup() {
 	pinMode(template_rover_five_motor0_PWMpin, OUTPUT);
 	pinMode(template_rover_five_motor1_Apin, OUTPUT);
 	pinMode(template_rover_five_motor1_PWMpin, OUTPUT);
-	pinMode(template_stepper_pinA, OUTPUT);
-	pinMode(template_stepper_pinB, OUTPUT);
-	pinMode(template_stepper_pinC, OUTPUT);
-	pinMode(template_stepper_pinD, OUTPUT);
-	steppers[template_stepper_index].setSpeed(9.000000);
+	Wire.begin();
+	i2cencoders[template_i2c_encoder1_index].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
+	i2cencoders[template_i2c_encoder0_index].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
+	i2cencoders[template_i2c_encoder1_index].setReversed(true);
+	i2cencoders[template_i2c_encoder1_index].zero();
+	i2cencoders[template_i2c_encoder0_index].zero();
 
-	pinMode(template_encoder0_pinA, INPUT);
-	pinMode(template_encoder0_pinB, INPUT);
-	pinMode(template_encoder1_pinA, INPUT);
-	pinMode(template_encoder1_pinB, INPUT);
 	// Initialize Serial Communication
 	Serial.begin(115200);
 
@@ -299,16 +316,10 @@ void loop() {
 // Callbacks define on which received commands we take action
 void attachCommandCallbacks() {
 	// Attach callback methods
-	cmdMessenger.attach(kI2CEncoderPosition,i2cEncoderPosition);
-	cmdMessenger.attach(kI2CEncoderRawPosition,i2cEncoderRawPosition);
-	cmdMessenger.attach(kI2CEncoderSpeed,i2cEncoderSpeed);
-	cmdMessenger.attach(kI2CEncoderVelocity,i2cEncoderVelocity);
-	cmdMessenger.attach(kI2CEncoderZero,i2cEncoderZero);
-	cmdMessenger.attach(kReadSwitch, readSwitch);
+	cmdMessenger.attach(kReadEncoder, readEncoder);
+	cmdMessenger.attach(kZeroEncoder, zeroEncoder);
 	cmdMessenger.attach(kSetServo, setServo);
 	cmdMessenger.attach(kDetachServo, detachServo);
-	cmdMessenger.attach(kDriveMotor, driveMotor);
-	cmdMessenger.attach(kStopMotor, stopMotor);
 	cmdMessenger.attach(kSetStepperSpeed, setStepperSpeed);
 	cmdMessenger.attach(kStepStepper, stepStepper);
 	cmdMessenger.attach(kSetVCMVoltage, setVCMVoltage);
@@ -316,8 +327,7 @@ void attachCommandCallbacks() {
 	cmdMessenger.attach(kStopVCM, stopVCM);
 	cmdMessenger.attach(kGetVCMVelocity, getVCMVelocity);
 	cmdMessenger.attach(kGetVCMPosition, getVCMPosition);
-	cmdMessenger.attach(kSetArm, setArm);
-	cmdMessenger.attach(kDetachArm, detachArm);
+	cmdMessenger.attach(kReadSwitch, readSwitch);
 	cmdMessenger.attach(kDriveFWD, driveFWD);
 	cmdMessenger.attach(kStopFWD, stopFWD);
 	cmdMessenger.attach(kDriveFWD_PID, driveFWD_PID);
@@ -325,11 +335,8 @@ void attachCommandCallbacks() {
 	cmdMessenger.attach(kGetFWDRightVelocity, getFWDRightVelocity);
 	cmdMessenger.attach(kGetFWDLeftPosition, getFWDLeftPosition);
 	cmdMessenger.attach(kGetFWDRightPosition, getFWDRightPosition);
-	cmdMessenger.attach(kReadEncoder, readEncoder);
-	cmdMessenger.attach(kZeroEncoder, zeroEncoder);
-	cmdMessenger.attach(kReadDigitalLineSensor, readDigitalLineSensor);
-	cmdMessenger.attach(kReadAnalogLineSensor, readAnalogLineSensor);
-	cmdMessenger.attach(kReadUltrasonic, readUltrasonic);
+	cmdMessenger.attach(kDriveMotor, driveMotor);
+	cmdMessenger.attach(kStopMotor, stopMotor);
 	cmdMessenger.attach(kModifyPidConstants, modifyPidConstants);
 	cmdMessenger.attach(kSetPidSetpoint, setPidSetpoint);
 	cmdMessenger.attach(kPidOff, pidOff);
@@ -338,6 +345,16 @@ void attachCommandCallbacks() {
 	cmdMessenger.attach(kSetVpidSetpoint, setVpidSetpoint);
 	cmdMessenger.attach(kVpidOff, vpidOff);
 	cmdMessenger.attach(kVpidDisplay, vpidDisplay);
+	cmdMessenger.attach(kI2CEncoderPosition,i2cEncoderPosition);
+	cmdMessenger.attach(kI2CEncoderRawPosition,i2cEncoderRawPosition);
+	cmdMessenger.attach(kI2CEncoderSpeed,i2cEncoderSpeed);
+	cmdMessenger.attach(kI2CEncoderVelocity,i2cEncoderVelocity);
+	cmdMessenger.attach(kI2CEncoderZero,i2cEncoderZero);
+	cmdMessenger.attach(kReadDigitalLineSensor, readDigitalLineSensor);
+	cmdMessenger.attach(kReadAnalogLineSensor, readAnalogLineSensor);
+	cmdMessenger.attach(kSetArm, setArm);
+	cmdMessenger.attach(kDetachArm, detachArm);
+	cmdMessenger.attach(kReadUltrasonic, readUltrasonic);
 }
 
 // Called when a received command has no attached function
@@ -353,87 +370,31 @@ void OnSetLed() {
 	cmdMessenger.sendBinCmd(kAcknowledge, ledState);
 }
 
-void i2cEncoderPosition() {
+void readEncoder() {
 	if(cmdMessenger.available()) {
 		int indexNum = cmdMessenger.readBinArg<int>();
 		if(indexNum < 0 || indexNum > 2) {
-			cmdMessenger.sendBinCmd(kError, kI2CEncoderPosition);
+			cmdMessenger.sendBinCmd(kError, kReadEncoder);
 			return;
 		}
-		cmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderPosition);
-		cmdMessenger.sendBinCmd(kResult, i2cencoders[indexNum].getPosition());
+		cmdMessenger.sendBinCmd(kAcknowledge, kReadEncoder);
+		cmdMessenger.sendBinCmd(kReadEncoderResult, encoders[indexNum].read());
 	} else {
-		cmdMessenger.sendBinCmd(kError, kI2CEncoderPosition);
+		cmdMessenger.sendBinCmd(kError, kReadEncoder);
 	}
 }
 
-void i2cEncoderRawPosition() {
+void zeroEncoder() {
 	if(cmdMessenger.available()) {
 		int indexNum = cmdMessenger.readBinArg<int>();
 		if(indexNum < 0 || indexNum > 2) {
-			cmdMessenger.sendBinCmd(kError, kI2CEncoderRawPosition);
+			cmdMessenger.sendBinCmd(kError, kZeroEncoder);
 			return;
 		}
-		cmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderRawPosition);
-		cmdMessenger.sendBinCmd(kResult, i2cencoders[indexNum].getRawPosition());
+		encoders[indexNum].write(0);
+		cmdMessenger.sendBinCmd(kAcknowledge, kZeroEncoder);
 	} else {
-		cmdMessenger.sendBinCmd(kError, kI2CEncoderRawPosition);
-	}
-}
-
-void i2cEncoderSpeed() {
-	if(cmdMessenger.available()) {
-		int indexNum = cmdMessenger.readBinArg<int>();
-		if(indexNum < 0 || indexNum > 2) {
-			cmdMessenger.sendBinCmd(kError, kI2CEncoderSpeed);
-			return;
-		}
-		cmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderSpeed);
-		cmdMessenger.sendBinCmd(kResult, i2cencoders[indexNum].getSpeed());
-	} else {
-		cmdMessenger.sendBinCmd(kError, kI2CEncoderSpeed);
-	}
-}
-
-void i2cEncoderVelocity() {
-	if(cmdMessenger.available()) {
-		int indexNum = cmdMessenger.readBinArg<int>();
-		if(indexNum < 0 || indexNum > 2) {
-			cmdMessenger.sendBinCmd(kError, kI2CEncoderVelocity);
-			return;
-		}
-		cmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderVelocity);
-		cmdMessenger.sendBinCmd(kResult, i2cencoders[indexNum].getVelocity());
-	} else {
-		cmdMessenger.sendBinCmd(kError, kI2CEncoderVelocity);
-	}
-}
-
-void i2cEncoderZero() {
-	if(cmdMessenger.available()) {
-		int indexNum = cmdMessenger.readBinArg<int>();
-		if(indexNum < 0 || indexNum > 2) {
-			cmdMessenger.sendBinCmd(kError, kI2CEncoderZero);
-			return;
-		}
-		i2cencoders[indexNum].zero();
-		cmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderZero);
-	} else {
-		cmdMessenger.sendBinCmd(kError, kI2CEncoderZero);
-	}
-}
-
-void readSwitch() {
-	if(cmdMessenger.available()) {
-		int indexNum = cmdMessenger.readBinArg<int>();
-		if(indexNum < 0 || indexNum > 12) {
-			cmdMessenger.sendBinCmd(kError, kReadSwitch);
-			return;
-		}
-			cmdMessenger.sendBinCmd(kAcknowledge, kReadSwitch);
-			cmdMessenger.sendBinCmd(kResult, digitalRead(switches[indexNum]));
-	} else {
-		cmdMessenger.sendBinCmd(kError, kReadSwitch);
+		cmdMessenger.sendBinCmd(kError, kZeroEncoder);
 	}
 }
 
@@ -471,44 +432,6 @@ void detachServo() {
 		cmdMessenger.sendBinCmd(kAcknowledge, kDetachServo);
 	} else {
 		cmdMessenger.sendBinCmd(kError, kDetachServo);
-	}
-}
-
-void driveMotor() {
-	if(cmdMessenger.available()) {
-		int indexNum = cmdMessenger.readBinArg<int>();
-		if(indexNum < 0 || indexNum > 4) {
-			cmdMessenger.sendBinCmd(kError, kDriveMotor);
-			return;
-		}
-		if(cmdMessenger.available()) {
-			int value = cmdMessenger.readBinArg<int>();
-			if( value < -1023 || value > 1023) {
-				motors[indexNum].drive(value);
-				cmdMessenger.sendBinCmd(kAcknowledge, kDriveMotor);
-			} else {
-				cmdMessenger.sendBinCmd(kError, kDriveMotor);
-			}
-		} else {
-			cmdMessenger.sendBinCmd(kError, kDriveMotor);
-			return;
-		}
-	} else {
-		cmdMessenger.sendBinCmd(kError, kDriveMotor);
-	}
-}
-
-void stopMotor() {
-	if(cmdMessenger.available()) {
-		int indexNum = cmdMessenger.readBinArg<int>();
-		if(indexNum < 0 || indexNum > 4) {
-			cmdMessenger.sendBinCmd(kError, kStopMotor);
-			return;
-		}
-		motors[indexNum].stop();
-		cmdMessenger.sendBinCmd(kAcknowledge, kStopMotor);
-	} else {
-		cmdMessenger.sendBinCmd(kError, kStopMotor);
 	}
 }
 
@@ -618,7 +541,7 @@ void getVCMVelocity() {
 			return;
 		}
 		cmdMessenger.sendBinCmd(kAcknowledge, kSetVCMVelocity);
-		cmdMessenger.sendBinCmd(kResult, vcms[indexNum].getVelocity());
+		cmdMessenger.sendBinCmd(kGetVCMVelocityResult, vcms[indexNum].getVelocity());
 	} else {
 		cmdMessenger.sendBinCmd(kError, kGetVCMVelocity);
 	}
@@ -632,46 +555,23 @@ void getVCMPosition() {
 			return;
 		}
 		cmdMessenger.sendBinCmd(kAcknowledge, kGetVCMPosition);
-		cmdMessenger.sendBinCmd(kResult, vcms[indexNum].getPosition());
+		cmdMessenger.sendBinCmd(kGetVCMPositionResult, vcms[indexNum].getPosition());
 	} else {
 		cmdMessenger.sendBinCmd(kError, kGetVCMPosition);
 	}
 }
 
-void setArm() {
+void readSwitch() {
 	if(cmdMessenger.available()) {
 		int indexNum = cmdMessenger.readBinArg<int>();
-		if(indexNum < 0 || indexNum > 1) {
-			cmdMessenger.sendBinCmd(kError, kSetArm);
+		if(indexNum < 0 || indexNum > 12) {
+			cmdMessenger.sendBinCmd(kError, kReadSwitch);
 			return;
 		}
-		int pos[5];
-		for(int i = 0; i < 5; i++) {
-			if(cmdMessenger.available()) {
-				pos[i] = cmdMessenger.readBinArg<int>();
-			} else {
-				cmdMessenger.sendBinCmd(kError, kSetArm);
-				return;
-			}
-		}
-		arms[indexNum].set(pos[0], pos[1], pos[2], pos[3], pos[4]);
-		cmdMessenger.sendBinCmd(kAcknowledge, kSetArm);
+			cmdMessenger.sendBinCmd(kAcknowledge, kReadSwitch);
+			cmdMessenger.sendBinCmd(kReadSwitchResult, digitalRead(switches[indexNum]));
 	} else {
-		cmdMessenger.sendBinCmd(kError, kSetArm);
-	}
-}
-
-void detachArm() {
-	if(cmdMessenger.available()) {
-		int indexNum = cmdMessenger.readBinArg<int>();
-		if(indexNum < 0 || indexNum > 1) {
-			cmdMessenger.sendBinCmd(kError, kDetachArm);
-			return;
-		}
-		arms[indexNum].detach();
-		cmdMessenger.sendBinCmd(kAcknowledge, kDetachArm);
-	} else {
-		cmdMessenger.sendBinCmd(kError, kDetachArm);
+		cmdMessenger.sendBinCmd(kError, kReadSwitch);
 	}
 }
 
@@ -747,7 +647,7 @@ void getFWDLeftVelocity() {
 			return;
 		}
 		cmdMessenger.sendBinCmd(kAcknowledge, kGetFWDLeftVelocity);
-		cmdMessenger.sendBinCmd(kResult, fwds[indexNum].getLeftVelocity());
+		cmdMessenger.sendBinCmd(kGetFWDLeftVelocityResult, fwds[indexNum].getLeftVelocity());
 	} else {
 		cmdMessenger.sendBinCmd(kError, kGetFWDLeftVelocity);
 	}
@@ -761,7 +661,7 @@ void getFWDRightVelocity() {
 			return;
 		}
 		cmdMessenger.sendBinCmd(kAcknowledge, kGetFWDRightVelocity);
-		cmdMessenger.sendBinCmd(kResult, fwds[indexNum].getRightVelocity());
+		cmdMessenger.sendBinCmd(kGetFWDRightVelocityResult, fwds[indexNum].getRightVelocity());
 	} else {
 		cmdMessenger.sendBinCmd(kError, kGetFWDRightVelocity);
 	}
@@ -775,7 +675,7 @@ void getFWDLeftPosition() {
 			return;
 		}
 		cmdMessenger.sendBinCmd(kAcknowledge, kGetFWDLeftPosition);
-		cmdMessenger.sendBinCmd(kResult, fwds[indexNum].getLeftPosition());
+		cmdMessenger.sendBinCmd(kGetFWDLeftPositionResult, fwds[indexNum].getLeftPosition());
 	} else {
 		cmdMessenger.sendBinCmd(kError, kGetFWDLeftPosition);
 	}
@@ -789,79 +689,47 @@ void getFWDRightPosition() {
 			return;
 		}
 		cmdMessenger.sendBinCmd(kAcknowledge, kGetFWDRightPosition);
-		cmdMessenger.sendBinCmd(kResult, fwds[indexNum].getRightPosition());
+		cmdMessenger.sendBinCmd(kGetFWDRightPositionResult, fwds[indexNum].getRightPosition());
 	} else {
 		cmdMessenger.sendBinCmd(kError, kGetFWDRightPosition);
 	}
 }
 
-void readEncoder() {
+void driveMotor() {
 	if(cmdMessenger.available()) {
 		int indexNum = cmdMessenger.readBinArg<int>();
-		if(indexNum < 0 || indexNum > 2) {
-			cmdMessenger.sendBinCmd(kError, kReadEncoder);
+		if(indexNum < 0 || indexNum > 4) {
+			cmdMessenger.sendBinCmd(kError, kDriveMotor);
 			return;
 		}
-		cmdMessenger.sendBinCmd(kAcknowledge, kReadEncoder);
-		cmdMessenger.sendBinCmd(kResult, encoders[indexNum].read());
+		if(cmdMessenger.available()) {
+			int value = cmdMessenger.readBinArg<int>();
+			if( value < -1023 || value > 1023) {
+				motors[indexNum].drive(value);
+				cmdMessenger.sendBinCmd(kAcknowledge, kDriveMotor);
+			} else {
+				cmdMessenger.sendBinCmd(kError, kDriveMotor);
+			}
+		} else {
+			cmdMessenger.sendBinCmd(kError, kDriveMotor);
+			return;
+		}
 	} else {
-		cmdMessenger.sendBinCmd(kError, kReadEncoder);
+		cmdMessenger.sendBinCmd(kError, kDriveMotor);
 	}
 }
 
-void zeroEncoder() {
+void stopMotor() {
 	if(cmdMessenger.available()) {
 		int indexNum = cmdMessenger.readBinArg<int>();
-		if(indexNum < 0 || indexNum > 2) {
-			cmdMessenger.sendBinCmd(kError, kZeroEncoder);
+		if(indexNum < 0 || indexNum > 4) {
+			cmdMessenger.sendBinCmd(kError, kStopMotor);
 			return;
 		}
-		encoders[indexNum].write(0);
-		cmdMessenger.sendBinCmd(kAcknowledge, kZeroEncoder);
+		motors[indexNum].stop();
+		cmdMessenger.sendBinCmd(kAcknowledge, kStopMotor);
 	} else {
-		cmdMessenger.sendBinCmd(kError, kZeroEncoder);
-	}
-}
-
-void readDigitalLineSensor() {
-	if(cmdMessenger.available()) {
-		int indexNum = cmdMessenger.readBinArg<int>();
-		if(indexNum < 0 || indexNum > 1) {
-			cmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);
-			return;
-		}
-		cmdMessenger.sendBinCmd(kAcknowledge, kReadDigitalLineSensor);
-		cmdMessenger.sendBinCmd(kResult, digitalRead(digital_linesensors[indexNum]));
-	} else {
-		cmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);
-	}
-}
-
-void readAnalogLineSensor() {
-	if(cmdMessenger.available()) {
-		int indexNum = cmdMessenger.readBinArg<int>();
-		if(indexNum < 0 || indexNum > 1) {
-			cmdMessenger.sendBinCmd(kError, kReadAnalogLineSensor);
-			return;
-		}
-		cmdMessenger.sendBinCmd(kAcknowledge, kReadAnalogLineSensor);
-		cmdMessenger.sendBinCmd(kResult, analogRead(analog_linesensors[indexNum]));
-	} else {
-		cmdMessenger.sendBinCmd(kError, kReadAnalogLineSensor);
-	}
-}
-
-void readUltrasonic() {
-	if(cmdMessenger.available()) {
-		int indexNum = cmdMessenger.readBinArg<int>();
-		if(indexNum < 0 || indexNum > 1) {
-			cmdMessenger.sendBinCmd(kError, kReadUltrasonic);
-			return;
-		}
-		cmdMessenger.sendBinCmd(kAcknowledge, kReadUltrasonic);
-		cmdMessenger.sendBinCmd(kResult, ultrasonics[indexNum].ping());
-	} else {
-		cmdMessenger.sendBinCmd(kError, kReadUltrasonic);
+		cmdMessenger.sendBinCmd(kError, kStopMotor);
 	}
 }
 
@@ -931,7 +799,7 @@ void pidDisplay() {
 			return;
 		}
 		cmdMessenger.sendBinCmd(kAcknowledge, kPidDisplay);
-		cmdMessenger.sendCmdStart(kResult);
+		cmdMessenger.sendCmdStart(kPidDisplayResult);
 		cmdMessenger.sendCmdBinArg(Inputs_pid[indexNum]);
 		cmdMessenger.sendCmdBinArg(Setpoints_pid[indexNum]);
 		cmdMessenger.sendCmdBinArg(Outputs_pid[indexNum]);
@@ -1006,13 +874,162 @@ void vpidDisplay() {
 			return;
 		}
 		cmdMessenger.sendBinCmd(kAcknowledge, kVpidDisplay);
-		cmdMessenger.sendCmdStart(kResult);
+		cmdMessenger.sendCmdStart(kVpidDisplayResult);
 		cmdMessenger.sendCmdBinArg(Inputs_vpid[indexNum]);
 		cmdMessenger.sendCmdBinArg(Setpoints_vpid[indexNum]);
 		cmdMessenger.sendCmdBinArg(Outputs_vpid[indexNum]);
 		cmdMessenger.sendCmdEnd();
 	} else {
 		cmdMessenger.sendBinCmd(kError, kVpidDisplay);
+	}
+}
+
+void i2cEncoderPosition() {
+	if(cmdMessenger.available()) {
+		int indexNum = cmdMessenger.readBinArg<int>();
+		if(indexNum < 0 || indexNum > 2) {
+			cmdMessenger.sendBinCmd(kError, kI2CEncoderPosition);
+			return;
+		}
+		cmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderPosition);
+		cmdMessenger.sendBinCmd(kI2CEncoderPositionResult, i2cencoders[indexNum].getPosition());
+	} else {
+		cmdMessenger.sendBinCmd(kError, kI2CEncoderPosition);
+	}
+}
+
+void i2cEncoderRawPosition() {
+	if(cmdMessenger.available()) {
+		int indexNum = cmdMessenger.readBinArg<int>();
+		if(indexNum < 0 || indexNum > 2) {
+			cmdMessenger.sendBinCmd(kError, kI2CEncoderRawPosition);
+			return;
+		}
+		cmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderRawPosition);
+		cmdMessenger.sendBinCmd(kI2CEncoderRawPositionResult, i2cencoders[indexNum].getRawPosition());
+	} else {
+		cmdMessenger.sendBinCmd(kError, kI2CEncoderRawPosition);
+	}
+}
+
+void i2cEncoderSpeed() {
+	if(cmdMessenger.available()) {
+		int indexNum = cmdMessenger.readBinArg<int>();
+		if(indexNum < 0 || indexNum > 2) {
+			cmdMessenger.sendBinCmd(kError, kI2CEncoderSpeed);
+			return;
+		}
+		cmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderSpeed);
+		cmdMessenger.sendBinCmd(kI2CEncoderSpeedResult, i2cencoders[indexNum].getSpeed());
+	} else {
+		cmdMessenger.sendBinCmd(kError, kI2CEncoderSpeed);
+	}
+}
+
+void i2cEncoderVelocity() {
+	if(cmdMessenger.available()) {
+		int indexNum = cmdMessenger.readBinArg<int>();
+		if(indexNum < 0 || indexNum > 2) {
+			cmdMessenger.sendBinCmd(kError, kI2CEncoderVelocity);
+			return;
+		}
+		cmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderVelocity);
+		cmdMessenger.sendBinCmd(kI2CEncoderVelocityResult, i2cencoders[indexNum].getVelocity());
+	} else {
+		cmdMessenger.sendBinCmd(kError, kI2CEncoderVelocity);
+	}
+}
+
+void i2cEncoderZero() {
+	if(cmdMessenger.available()) {
+		int indexNum = cmdMessenger.readBinArg<int>();
+		if(indexNum < 0 || indexNum > 2) {
+			cmdMessenger.sendBinCmd(kError, kI2CEncoderZero);
+			return;
+		}
+		i2cencoders[indexNum].zero();
+		cmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderZero);
+	} else {
+		cmdMessenger.sendBinCmd(kError, kI2CEncoderZero);
+	}
+}
+
+void readDigitalLineSensor() {
+	if(cmdMessenger.available()) {
+		int indexNum = cmdMessenger.readBinArg<int>();
+		if(indexNum < 0 || indexNum > 1) {
+			cmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);
+			return;
+		}
+		cmdMessenger.sendBinCmd(kAcknowledge, kReadDigitalLineSensor);
+		cmdMessenger.sendBinCmd(kReadDigitalLineSensorResult, digitalRead(digital_linesensors[indexNum]));
+	} else {
+		cmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);
+	}
+}
+
+void readAnalogLineSensor() {
+	if(cmdMessenger.available()) {
+		int indexNum = cmdMessenger.readBinArg<int>();
+		if(indexNum < 0 || indexNum > 1) {
+			cmdMessenger.sendBinCmd(kError, kReadAnalogLineSensor);
+			return;
+		}
+		cmdMessenger.sendBinCmd(kAcknowledge, kReadAnalogLineSensor);
+		cmdMessenger.sendBinCmd(kReadAnalogLineSensorResult, analogRead(analog_linesensors[indexNum]));
+	} else {
+		cmdMessenger.sendBinCmd(kError, kReadAnalogLineSensor);
+	}
+}
+
+void setArm() {
+	if(cmdMessenger.available()) {
+		int indexNum = cmdMessenger.readBinArg<int>();
+		if(indexNum < 0 || indexNum > 1) {
+			cmdMessenger.sendBinCmd(kError, kSetArm);
+			return;
+		}
+		int pos[5];
+		for(int i = 0; i < 5; i++) {
+			if(cmdMessenger.available()) {
+				pos[i] = cmdMessenger.readBinArg<int>();
+			} else {
+				cmdMessenger.sendBinCmd(kError, kSetArm);
+				return;
+			}
+		}
+		arms[indexNum].set(pos[0], pos[1], pos[2], pos[3], pos[4]);
+		cmdMessenger.sendBinCmd(kAcknowledge, kSetArm);
+	} else {
+		cmdMessenger.sendBinCmd(kError, kSetArm);
+	}
+}
+
+void detachArm() {
+	if(cmdMessenger.available()) {
+		int indexNum = cmdMessenger.readBinArg<int>();
+		if(indexNum < 0 || indexNum > 1) {
+			cmdMessenger.sendBinCmd(kError, kDetachArm);
+			return;
+		}
+		arms[indexNum].detach();
+		cmdMessenger.sendBinCmd(kAcknowledge, kDetachArm);
+	} else {
+		cmdMessenger.sendBinCmd(kError, kDetachArm);
+	}
+}
+
+void readUltrasonic() {
+	if(cmdMessenger.available()) {
+		int indexNum = cmdMessenger.readBinArg<int>();
+		if(indexNum < 0 || indexNum > 1) {
+			cmdMessenger.sendBinCmd(kError, kReadUltrasonic);
+			return;
+		}
+		cmdMessenger.sendBinCmd(kAcknowledge, kReadUltrasonic);
+		cmdMessenger.sendBinCmd(kReadUltrasonicResult, ultrasonics[indexNum].ping());
+	} else {
+		cmdMessenger.sendBinCmd(kError, kReadUltrasonic);
 	}
 }
 
