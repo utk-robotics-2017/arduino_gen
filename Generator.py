@@ -62,7 +62,11 @@ class Generator:
         self.commands['kSetLed'] = 4
         rv += "\tkPing,\n"
         self.commands['kPing'] = 5
-        cmd_idx = 6
+        rv += "\tkPingResult,\n"
+        self.commands['kPingResult'] = 6
+        rv += "\tkPong,\n"
+        self.commands['kPong'] = 7
+        cmd_idx = 8
         for appendage in self.appendage_dict.values():
             cmds = appendage.get_commands()
             rv += cmds
@@ -118,19 +122,30 @@ class Generator:
         rv = "// Callbacks define on which received commands we take action\n"
         rv += "void attachCommandCallbacks() {\n"
         rv += "\t// Attach callback methods\n"
+        rv += "\tcmdMessenger.attach(unknownCommand);\n"
+        rv += "\tcmdMessenger.attach(kPing, ping);\n"
+        rv += "\tcmdMessenger.attach(kSetLed, setLed);\n"
         for appendage in self.appendage_dict.values():
             rv += appendage.get_command_attaches()
         rv += "}\n\n"
+
         rv += "// Called when a received command has no attached function\n"
-        rv += "void OnUnknownCommand() {\n"
+        rv += "void unknownCommand() {\n"
         rv += "\tcmdMessenger.sendCmd(kError, kUnknown);\n"
         rv += "}\n\n"
+
+        rv += "// Called upon initialization of Spine to check connection\n"
+        rv += "void ping() {\n"
+        rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kPing);\n"
+        rv += "\tcmdMessenger.sendBinCmd(kPingResult, kPong);\n"
+        rv += "}\n\n"
+
         rv += "// Callback function that sets led on or off\n"
-        rv += "void OnSetLed() {\n"
+        rv += "void setLed() {\n"
         rv += "\t// Read led state argument, interpret string as boolean\n"
         rv += "\tledState = cmdMessenger.readBoolArg();\n"
         rv += "\tdigitalWrite(LED, ledState);\n"
-        rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, ledState);\n"
+        rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kSetLed);\n"
         rv += "}\n\n"
         for appendage in self.appendage_dict.values():
             rv += appendage.get_command_functions()
