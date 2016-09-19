@@ -172,4 +172,5 @@ class VelocityControlledMotorList(ComponentList):
             a = {}
             a['index'] = i
             a['label'] = vcm.label
+            a['type'] = "Velocity Controlled Motor"
             yield a

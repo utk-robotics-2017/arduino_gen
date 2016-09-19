@@ -121,4 +121,5 @@ class MotorList(ComponentList):
             a = {}
             a['index'] = i
             a['label'] = motor.label
+            a['type'] = "Motor"
             yield a

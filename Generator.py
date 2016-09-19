@@ -69,8 +69,9 @@ class Generator:
             cmds = cmds.split(',\n')
             for cmd in cmds:
                 cmd = cmd.replace('\t', '').replace('\n', '').replace(',', '')
-                self.commands[cmd] = cmd_idx
-                cmd_idx += 1
+                if not cmd == "":
+                    self.commands[cmd] = cmd_idx
+                    cmd_idx += 1
         rv = rv[:-2] + "\n};\n"
 
         for i in range(1, 4):

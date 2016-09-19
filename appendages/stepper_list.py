@@ -121,13 +121,10 @@ class StepperList(ComponentList):
         rv += "}\n\n"
         return rv
 
-    def get_indices(self):
-        for i, stepper in enumerate(self.stepperList):
-            yield i, stepper
-
     def get_core_values(self):
         for i, stepper in enumerate(self.stepperList):
             a = {}
             a['index'] = i
             a['label'] = stepper.label
+            a['type'] = "Stepper"
             yield a

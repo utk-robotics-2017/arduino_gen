@@ -64,4 +64,5 @@ class UltrasonicList(ComponentList):
             a = {}
             a['index'] = i
             a['label'] = ultrasonic.label
+            a['type'] = "Ultrasonic"
             yield a

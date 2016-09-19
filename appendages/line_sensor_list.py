@@ -108,11 +108,13 @@ class LineSensorList(ComponentList):
             a = {}
             a['index'] = i
             a['label'] = linesensor.label
+            a['type'] = "Line Sensor"
             a['digital'] = True
             yield a
         for i, linesensor in enumerate(self.analog_sensor_list):
             a = {}
             a['index'] = i
             a['label'] = linesensor.label
+            a['type'] = "Line Sensor"
             a['digital'] = False
             yield a

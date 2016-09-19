@@ -281,11 +281,13 @@ class PidList(ComponentList):
             a = {}
             a['index'] = i
             a['label'] = vpid.label
+            a['type'] = "PID"
             a['vpid'] = True
             yield a
         for i, pid in enumerate(self.pidList):
             a = {}
             a['index'] = i
             a['label'] = pid.label
+            a['type'] = "PID"
             a['vpid'] = False
             yield a

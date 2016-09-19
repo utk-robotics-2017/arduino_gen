@@ -109,4 +109,5 @@ class ServoList(ComponentList):
             a = {}
             a['index'] = i
             a['label'] = servo.label
+            a['type'] = "Servo"
             yield a

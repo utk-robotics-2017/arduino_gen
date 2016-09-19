@@ -72,4 +72,5 @@ class SwitchList(ComponentList):
             a = {}
             a['index'] = i
             a['label'] = switch.label
+            a['type'] = "Switch"
             yield a
