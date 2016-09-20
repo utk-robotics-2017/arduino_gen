@@ -1,0 +1,13 @@
+language: python
+sudo: required
+
+cache:
+  directories:
+    -"~/.platformio"
+
+install:
+  - pip install -U platformio
+  - sudo git clone --recursive https://github.com/utk-robotics-2017/ArduinoLibraries.git /Robot/ArduinoLibraries
+
+script:
+  - python3 travis_ci.py;pio run -d template
