@@ -33,13 +33,13 @@ optional arguments:
 ```
 
 ## Current Arduino Code
-The current code on the Arduino is contained in the currentArduinoCode folder which should be in the root directory and a commit is made each time new Arduino code is put on an Arduino.
+The current code on the Arduino is contained in the /Robot/CurrentArduinoCode folder which should be in the root directory and a commit is made each time new Arduino code is put on an Arduino.
 
 ## Arduino Libraries
-All libraries that are to be used with the Arduino Code should be in ArduinoLibraries which should be in the root directory.
+All libraries that are to be used with the Arduino Code should be in /Robot/ArduinoLibraries which should be in the root directory.
 
 ## Building and Uploading
-Building and uploading use a modified version of the ino library. Our modification cause the library to check the ArduinoLibraries folder for includes.
+Building and uploading use the platformio library.
 
 ## Serial Communication
 Currently, we are using picocom to manually communicate with the Arduino. Ctrl-X, Ctrl-A is how you exit.
