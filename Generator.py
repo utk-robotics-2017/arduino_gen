@@ -52,21 +52,19 @@ class Generator:
         rv += "enum {\n"
         rv += "\tkAcknowledge,\n"
         self.commands['kAcknowledge'] = 0
-        rv += "\tkStart,\n"
-        self.commands['kStart'] = 1
         rv += "\tkError,\n"
-        self.commands['kError'] = 2
+        self.commands['kError'] = 1
         rv += "\tkUnknown,\n"
-        self.commands['kUnknown'] = 3
+        self.commands['kUnknown'] = 2
         rv += "\tkSetLed,\n"
-        self.commands['kSetLed'] = 4
+        self.commands['kSetLed'] = 3
         rv += "\tkPing,\n"
-        self.commands['kPing'] = 5
+        self.commands['kPing'] = 4
         rv += "\tkPingResult,\n"
-        self.commands['kPingResult'] = 6
+        self.commands['kPingResult'] = 5
         rv += "\tkPong,\n"
-        self.commands['kPong'] = 7
-        cmd_idx = 8
+        self.commands['kPong'] = 6
+        cmd_idx = 7
         for appendage in self.appendage_dict.values():
             cmds = appendage.get_commands()
             rv += cmds
@@ -94,10 +92,6 @@ class Generator:
             rv += appendage.get_setup()
         rv += "\t// Initialize Serial Communication\n\tSerial.begin(115200);\n\n"
         rv += "\t// Attach callback methods\n\tattachCommandCallbacks();\n\n"
-        rv += "\t// Send the status to the PC that says the Arduino has booted\n"
-        rv += "\t// Note that this is a good debug function: it will let you also know\n"
-        rv += "\t// if your program had a bug and the arduino restarted\n"
-        rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kStart);\n"
         rv += "\n\t// Flash led 3 times at the end of setup\n"
         rv += "\tfor(int i = 0; i < 3; i++) {\n"
         rv += "\t\tdigitalWrite(LED, HIGH);\n"
