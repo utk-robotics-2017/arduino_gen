@@ -7,7 +7,12 @@ cache:
 
 install:
   - pip install -U platformio
-  - sudo git clone --recursive https://github.com/utk-robotics-2017/ArduinoLibraries.git /Robot/ArduinoLibraries
+  - printf "Host *\n\tStrictHostKeyChecking no" > ~/.ssh/config
+  - sudo mkdir /Robot
+  - sudo chmod 0777 /Robot
+  - sudo mkdir /Robot/ArduinoLibraries
+  - sudo chmod 0777 /Robot/ArduinoLibraries
+  - git clone --recursive https://github.com/utk-robotics-2017/ArduinoLibraries.git /Robot/ArduinoLibraries
 
 script:
-  - python3 travis_ci.py;pio run -d template
+  - python3 travis_ci.py;pio ci --board=megaatmega2560 -lib /Robot/ArduinoLibraries travis_ci
