@@ -1,4 +1,8 @@
 language: python
+
+python:
+  - "3.5"
+
 sudo: required
 
 cache:
@@ -15,4 +19,4 @@ install:
   - git clone --recursive https://github.com/utk-robotics-2017/ArduinoLibraries.git /Robot/ArduinoLibraries
 
 script:
-  - python3 travis_ci.py;pio ci --board=megaatmega2560 --lib /Robot/ArduinoLibraries travis_ci/src
+  - ./travis.ci.sh
