@@ -17,4 +17,4 @@ install:
   - sed -i.bak 's/git@github.com:/https:\/\/github.com\//g' /Robot/ArduinoLibraries/.gitmodules
   - git submodule update --init
 script:
-  - ./travis_ci.sh
+  - sh travis_ci.sh
