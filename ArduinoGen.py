@@ -123,14 +123,8 @@ class ArduinoGen:
         fo.write(gen.add_setup())
         print("\tWriting loop")
         fo.write(gen.add_loop())
-        print("\tWriting parse args")
-        fo.write(gen.add_parse_args())
-        print("\tWriting check input")
-        fo.write(gen.add_check_input())
-        print("\tWriting parse and execute command")
-        fo.write(gen.add_parse_and_execute_command_beginning())
+        print("\tWriting command callbacks")
         fo.write(gen.add_commands())
-        fo.write(gen.add_parse_and_execute_command_ending())
         print("\tWriting extra functions")
         fo.write(gen.add_extra_functions())
         fo.write("\n")
@@ -138,7 +132,7 @@ class ArduinoGen:
         os.chmod("{0:s}/src/{1:s}.ino".format(self.folder, self.arduino), 0o777)
 
         print("\tWriting indices file")
-        gen.write_indices_file(self.folder, self.arduino)
+        gen.write_core_config_file(self.folder, self.arduino)
 
         print("\tWriting build, serial, and upload shell scripts")
         gen.write_shell_scripts(self.folder, self.arduino)
@@ -194,6 +188,8 @@ if __name__ == "__main__":
                     help="Build the ino file into something that can be uploaded to the arduino")
     ap.add_argument("-u", "--upload", required=False, help="Build the ino file and upload that on to the arduino")
     args = vars(ap.parse_args())
+
+    # TODO:Add creating lock file
 
     ag = ArduinoGen(args['arduino'])
     ag.setParentFolder(args['parent_folder'])

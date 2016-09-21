@@ -1,0 +1,12 @@
+language: python
+
+sudo: required
+
+cache:
+  directories:
+    -"~/.platformio"
+
+install:
+  - sh travis_ci_install.sh
+script:
+  - sh travis_ci.sh

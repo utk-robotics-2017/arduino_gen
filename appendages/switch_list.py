@@ -22,6 +22,7 @@ class SwitchList(ComponentList):
         rv = ""
         for sensor in self.switchList:
             rv += "const char {0:s}_pin = {1:d};\n".format(sensor.label, sensor.pin)
+        rv += "\n"
         return rv
 
     def get_constructor(self):
@@ -44,21 +45,32 @@ class SwitchList(ComponentList):
         rv += "\n"
         return rv
 
-    def get_response_block(self):
-        return '''\t\telse if(args[0].equals(String("rs"))){{ // read switches
-        if(numArgs == 2){{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}){{
-                Serial.println(digitalRead(switches[indexNum]));
-            }} else {{
-                Serial.println("Error: usage - rs [id]");
-            }}
-        }} else {{
-            Serial.println("Error: usage - rs [id]");
-        }}
-    }}
-'''.format(len(self.switchList))
+    def get_commands(self):
+        return "\tkReadSwitch,\n\tkReadSwitchResult,\n"
 
-    def get_indices(self):
+    def get_command_attaches(self):
+        return "\tcmdMessenger.attach(kReadSwitch, readSwitch);\n"
+
+    def get_command_functions(self):
+        rv = "void readSwitch() {\n"
+        rv += "\tif(cmdMessenger.available()) {\n"
+        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.switchList))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadSwitch);\n"
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadSwitch);\n"
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kReadSwitchResult, digitalRead(switches[indexNum]));\n"
+        rv += "\t} else {\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadSwitch);\n"
+        rv += "\t}\n"
+        rv += "}\n\n"
+        return rv
+
+    def get_core_values(self):
         for i, switch in enumerate(self.switchList):
-            yield i, switch
+            a = {}
+            a['index'] = i
+            a['label'] = switch.label
+            a['type'] = "Switch"
+            yield a

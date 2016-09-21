@@ -37,7 +37,15 @@ class MotorList(ComponentList):
             return None
 
     def get_includes(self):
-        return "#include \"Motor.h\""
+        return '#include "Motor.h"\n'
+
+    def get_pins(self):
+        rv = ""
+        for motor in self.motorList:
+            rv += "const char {0:s}_Apin = {1:d};\n".format(motor.label, motor.inA_pin)
+            rv += "const char {0:s}_Bpin = {1:d};\n".format(motor.label, motor.inB_pin)
+            rv += "const char {0:s}_PWMpin = {1:d};\n".format(motor.label, motor.pwm_pin)
+        return rv
 
     def get_constructor(self):
         rv = ""
@@ -45,8 +53,8 @@ class MotorList(ComponentList):
             rv += "const char {0:s}_index = {1:d};\n".format(motor.label, i)
         rv += "Motor motors[{0:d}] = {{\n".format(len(self.motorList))
         for motor in self.motorList:
-            rv += "\tMotor({0:d}, {1:d}, {2:d}, {3:d}, {4:s}),\n"\
-                    .format(motor.inA_pin, motor.inB_pin, motor.pwm_pin, 1 if motor.reverse else 0,
+            rv += "\tMotor({0:s}_Apin, {0:s}_Bpin, {0:s}_PWMpin, {1:d}, {2:s}),\n"\
+                    .format(motor.label, 1 if motor.reverse else 0,
                             motor.motor_controller)
         rv = rv[:-2] + "\n};\n"
         return rv
@@ -54,47 +62,64 @@ class MotorList(ComponentList):
     def get_setup(self):
         rv = ""
         for motor in self.motorList:
-            rv += "pinMode({0:d}, OUTPUT);\n".format(motor.inA_pin)
+            rv += "\tpinMode({0:s}_Apin, OUTPUT);\n".format(motor.label)
             if not motor.inB_pin == -1:
-                rv += "pinMode({0:d}, OUTPUT);\n".format(motor.inB_pin)
-            rv += "pinMode({0:d}, OUTPUT);\n".format(motor.pwm_pin)
+                rv += "\tpinMode({0:s}_Bpin, OUTPUT);\n".format(motor.label)
+            rv += "\tpinMode({0:s}_PWMpin, OUTPUT);\n".format(motor.label)
         return rv
 
-    def get_response_block(self):
-        length = len(self.motorList)
-        return '''\t\telse if(args[0].equals(String("mod"))){{ // motor drive
-        if(numArgs ==  3) {{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}) {{
-                int value = args[2].toInt();
-                if( value < -1023 || value > 1023) {{
-                    Serial.println("Error: usage - mod [id] [value]");
-                }} else {{
-                    motors[indexNum].drive(value);
-                    Serial.println("ok");
-                }}
-            }} else {{
-                Serial.println("Error: usage - mod [id] [value]");
-            }}
-        }} else {{
-            Serial.println("Error: usage - mod [id] [value]");
-        }}
-    }}
-    else if(args[0].equals(String("mos"))){{ // motor stop
-        if(numArgs == 2) {{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}) {{
-                motors[indexNum].stop();
-                Serial.println("ok");
-            }} else {{
-                Serial.println("Error: usage - mos [id]");
-            }}
-        }} else {{
-            Serial.println("Error: usage - mos [id]");
-        }}
-    }}
-'''.format(length)
+    def get_commands(self):
+        return "\tkDriveMotor,\n\tkStopMotor,\n"
 
-    def get_indices(self):
+    def get_command_attaches(self):
+        rv = "\tcmdMessenger.attach(kDriveMotor, driveMotor);\n"
+        rv += "\tcmdMessenger.attach(kStopMotor, stopMotor);\n"
+        return rv
+
+    def get_command_functions(self):
+        rv = "void driveMotor() {\n"
+        rv += "\tif(cmdMessenger.available()) {\n"
+        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.motorList))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kDriveMotor);\n"
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t\tif(cmdMessenger.available()) {\n"
+        rv += "\t\t\tint value = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\t\tif( value < -1023 || value > 1023) {\n"
+        rv += "\t\t\t\tmotors[indexNum].drive(value);\n"
+        rv += "\t\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kDriveMotor);\n"
+        rv += "\t\t\t} else {\n"
+        rv += "\t\t\t\tcmdMessenger.sendBinCmd(kError, kDriveMotor);\n"
+        rv += "\t\t\t}\n"
+        rv += "\t\t} else {\n"
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kDriveMotor);\n"
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t} else {\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kDriveMotor);\n"
+        rv += "\t}\n"
+        rv += "}\n\n"
+
+        rv += "void stopMotor() {\n"
+        rv += "\tif(cmdMessenger.available()) {\n"
+        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.motorList))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kStopMotor);\n"
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t\tmotors[indexNum].stop();\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kStopMotor);\n"
+        rv += "\t} else {\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kStopMotor);\n"
+        rv += "\t}\n"
+        rv += "}\n\n"
+        return rv
+
+    def get_core_values(self):
         for i, motor in enumerate(self.motorList):
-            yield i, motor
+            a = {}
+            a['index'] = i
+            a['label'] = motor.label
+            a['type'] = "Motor"
+            yield a

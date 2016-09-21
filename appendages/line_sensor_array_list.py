@@ -29,7 +29,7 @@ class LineSensorArrayList(ComponentList):
                                                            json_item['emitter_pin']))
 
     def get_includes(self):
-        return "#include \"QTRSensors.h\""
+        return '#include "QTRSensors.h"\n'
 
     def get_constructor(self):
         rv = ""
@@ -82,41 +82,88 @@ class LineSensorArrayList(ComponentList):
         rv += "\t}\n"
         return rv
 
-    def get_response_block(self):
-        rv = ""
-        if len(self.digital_sensor_list) > 0:
-            rv += """\t\telse if(args[0].equals(String("rdlsa"))){{ // read digital line sensor array
-        if(numArgs == 3){{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}){{
-                int white = args[2].toInt();
-                if(white > -1 && white < 2){{
-                    Serial.println(digital_linesensor_array[indexNum].readline(digital_linesensor_values_arrays[indexNum], 1, white));
-                }} else {{
-                    Serial.println("Error: usage - rdlsa [id] [white]");
-                }}
-            }} else {{
-                Serial.println("Error: usage - rdlsa [id] [white]");
-            }}
-        }} else {{
-            Serial.println("Error: usage - rdlsa [id] white");
-        }}
-    }}""".format(len(self.digital_sensor_list))
-        if len(self.analog_sensor_list) > 0:
-            rv += """else if(args[0].equals(String("ralsa"))){{ // read analog line sensor array
-    if(numArgs == 3){{
-        int indexNum = args[1].toInt();
-        if(indexNum > -1 && indexNum < {1:d}){{
-            int white = args[2].toInt();
-            if(white > -1 && white < 2){{
-                Serial.println(analog_linesensor_array[indexNum].readline(analog_linesensor_values_arrays[indexNum], 1, white));
-            }} else {{
-                Serial.println("Error: usage - ralsa [id] [white]");
-            }}
-        }} else {{
-            Serial.println("Error: usage - ralsa [id] [white]");
-        }}
-    }} else {{
-        Serial.println("Error: usage - ralsa [id] white");
-    }}
-}}""".format(len(self.analog_sensor_list))
+        def get_commands(self):
+            rv = ""
+            if(len(self.digital_sensor_list) > 0):
+                rv += "\tkReadDigitalLineSensorArray,\n"
+                rv += "\tkReadDigitalLineSensorArrayResult,\n"
+            if(len(self.analog_sensor_list) > 0):
+                rv += "\tkReadAnalogLineSensorArray,\n"
+                rv += "\tkReadAnalogLineSensorArrayResult,\n"
+            return rv
+
+        def get_command_attaches(self):
+            rv = ""
+            if(len(self.digital_sensor_list) > 0):
+                rv += "\tcmdMessenger.attach(kReadDigitalLineSensorArray, readDigitalLineSensorArray);\n"
+            if(len(self.analog_sensor_list) > 0):
+                rv += "\tcmdMessenger.attach(kReadAnalogLineSensorArray, readAnalogLineSensorArray);\n"
+            return rv
+
+        def get_command_functions(self):
+            rv = ""
+            if(len(self.digital_sensor_list) > 0):
+                rv += "void readDigitalLineSensorArray() {\n"
+                rv += "\tif(cmdMessenger.available()) {\n"
+                rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+                rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.digital_sensor_list))
+                rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensorArray);\n"
+                rv += "\t\t\treturn;\n"
+                rv += "\t\t}\n"
+                rv += "\t\tif(cmdMessenger.available()) {\n"
+                rv += "\t\t\tchar white = cmdMessenger.readBoolArg();\n"
+                rv += "\t\t\tif(white > -1 && white < 2){"
+                rv += "\t\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadDigitalLineSensorArray);\n"
+                rv += ("\t\t\t\tcmdMessenger.sendBinCmd(kReadDigitalLineSensorArrayResult, digital_linesensor_array" +
+                       "[indexNum].readline(digital_linesensor_values_arrays[indexNum], 1, white));\n")
+                rv += "\t\t\t} else {\n"
+                rv += "\t\t\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensorArray);\n"
+                rv += "\t\t\t}\n"
+                rv += "\t\t} else {\n"
+                rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensorArray);\n"
+                rv += "\t\t}\n"
+                rv += "\t} else {\n"
+                rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensorArray);\n"
+                rv += "\t}\n"
+                rv += "}\n\n"
+            if(len(self.analog_sensor_list) > 0):
+                rv += "void readAnalogLineSensorArray() {\n"
+                rv += "\tif(cmdMessenger.available()) {\n"
+                rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+                rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.analog_sensor_list))
+                rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadAnalogLineSensorArray);\n"
+                rv += "\t\t\treturn;\n"
+                rv += "\t\t}\n"
+                rv += "\t\tif(cmdMessenger.available()) {\n"
+                rv += "\t\t\tchar white = cmdMessenger.readBoolArg();\n"
+                rv += "\t\t\tif(white > -1 && white < 2){"
+                rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadAnalogLineSensorArray);\n"
+                rv += ("\t\tcmdMessenger.sendBinCmd(kReadAnalogLineSensorResult, analog_linesensor_array[indexNum]" +
+                       ".readline(analog_linesensor_values_arrays[indexNum], 1, white));\n")
+                rv += "\t\t\t} else {\n"
+                rv += "\t\t\t\tcmdMessenger.sendBinCmd(kError, kReadAnalogLineSensorArray);\n"
+                rv += "\t\t\t}\n"
+                rv += "\t\t} else {\n"
+                rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadAnalogLineSensorArray);\n"
+                rv += "\t\t}\n"
+                rv += "\t} else {\n"
+                rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadAnalogLineSensorArray);\n"
+                rv += "\t}\n"
+                rv += "}\n\n"
+            return rv
+
+    def get_core_values(self):
+        for i, linesensor in enumerate(self.digital_sensor_list):
+            a = {}
+            a['index'] = i
+            a['label'] = linesensor['label']
+            a['type'] = "Line Sensor Array"
+            a['digital'] = True
+            yield a
+        for i, linesensor in enumerate(self.analog_sensor_list):
+            a = {}
+            a['index'] = i
+            a['label'] = linesensor['label']
+            a['type'] = "Line Sensor Array"
+            a['digital'] = False
+            yield a

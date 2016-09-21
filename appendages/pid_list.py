@@ -52,7 +52,7 @@ class PidList(ComponentList):
             return None
 
     def get_includes(self):
-        return "#include \"PID.h\"\n#include \"vPID.h\""
+        return '#include "PID.h"\n#include "vPID.h"\n'
 
     def get_constructor(self):
         rv = ""
@@ -97,143 +97,199 @@ class PidList(ComponentList):
                         .format(pid.label, pid.minOutput, pid.maxOutput)
         return rv
 
-    def get_response_block(self):
-        length_vpids = len(self.vpidList)
-        length_pids = len(self.pidList)
-        rv = ""
-        if length_pids > 0:
-            rv += '''    else if (args[0].equals(String("pc"))) {{ // Modify the pid constants
-    if (numArgs == 5) {{
-      int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < {0:d}) {{
-        pids[indexNum].SetTunings(toDouble(args[2]), toDouble(args[3]), toDouble(args[4]));
-        Serial.println("ok");
-      }} else {{
-        Serial.println(F("error: usage - 'pc [index] [kp] [ki] [kd]'"));
-      }}
-    }} else {{
-      Serial.println(F("error: usage - 'pc [index] [kp] [ki] [kd]'"));
-    }}
-  }}
-  else if (args[0].equals(String("ps"))) {{ // Set the setpoint for a specific PID
-    if (numArgs == 3) {{
-      int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < {0:d}) {{
-        pids[indexNum].SetMode(AUTOMATIC);
-        Setpoints_pid[indexNum] = toDouble(args[2]);
-        Serial.println(F("ok"));
-      }} else {{
-        Serial.println(F("error: usage - 'ps [index] [setpoint]'"));
-      }}
-    }} else {{
-      Serial.println(F("error: usage - 'ps [index] [setpoint]'"));
-    }}
-  }}
-  else if (args[0].equals(String("poff"))) {{ // Turn off the PID
-    if (numArgs == 2) {{
-      int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < {0:d}) {{
-        pids[indexNum].SetMode(MANUAL);
-        Serial.println(F("ok"));
-      }} else {{
-        Serial.println(F("error: usage - 'poff [index]'"));
-      }}
-    }} else {{
-      Serial.println(F("error: usage - 'poff [index]'"));
-    }}
-  }}
-  else if (args[0].equals(String("pd"))) {{ // Display Inputs, Setpoints, and Outputs
-    if (numArgs == 2) {{
-      int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < {0:d}) {{
-        String ret = "";
-        char dts[256];
-        dtostrf(Inputs_pid[indexNum], 0, 6, dts);
-        ret += dts;
-        ret += " ";
-        dtostrf(Setpoints_pid[indexNum], 0, 6, dts);
-        ret += dts;
-        ret += " ";
-        dtostrf(Outputs_pid[indexNum], 0, 6, dts);
-        ret += dts;
-        Serial.println(ret);
-        }} else {{
-        Serial.println(F("error: usage - 'pd [index]'"));
-      }}
-    }} else {{
-      Serial.println(F("error: usage - 'pd [index]'"));
-    }}
-    }}
-'''.format(length_pids)
-
-        if length_vpids > 0:
-            rv += '''    else if (args[0].equals(String("vpc"))) {{ // Modify the velocity pid constants
-    if (numArgs == 5) {{
-      int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < {0:d}) {{
-        vpids[indexNum].SetTunings(toDouble(args[2]), toDouble(args[3]), toDouble(args[4]));
-        Serial.println("ok");
-      }} else {{
-        Serial.println(F("error: usage - 'vpc [index] [kp] [ki] [kd]'"));
-      }}
-    }} else {{
-      Serial.println(F("error: usage - 'vpc [index] [kp] [ki] [kd]'"));
-    }}
-  }}
-  else if (args[0].equals(String("vps"))) {{ // Set the setpoint for a specific PID
-    if (numArgs == 3) {{
-      int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < {0:d}) {{
-        vpids[indexNum].SetMode(AUTOMATIC);
-        Setpoints_vpid[indexNum] = toDouble(args[2]);
-        Serial.println(F("ok"));
-      }} else {{
-        Serial.println(F("error: usage - 'vps [index] [setpoint]'"));
-      }}
-    }} else {{
-      Serial.println(F("error: usage - 'vps [index] [setpoint]'"));
-    }}
-  }}
-  else if (args[0].equals(String("vpoff"))) {{ // Turn off the PID
-    if (numArgs == 2) {{
-      int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < {0:d}) {{
-        vpids[indexNum].SetMode(MANUAL);
-        Serial.println(F("ok"));
-      }} else {{
-        Serial.println(F("error: usage - 'vpoff [index]'"));
-      }}
-    }} else {{
-      Serial.println(F("error: usage - 'vpoff [index]'"));
-    }}
-  }}
-  else if (args[0].equals(String("vpd"))) {{ // Display Inputs, Setpoints, and Outputs
-    if (numArgs == 2) {{
-      int indexNum = args[1].toInt();
-      if (indexNum > -1 && indexNum < {0:d}) {{
-        String ret = "";
-        char dts[256];
-        dtostrf(Inputs_vpid[indexNum], 0, 6, dts);
-        ret += dts;
-        ret += " ";
-        dtostrf(Setpoints_vpid[indexNum], 0, 6, dts);
-        ret += dts;
-        ret += " ";
-        dtostrf(Outputs_vpid[indexNum], 0, 6, dts);
-        ret += dts;
-        Serial.println(ret);
-      }} else {{
-        Serial.println(F("error: usage - 'vpd [index]'"));
-      }}
-    }} else {{
-      Serial.println(F("error: usage - 'vpd [index]'"));
-    }}
-}}
-'''.format(length_vpids)
+    def get_commands(self):
+        rv = "\tkModifyPidConstants,\n"
+        rv += "\tkSetPidSetpoint,\n"
+        rv += "\tkPidOff,\n"
+        rv += "\tkPidDisplay,\n"
+        rv += "\tkPidDisplayResult,\n"
+        rv += "\tkModifyVpidConstants,\n"
+        rv += "\tkSetVpidSetpoint,\n"
+        rv += "\tkVpidOff,\n"
+        rv += "\tkVpidDisplay,\n"
+        rv += "\tkVpidDisplayResult,\n"
         return rv
 
-    def get_indices(self):
+    def get_command_attaches(self):
+        rv = "\tcmdMessenger.attach(kModifyPidConstants, modifyPidConstants);\n"
+        rv += "\tcmdMessenger.attach(kSetPidSetpoint, setPidSetpoint);\n"
+        rv += "\tcmdMessenger.attach(kPidOff, pidOff);\n"
+        rv += "\tcmdMessenger.attach(kPidDisplay, pidDisplay);\n"
+        rv += "\tcmdMessenger.attach(kModifyVpidConstants, modifyVpidConstants);\n"
+        rv += "\tcmdMessenger.attach(kSetVpidSetpoint, setVpidSetpoint);\n"
+        rv += "\tcmdMessenger.attach(kVpidOff, vpidOff);\n"
+        rv += "\tcmdMessenger.attach(kVpidDisplay, vpidDisplay);\n"
+        return rv
+
+    def get_command_functions(self):
+        rv = ""
+        if len(self.pidList) > 0:
+            rv += "void modifyPidConstants() {\n"
+            rv += "\tif(cmdMessenger.available()) {\n"
+            rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kModifyPidConstants);\n"
+            rv += "\t\t\treturn;\n"
+            rv += "\t\t}\n"
+            rv += "\t\tfloat gains[3];\n"
+            rv += "\t\tfor(int i = 0; i < 3; i++) {\n"
+            rv += "\t\t\tif(cmdMessenger.available()) {\n"
+            rv += "\t\t\t\tgains[i] = cmdMessenger.readBinArg<float>();\n"
+            rv += "\t\t\t} else {\n"
+            rv += "\t\t\t\tcmdMessenger.sendBinCmd(kError, kModifyPidConstants);\n"
+            rv += "\t\t\t\treturn;\n"
+            rv += "\t\t\t}\n"
+            rv += "\t\t}\n"
+            rv += "\t\tpids[indexNum].SetTunings(gains[0], gains[1], gains[2]);\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kModifyPidConstants);\n"
+            rv += "\t} else {\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kModifyPidConstants);\n"
+            rv += "\t}\n"
+            rv += "}\n\n"
+
+            rv += "void setPidSetpoint() {\n"
+            rv += "\tif(cmdMessenger.available()) {\n"
+            rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetPidSetpoint);\n"
+            rv += "\t\t\treturn;\n"
+            rv += "\t\t}\n"
+            rv += "\t\tif(cmdMessenger.available()) {\n"
+            rv += "\t\t\tfloat value = cmdMessenger.readBinArg<float>();\n"
+            rv += "\t\t\tpids[indexNum].SetMode(AUTOMATIC);\n"
+            rv += "\t\t\tSetpoints_pid[indexNum] = value;\n"
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kSetPidSetpoint);\n"
+            rv += "\t\t} else {\n"
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetPidSetpoint);\n"
+            rv += "\t\t\treturn;\n"
+            rv += "\t\t}\n"
+            rv += "\t} else {\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetPidSetpoint);\n"
+            rv += "\t}\n"
+            rv += "}\n\n"
+
+            rv += "void pidOff() {\n"
+            rv += "\tif(cmdMessenger.available()) {\n"
+            rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kPidOff);\n"
+            rv += "\t\t\treturn;\n"
+            rv += "\t\t}\n"
+            rv += "\t\tpids[indexNum].SetMode(MANUAL);\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kPidOff);\n"
+            rv += "\t} else {\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kPidOff);\n"
+            rv += "\t}\n"
+            rv += "}\n\n"
+
+            rv += "void pidDisplay() {\n"
+            rv += "\tif(cmdMessenger.available()) {\n"
+            rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kPidDisplay);\n"
+            rv += "\t\t\treturn;\n"
+            rv += "\t\t}\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kPidDisplay);\n"
+            rv += "\t\tcmdMessenger.sendCmdStart(kPidDisplayResult);\n"
+            rv += "\t\tcmdMessenger.sendCmdBinArg(Inputs_pid[indexNum]);\n"
+            rv += "\t\tcmdMessenger.sendCmdBinArg(Setpoints_pid[indexNum]);\n"
+            rv += "\t\tcmdMessenger.sendCmdBinArg(Outputs_pid[indexNum]);\n"
+            rv += "\t\tcmdMessenger.sendCmdEnd();\n"
+            rv += "\t} else {\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kPidDisplay);\n"
+            rv += "\t}\n"
+            rv += "}\n\n"
+
+        if len(self.vpidList) > 0:
+            rv += "void modifyVpidConstants() {\n"
+            rv += "\tif(cmdMessenger.available()) {\n"
+            rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kModifyVpidConstants);\n"
+            rv += "\t\t\treturn;\n"
+            rv += "\t\t}\n"
+            rv += "\t\tfloat gains[3];\n"
+            rv += "\t\tfor(int i = 0; i < 3; i++) {\n"
+            rv += "\t\t\tif(cmdMessenger.available()) {\n"
+            rv += "\t\t\t\tgains[i] = cmdMessenger.readBinArg<float>();\n"
+            rv += "\t\t\t} else {\n"
+            rv += "\t\t\t\tcmdMessenger.sendBinCmd(kError, kModifyVpidConstants);\n"
+            rv += "\t\t\t\treturn;\n"
+            rv += "\t\t\t}\n"
+            rv += "\t\t}\n"
+            rv += "\t\tvpids[indexNum].SetTunings(gains[0], gains[1], gains[2]);\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kModifyVpidConstants);\n"
+            rv += "\t} else {\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kModifyVpidConstants);\n"
+            rv += "\t}\n"
+            rv += "}\n\n"
+
+            rv += "void setVpidSetpoint() {\n"
+            rv += "\tif(cmdMessenger.available()) {\n"
+            rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetVpidSetpoint);\n"
+            rv += "\t\t\treturn;\n"
+            rv += "\t\t}\n"
+            rv += "\t\tif(cmdMessenger.available()) {\n"
+            rv += "\t\t\tfloat value = cmdMessenger.readBinArg<float>();\n"
+            rv += "\t\t\tvpids[indexNum].SetMode(AUTOMATIC);\n"
+            rv += "\t\t\tSetpoints_vpid[indexNum] = value;\n"
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kSetVpidSetpoint);\n"
+            rv += "\t\t} else {\n"
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetVpidSetpoint);\n"
+            rv += "\t\t}\n"
+            rv += "\t} else {\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetVpidSetpoint);\n"
+            rv += "\t}\n"
+            rv += "}\n\n"
+
+            rv += "void vpidOff() {\n"
+            rv += "\tif(cmdMessenger.available()) {\n"
+            rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kVpidOff);\n"
+            rv += "\t\t\treturn;\n"
+            rv += "\t\t}\n"
+            rv += "\t\tpids[indexNum].SetMode(MANUAL);\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kVpidOff);\n"
+            rv += "\t} else {\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kVpidOff);\n"
+            rv += "\t}\n"
+            rv += "}\n\n"
+
+            rv += "void vpidDisplay() {\n"
+            rv += "\tif(cmdMessenger.available()) {\n"
+            rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kVpidDisplay);\n"
+            rv += "\t\t\treturn;\n"
+            rv += "\t\t}\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kVpidDisplay);\n"
+            rv += "\t\tcmdMessenger.sendCmdStart(kVpidDisplayResult);\n"
+            rv += "\t\tcmdMessenger.sendCmdBinArg(Inputs_vpid[indexNum]);\n"
+            rv += "\t\tcmdMessenger.sendCmdBinArg(Setpoints_vpid[indexNum]);\n"
+            rv += "\t\tcmdMessenger.sendCmdBinArg(Outputs_vpid[indexNum]);\n"
+            rv += "\t\tcmdMessenger.sendCmdEnd();\n"
+            rv += "\t} else {\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kVpidDisplay);\n"
+            rv += "\t}\n"
+            rv += "}\n\n"
+
+        return rv
+
+    def get_core_values(self):
         for i, vpid in enumerate(self.vpidList):
-            yield i, vpid
+            a = {}
+            a['index'] = i
+            a['label'] = vpid.label
+            a['type'] = "PID"
+            a['vpid'] = True
+            yield a
         for i, pid in enumerate(self.pidList):
-            yield i, pid
+            a = {}
+            a['index'] = i
+            a['label'] = pid.label
+            a['type'] = "PID"
+            a['vpid'] = False
+            yield a

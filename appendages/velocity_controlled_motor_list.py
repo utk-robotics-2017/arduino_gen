@@ -37,7 +37,7 @@ class VelocityControlledMotorList(ComponentList):
             return None
 
     def get_includes(self):
-        return "#include \"VelocityControlledMotor.h\";"
+        return '#include "VelocityControlledMotor.h"\n'
 
     def get_constructor(self):
         rv = ""
@@ -59,85 +59,120 @@ class VelocityControlledMotorList(ComponentList):
         return rv
 
     def get_loop_functions(self):
-        return "for(int i = 0; i < {0:d}; i++) {{\n\t\t\tvcms[i].runVPID();\n\t\t}}\n".format(
+        return "\tfor(int i = 0; i < {0:d}; i++) {{\n\t\t\tvcms[i].runVPID();\n\t\t}}\n".format(
             len(self.vcmList))
 
-    def get_response_block(self):
-        length = len(self.vcmList)
-        return '''\t\telse if(args[0].equals(String("vcmd"))) {{ // set velocity controlled motor voltage (no pid)
-        if(numArgs == 7) {{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}){{
-                int value = args[2].toInt();
-                if( value < -1023 || value > 1023) {{
-                    Serial.println("Error: usage - vcmd [id] [value]");
-                }} else {{
-                    vcms[indexNum].setValue(value);
-                    Serial.println("ok");
-                }}
-            }} else {{
-                Serial.println("error: usage - 'vcmd [id] [value]'");
-            }}
-        }} else {{
-            Serial.println("error: usage - 'vcmd [id] [value]'");
-        }}
-    }}
-    else if(args[0].equals(String("vcms"))){{ // set velocity controlled motor to stop
-        if(numArgs == 2) {{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}) {{
-                vcms[indexNum].stop();
-                Serial.println("ok");
-            }} else {{
-                Serial.println("Error: usage - vcms [id]");
-            }}
-        }} else {{
-            Serial.println("Error: usage - vcms [id]");
-        }}
-    }}
-    else if(args[0].equals(String("vcmsv"))){{ // set velocity controlled motor's velocity
-        if(numArgs == 3) {{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}) {{
-                vcms[indexNum].setVelocity(toDouble(args[2]));
-                Serial.println("ok");
-            }} else {{
-                Serial.println("Error: usage - vcmsv [id] [vel]");
-            }}
-        }} else {{
-            Serial.println("Error: usage - vcmsv [id] [vel]");
-        }}
-    }}
-    else if(args[0].equals(String("vcmgv"))){{ // get velocity controlled motor's velocity
-        if(numArgs == 2) {{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}) {{
-                char dts[256];
-                dtostrf(vcms[indexNum].getVelocity(), 0, 6, dts);
-                Serial.println(dts);
-            }} else {{
-                Serial.println("Error: usage - vcmgv [id]");
-            }}
-        }} else {{
-            Serial.println("Error: usage - vcmgv [id]");
-        }}
-    }}
-    else if(args[0].equals(String("vcmgp"))){{ // get velocity controlled motor's position
-        if(numArgs == 2) {{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}) {{
-                char dts[256];
-                dtostrf(vcms[indexNum].getPosition(), 0, 6, dts);
-                Serial.println(dts);
-            }} else {{
-                Serial.println("Error: usage - vcmgp [id]");
-            }}
-        }} else {{
-            Serial.println("Error: usage - vcmgp [id]");
-        }}
-    }}
-'''.format(length)
+    def get_commands(self):
+        rv = "\tkSetVCMVoltage,\n"
+        rv += "\tkSetVCMVelocity,\n"
+        rv += "\tkStopVCM,\n"
+        rv += "\tkGetVCMVelocity,\n"
+        rv += "\tkGetVCMVelocityResult,\n"
+        rv += "\tkGetVCMPosition,\n"
+        rv += "\tkGetVCMPositionResult,\n"
+        return rv
 
-    def get_indices(self):
+    def get_command_attaches(self):
+        rv = "\tcmdMessenger.attach(kSetVCMVoltage, setVCMVoltage);\n"
+        rv += "\tcmdMessenger.attach(kSetVCMVelocity, setVCMVelocity);\n"
+        rv += "\tcmdMessenger.attach(kStopVCM, stopVCM);\n"
+        rv += "\tcmdMessenger.attach(kGetVCMVelocity, getVCMVelocity);\n"
+        rv += "\tcmdMessenger.attach(kGetVCMPosition, getVCMPosition);\n"
+        return rv
+
+    def get_command_functions(self):
+        rv = "void setVCMVoltage() {\n"
+        rv += "\tif(cmdMessenger.available()) {\n"
+        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetVCMVoltage);\n"
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t\tif(cmdMessenger.available()) {\n"
+        rv += "\t\t\tint value = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\t\tif( value < -1023 || value > 1023) {\n"
+        rv += "\t\t\t\tvcms[indexNum].setValue(value);\n"
+        rv += "\t\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kSetVCMVoltage);\n"
+        rv += "\t\t\t} else {\n"
+        rv += "\t\t\t\tcmdMessenger.sendBinCmd(kError, kSetVCMVoltage);\n"
+        rv += "\t\t\t}\n"
+        rv += "\t\t} else {\n"
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetVCMVoltage);\n"
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t} else {\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetVCMVoltage);\n"
+        rv += "\t}\n"
+        rv += "}\n\n"
+
+        rv += "void setVCMVelocity() {\n"
+        rv += "\tif(cmdMessenger.available()) {\n"
+        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetVCMVelocity);\n"
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t\tif(cmdMessenger.available()) {\n"
+        rv += "\t\t\tfloat value = cmdMessenger.readBinArg<float>();\n"
+        rv += "\t\t\tvcms[indexNum].setVelocity(value);\n"
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kSetVCMVelocity);\n"
+        rv += "\t\t} else {\n"
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetVCMVelocity);\n"
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t} else {\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetVCMVelocity);\n"
+        rv += "\t}\n"
+        rv += "}\n\n"
+
+        rv += "void stopVCM() {\n"
+        rv += "\tif(cmdMessenger.available()) {\n"
+        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kStopVCM);\n"
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t\tvcms[indexNum].stop();\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kStopVCM);\n"
+        rv += "\t} else {\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kStopVCM);\n"
+        rv += "\t}\n"
+        rv += "}\n\n"
+
+        rv += "void getVCMVelocity() {\n"
+        rv += "\tif(cmdMessenger.available()) {\n"
+        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kGetVCMVelocity);\n"
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kSetVCMVelocity);\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kGetVCMVelocityResult, vcms[indexNum].getVelocity());\n"
+        rv += "\t} else {\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetVCMVelocity);\n"
+        rv += "\t}\n"
+        rv += "}\n\n"
+
+        rv += "void getVCMPosition() {\n"
+        rv += "\tif(cmdMessenger.available()) {\n"
+        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kGetVCMPosition);\n"
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kGetVCMPosition);\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kGetVCMPositionResult, vcms[indexNum].getPosition());\n"
+        rv += "\t} else {\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetVCMPosition);\n"
+        rv += "\t}\n"
+        rv += "}\n\n"
+
+        return rv
+
+    def get_core_values(self):
         for i, vcm in enumerate(self.vcmList):
-            yield i, vcm
+            a = {}
+            a['index'] = i
+            a['label'] = vcm.label
+            a['type'] = "Velocity Controlled Motor"
+            yield a

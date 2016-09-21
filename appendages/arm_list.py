@@ -29,7 +29,7 @@ class ArmList(ComponentList):
                                  wrist_servo, wrist_rotate_servo))
 
     def get_includes(self):
-        return "#include \"Arm.h\";"
+        return '#include "Arm.h"\n'
 
     def get_constructor(self):
         rv = "Arm arms[{0:d}] = {{\n".format(len(self.arm_list))
@@ -41,41 +41,56 @@ class ArmList(ComponentList):
         rv = rv[:-2] + "\n};\n"
         return rv
 
-    def get_response_block(self):
-        return '''\t\telse if(args[0].equals(String("sa"))) {{ // set arm
-        if(numArgs == 7) {{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}){{
-                int posbase = args[2].toInt();
-                int posshoulder = args[3].toInt();
-                int poselbow = args[4].toInt();
-                int poswrist = args[5].toInt();
-                int poswristrotate = args[6].toInt();
+    def get_commands(self):
+        return "\tkSetArm,\n\tkDetachArm,\n"
 
-                arms[indexNum].set(posbase, posshoulder, poselbow, poswrist, poswristrotate);
-                Serial.println("ok");
-            }} else {{
-                Serial.println("error: usage - 'sa [id] [base] [shoulder] [elbow] [wrist] [wristrotate]'");
-            }}
-        }} else {{
-            Serial.println("error: usage - 'sa [id] [base] [shoulder] [elbow] [wrist] [wristrotate]'");
-        }}
-    }}
-    else if(args[0].equals(String("das"))) {{ // detach arm servos
-        if(numArgs == 2) {{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}){{
-                arms[indexNum].detach();
-                Serial.println("ok");
-            }} else {{
-                Serial.println("error: usage - 'ds [id]'");
-            }}
-        }} else {{
-            Serial.println("error: usage - 'ds [id]'");
-        }}
-    }}
-'''.format(len(self.arm_list))
+    def get_command_attaches(self):
+        rv = "\tcmdMessenger.attach(kSetArm, setArm);\n"
+        rv += "\tcmdMessenger.attach(kDetachArm, detachArm);\n"
+        return rv
 
-    def get_indices(self):
+    def get_command_functions(self):
+        rv = "void setArm() {\n"
+        rv += "\tif(cmdMessenger.available()) {\n"
+        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.arm_list))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n"
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t\tint pos[5];\n"
+        rv += "\t\tfor(int i = 0; i < 5; i++) {\n"
+        rv += "\t\t\tif(cmdMessenger.available()) {\n"
+        rv += "\t\t\t\tpos[i] = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\t\t} else {\n"
+        rv += "\t\t\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n"
+        rv += "\t\t\t\treturn;\n"
+        rv += "\t\t\t}\n"
+        rv += "\t\t}\n"
+        rv += "\t\tarms[indexNum].set(pos[0], pos[1], pos[2], pos[3], pos[4]);\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kSetArm);\n"
+        rv += "\t} else {\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n"
+        rv += "\t}\n"
+        rv += "}\n\n"
+        rv += "void detachArm() {\n"
+        rv += "\tif(cmdMessenger.available()) {\n"
+        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.arm_list))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kDetachArm);\n"
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t\tarms[indexNum].detach();\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kDetachArm);\n"
+        rv += "\t} else {\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kDetachArm);\n"
+        rv += "\t}\n"
+        rv += "}\n\n"
+        return rv
+
+    def get_core_values(self):
         for i, arm in enumerate(self.arm_list):
-            yield i, arm
+            a = {}
+            a['index'] = i
+            a['type'] = "Arm"
+            a['label'] = arm.label
+            yield a

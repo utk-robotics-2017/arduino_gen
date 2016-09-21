@@ -17,12 +17,13 @@ class UltrasonicList(ComponentList):
         self.sensor_list.append(Ultrasonic(json_item['label'], json_item['pin']))
 
     def get_includes(self):
-        return "#include \"NewPing.h\""
+        return '#include "NewPing.h"\n'
 
     def get_pins(self):
         rv = ""
         for sensor in self.sensor_list:
             rv += "const char {0:s}_pin = {1:d};\n".format(sensor.label, sensor.pin)
+        rv += "\n"
         return rv
 
     def get_constructor(self):
@@ -36,22 +37,32 @@ class UltrasonicList(ComponentList):
         rv = rv[:-2] + "\n};\n"
         return rv
 
-    def get_response_block(self):
-        return '''\t\telse if(args[0].equals(String("rus"))){{ // read ultrasonics
-        if(numArgs == 2){{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}){{
-                unsigned int response = ultrasonics[indexNum].ping();
-                Serial.println(response);
-            }} else {{
-                Serial.println("Error: usage - rus [id]");
-            }}
-        }} else {{
-            Serial.println("Error: usage - rus [id]");
-        }}
-    }}
-'''.format(len(self.sensor_list))
+    def get_commands(self):
+        return "\tkReadUltrasonic,\n\tkReadUltrasonicResult,\n"
 
-    def get_indices(self):
+    def get_command_attaches(self):
+        return "\tcmdMessenger.attach(kReadUltrasonic, readUltrasonic);\n"
+
+    def get_command_functions(self):
+        rv = "void readUltrasonic() {\n"
+        rv += "\tif(cmdMessenger.available()) {\n"
+        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sensor_list))
+        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadUltrasonic);\n"
+        rv += "\t\t\treturn;\n"
+        rv += "\t\t}\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadUltrasonic);\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kReadUltrasonicResult, ultrasonics[indexNum].ping());\n"
+        rv += "\t} else {\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadUltrasonic);\n"
+        rv += "\t}\n"
+        rv += "}\n\n"
+        return rv
+
+    def get_core_values(self):
         for i, ultrasonic in enumerate(self.sensor_list):
-            yield i, ultrasonic
+            a = {}
+            a['index'] = i
+            a['label'] = ultrasonic.label
+            a['type'] = "Ultrasonic"
+            yield a

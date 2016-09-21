@@ -22,14 +22,20 @@ class ComponentList:
     def get_setup(self):
         return ""
 
-    def get_loop_functions(self):
-        return ""
+    def get_commands(self):
+        raise NotImplementedError("ComponentList: get_commands not implemented")
 
-    def get_response_block(self):
+    def get_command_attaches(self):
+        raise NotImplementedError("ComponentList: get_command_attaches not implemented")
+
+    def get_command_functions(self):
+        raise NotImplementedError("ComponentList: get_command_functions not implemented")
+
+    def get_loop_functions(self):
         return ""
 
     def get_extra_functions(self):
         return ""
 
-    def get_indices(self):
-        raise NotImplementedError("ComponentList: get_indices not implemented")
+    def get_core_values(self):
+        raise NotImplementedError("ComponentList: get_core_values not implemented")

@@ -26,6 +26,7 @@ class LineSensorList(ComponentList):
             rv += "const char {0:s}_pin = {1:d};\n".format(sensor.label, sensor.pin)
         for sensor in self.analog_sensor_list:
             rv += "const char {0:s}_pin = {1:d};\n".format(sensor.label, sensor.pin)
+        rv += "\n"
         return rv
 
     def get_constructor(self):
@@ -54,42 +55,70 @@ class LineSensorList(ComponentList):
 
         return rv
 
-    def get_response_block(self):
+    def get_commands(self):
         rv = ""
         if(len(self.digital_sensor_list) > 0):
-            rv += '''\t\telse if(args[0].equals(String("rdls"))){{ // read digital linesensors
-        if(numArgs == 2){{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}){{
-                Serial.println(digitalRead(digital_linesensors[indexNum]));
-            }} else {{
-                Serial.println("Error: usage - rdls [id]");
-            }}
-        }} else {{
-            Serial.println("Error: usage - rdls [id]");
-        }}
-    }}
-'''.format(len(self.digital_sensor_list))
-
+            rv += "\tkReadDigitalLineSensor,\n"
+            rv += "\tkReadDigitalLineSensorResult,\n"
         if(len(self.analog_sensor_list) > 0):
-            rv += '''\t\telse if(args[0].equals(String("rals"))){{ // read analog linesensors
-        if(numArgs == 2){{
-            int indexNum = args[1].toInt();
-            if(indexNum > -1 && indexNum < {0:d}){{
-                Serial.println(analogRead(analog_linesensors[indexNum]));
-            }} else {{
-                Serial.println("Error: usage - rals [id]");
-            }}
-        }} else {{
-            Serial.println("Error: usage - rals [id]");
-        }}
-    }}
-'''.format(len(self.analog_sensor_list))
-
+            rv += "\tkReadAnalogLineSensor,\n"
+            rv += "\tkReadAnalogLineSensorResult,\n"
         return rv
 
-    def get_indices(self):
+    def get_command_attaches(self):
+        rv = ""
+        if(len(self.digital_sensor_list) > 0):
+            rv += "\tcmdMessenger.attach(kReadDigitalLineSensor, readDigitalLineSensor);\n"
+        if(len(self.analog_sensor_list) > 0):
+            rv += "\tcmdMessenger.attach(kReadAnalogLineSensor, readAnalogLineSensor);\n"
+        return rv
+
+    def get_command_functions(self):
+        rv = ""
+        if(len(self.digital_sensor_list) > 0):
+            rv += "void readDigitalLineSensor() {\n"
+            rv += "\tif(cmdMessenger.available()) {\n"
+            rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.digital_sensor_list))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);\n"
+            rv += "\t\t\treturn;\n"
+            rv += "\t\t}\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadDigitalLineSensor);\n"
+            rv += ("\t\tcmdMessenger.sendBinCmd(kReadDigitalLineSensorResult, " +
+                   "digitalRead(digital_linesensors[indexNum]));\n")
+            rv += "\t} else {\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);\n"
+            rv += "\t}\n"
+            rv += "}\n\n"
+        if(len(self.analog_sensor_list) > 0):
+            rv += "void readAnalogLineSensor() {\n"
+            rv += "\tif(cmdMessenger.available()) {\n"
+            rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.analog_sensor_list))
+            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadAnalogLineSensor);\n"
+            rv += "\t\t\treturn;\n"
+            rv += "\t\t}\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadAnalogLineSensor);\n"
+            rv += ("\t\tcmdMessenger.sendBinCmd(kReadAnalogLineSensorResult, " +
+                   "analogRead(analog_linesensors[indexNum]));\n")
+            rv += "\t} else {\n"
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadAnalogLineSensor);\n"
+            rv += "\t}\n"
+            rv += "}\n\n"
+        return rv
+
+    def get_core_values(self):
         for i, linesensor in enumerate(self.digital_sensor_list):
-            yield i, linesensor
+            a = {}
+            a['index'] = i
+            a['label'] = linesensor.label
+            a['type'] = "Line Sensor"
+            a['digital'] = True
+            yield a
         for i, linesensor in enumerate(self.analog_sensor_list):
-            yield i, linesensor
+            a = {}
+            a['index'] = i
+            a['label'] = linesensor.label
+            a['type'] = "Line Sensor"
+            a['digital'] = False
+            yield a
