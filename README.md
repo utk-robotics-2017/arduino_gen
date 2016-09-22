@@ -1,4 +1,5 @@
-Build Status: [![Build Status](https://travis-ci.org/utk-robotics-2017/ArduinoGen.svg?branch=master)](https://travis-ci.org/utk-robotics-2017/ArduinoGen)
+master: [![Build Status](https://travis-ci.org/utk-robotics-2017/ArduinoGen.svg?branch=master)](https://travis-ci.org/utk-robotics-2017/ArduinoGen)
+dev: [![Build Status](https://travis-ci.org/utk-robotics-2017/ArduinoGen.svg?branch=dev)](https://travis-ci.org/utk-robotics-2017/ArduinoGen)
 
 # ArduinoGen
 ArduinoGen is a program that using a configuration file containing all the appendages (sensors, actuators, systems) connected to the Arduino, writes Arduino code that works with the call-response nature of RIP's spine core.
