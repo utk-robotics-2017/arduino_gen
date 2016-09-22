@@ -45,17 +45,13 @@ class UltrasonicList(ComponentList):
 
     def get_command_functions(self):
         rv = "void readUltrasonic() {\n"
-        rv += "\tif(cmdMessenger.available()) {\n"
-        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sensor_list))
-        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadUltrasonic);\n"
-        rv += "\t\t\treturn;\n"
-        rv += "\t\t}\n"
-        rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadUltrasonic);\n"
-        rv += "\t\tcmdMessenger.sendBinCmd(kReadUltrasonicResult, ultrasonics[indexNum].ping());\n"
-        rv += "\t} else {\n"
+        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sensor_list))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadUltrasonic);\n"
+        rv += "\t\treturn;\n"
         rv += "\t}\n"
+        rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kReadUltrasonic);\n"
+        rv += "\tcmdMessenger.sendBinCmd(kReadUltrasonicResult, ultrasonics[indexNum].ping());\n"
         rv += "}\n\n"
         return rv
 

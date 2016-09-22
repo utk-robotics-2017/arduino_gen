@@ -1,7 +1,8 @@
-/conf/
-/mega/
-/uno/
-/template/
+conf/
+mega/
+uno/
+template/
+travis_ci/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

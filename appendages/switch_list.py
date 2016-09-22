@@ -53,17 +53,13 @@ class SwitchList(ComponentList):
 
     def get_command_functions(self):
         rv = "void readSwitch() {\n"
-        rv += "\tif(cmdMessenger.available()) {\n"
-        rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.switchList))
-        rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadSwitch);\n"
-        rv += "\t\t\treturn;\n"
-        rv += "\t\t}\n"
-        rv += "\t\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadSwitch);\n"
-        rv += "\t\t\tcmdMessenger.sendBinCmd(kReadSwitchResult, digitalRead(switches[indexNum]));\n"
-        rv += "\t} else {\n"
+        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.switchList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadSwitch);\n"
+        rv += "\t\treturn;\n"
         rv += "\t}\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadSwitch);\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kReadSwitchResult, digitalRead(switches[indexNum]));\n"
         rv += "}\n\n"
         return rv
 

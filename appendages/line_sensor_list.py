@@ -77,33 +77,27 @@ class LineSensorList(ComponentList):
         rv = ""
         if(len(self.digital_sensor_list) > 0):
             rv += "void readDigitalLineSensor() {\n"
-            rv += "\tif(cmdMessenger.available()) {\n"
-            rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.digital_sensor_list))
-            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);\n"
-            rv += "\t\t\treturn;\n"
-            rv += "\t\t}\n"
-            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadDigitalLineSensor);\n"
-            rv += ("\t\tcmdMessenger.sendBinCmd(kReadDigitalLineSensorResult, " +
-                   "digitalRead(digital_linesensors[indexNum]));\n")
-            rv += "\t} else {\n"
+            rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+                .format(len(self.digital_sensor_list))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);\n"
+            rv += "\t\treturn;\n"
             rv += "\t}\n"
+            rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kReadDigitalLineSensor);\n"
+            rv += ("\tcmdMessenger.sendBinCmd(kReadDigitalLineSensorResult, " +
+                   "digitalRead(digital_linesensors[indexNum]));\n")
             rv += "}\n\n"
         if(len(self.analog_sensor_list) > 0):
             rv += "void readAnalogLineSensor() {\n"
-            rv += "\tif(cmdMessenger.available()) {\n"
-            rv += "\t\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\t\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.analog_sensor_list))
-            rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kReadAnalogLineSensor);\n"
-            rv += "\t\t\treturn;\n"
-            rv += "\t\t}\n"
-            rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kReadAnalogLineSensor);\n"
-            rv += ("\t\tcmdMessenger.sendBinCmd(kReadAnalogLineSensorResult, " +
-                   "analogRead(analog_linesensors[indexNum]));\n")
-            rv += "\t} else {\n"
+            rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+                .format(len(self.analog_sensor_list))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadAnalogLineSensor);\n"
+            rv += "\t\treturn;\n"
             rv += "\t}\n"
+            rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kReadAnalogLineSensor);\n"
+            rv += ("\tcmdMessenger.sendBinCmd(kReadAnalogLineSensorResult, " +
+                   "analogRead(analog_linesensors[indexNum]));\n")
             rv += "}\n\n"
         return rv
 
