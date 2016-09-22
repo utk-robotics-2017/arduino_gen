@@ -3,7 +3,6 @@ import random
 import time
 import json
 import signal
-import socket
 import os
 import os.path
 
@@ -34,13 +33,17 @@ lockFolderAbsPath = os.path.abspath(lockFolder)
 if not os.path.isdir(lockFolderAbsPath):
     os.mkdir(lockFolderAbsPath)
 
-arduinos = [{"name": d} for d in os.listdir(currentArduinoCodeFolder) if os.path.isdir(currentArduinoCodeFolder + "/" + d) and not d == ".git"]
+
+arduinos = [{"name": d} for d in os.listdir(currentArduinoCodeFolder)
+            if os.path.isdir(currentArduinoCodeFolder + "/" + d) and not d == ".git"]
 
 for arduino in arduinos:
     arduino["locked"] = os.path.exists(lockFolderAbsPath + "/" + arduino["name"] + ".lck")
 
+
 def log(wsId, message):
     print(("{}\tClient {:2d}\t{}".format(time.strftime("%H:%M:%S", time.localtime()), wsId, message)))
+
 
 class Server(tornado.websocket.WebSocketHandler):
     def check_origin(self, origin):
@@ -172,7 +175,7 @@ class Server(tornado.websocket.WebSocketHandler):
                         log(self.id, "posted " + self.device["name"] + "'s components")
 
                     log(self.id, "generating arduino code for " + self.device["name"])
-                    
+
                     ag = ArduinoGen(arduino=self.device["name"])
                     ag.setParentFolder(os.path.dirname(os.path.realpath(__file__)))
                     ag.setupFolder()
@@ -195,7 +198,7 @@ class Server(tornado.websocket.WebSocketHandler):
                         log(self.id, "posted " + self.device["name"] + "'s components")
 
                     log(self.id, "writing components to " + self.device["name"])
-                    
+
                     ag = ArduinoGen(arduino=self.device["name"])
                     ag.setParentFolder(os.path.dirname(os.path.realpath(__file__)))
                     ag.setupFolder()
@@ -224,9 +227,11 @@ class Server(tornado.websocket.WebSocketHandler):
 
         log(self.id, "disconnected")
 
+
 class SetupTLS(tornado.web.RequestHandler):
     def get(self):
         self.write("Please accept the TLS certificate to use websockets from this device.")
+
 
 def make_app():
     return tornado.httpserver.HTTPServer(tornado.web.Application([
@@ -236,6 +241,7 @@ def make_app():
         "certfile": "/etc/ssl/certs/tornado.crt",
         "keyfile": "/etc/ssl/certs/tornado.key"
     })
+
 
 def sigInt_handler(signum, frame):
     print("Closing Server")
