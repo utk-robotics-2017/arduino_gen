@@ -1,4 +1,5 @@
 master: [![Build Status](https://travis-ci.org/utk-robotics-2017/ArduinoGen.svg?branch=master)](https://travis-ci.org/utk-robotics-2017/ArduinoGen)
+
 dev: [![Build Status](https://travis-ci.org/utk-robotics-2017/ArduinoGen.svg?branch=dev)](https://travis-ci.org/utk-robotics-2017/ArduinoGen)
 
 # ArduinoGen
