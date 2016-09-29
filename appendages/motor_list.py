@@ -78,12 +78,12 @@ class MotorList(ComponentList):
 
     def get_command_functions(self):
         rv = "void driveMotor() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.motorList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kDriveMotor);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
-        rv += "\tint value = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint value = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(cmdMessenger.isArgOk() && value > -1024 && value < 1024) {\n"
         rv += "\t\tmotors[indexNum].drive(value);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kDriveMotor);\n"
@@ -93,7 +93,7 @@ class MotorList(ComponentList):
         rv += "}\n\n"
 
         rv += "void stopMotor() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.motorList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kStopMotor);\n"
         rv += "\t\treturn;\n"

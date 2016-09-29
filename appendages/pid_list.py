@@ -125,14 +125,14 @@ class PidList(ComponentList):
         rv = ""
         if len(self.pidList) > 0:
             rv += "void modifyPidConstants() {\n"
-            rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+            rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
             rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kModifyPidConstants);\n"
             rv += "\t\treturn;\n"
             rv += "\t}\n"
             rv += "\tfloat gains[3];\n"
             rv += "\tfor(int i = 0; i < 3; i++) {\n"
-            rv += "\t\t\tgains[i] = cmdMessenger.readFloatArg();\n"
+            rv += "\t\t\tgains[i] = cmdMessenger.readBinArg<float>();\n"
             rv += "\t\tif(!cmdMessenger.isArgOk()){\n"
             rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kModifyPidConstants);\n"
             rv += "\t\t\treturn;\n"
@@ -143,12 +143,12 @@ class PidList(ComponentList):
             rv += "}\n\n"
 
             rv += "void setPidSetpoint() {\n"
-            rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+            rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
             rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetPidSetpoint);\n"
             rv += "\t\treturn;\n"
             rv += "\t}\n"
-            rv += "\tfloat value = cmdMessenger.readFloatArg();\n"
+            rv += "\tfloat value = cmdMessenger.readBinArg<float>();\n"
             rv += "\tif(!cmdMessenger.isArgOk()) {\n"
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetPidSetpoint);\n"
             rv += "\t\treturn;\n"
@@ -159,7 +159,7 @@ class PidList(ComponentList):
             rv += "}\n\n"
 
             rv += "void pidOff() {\n"
-            rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+            rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
             rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kPidOff);\n"
             rv += "\t\treturn;\n"
@@ -169,7 +169,7 @@ class PidList(ComponentList):
             rv += "}\n\n"
 
             rv += "void pidDisplay() {\n"
-            rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+            rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
             rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kPidDisplay);\n"
             rv += "\t\treturn;\n"
@@ -184,14 +184,14 @@ class PidList(ComponentList):
 
         if len(self.vpidList) > 0:
             rv += "void modifyVpidConstants() {\n"
-            rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+            rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
             rv += "\tif(!cmdMessenger.isArgOk() ||indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kModifyVpidConstants);\n"
             rv += "\t\treturn;\n"
             rv += "\t}\n"
             rv += "\tfloat gains[3];\n"
             rv += "\tfor(int i = 0; i < 3; i++) {\n"
-            rv += "\t\tgains[i] = cmdMessenger.readFloatArg();\n"
+            rv += "\t\tgains[i] = cmdMessenger.readBinArg<float>();\n"
             rv += "\t\tif(!cmdMessenger.isArgOk()){\n"
             rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kModifyVpidConstants);\n"
             rv += "\t\t\treturn;\n"
@@ -202,12 +202,12 @@ class PidList(ComponentList):
             rv += "}\n\n"
 
             rv += "void setVpidSetpoint() {\n"
-            rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+            rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
             rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetVpidSetpoint);\n"
             rv += "\t\treturn;\n"
             rv += "\t}\n"
-            rv += "\tfloat value = cmdMessenger.readFloatArg();\n"
+            rv += "\tfloat value = cmdMessenger.readBinArg<float>();\n"
             rv += "\tif(!cmdMessenger.isArgOk()){\n"
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetVpidSetpoint);\n"
             rv += "\t}\n"
@@ -217,7 +217,7 @@ class PidList(ComponentList):
             rv += "}\n\n"
 
             rv += "void vpidOff() {\n"
-            rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+            rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
             rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kVpidOff);\n"
             rv += "\t\treturn;\n"
@@ -227,7 +227,7 @@ class PidList(ComponentList):
             rv += "}\n\n"
 
             rv += "void vpidDisplay() {\n"
-            rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+            rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
             rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kVpidDisplay);\n"
             rv += "\t\treturn;\n"

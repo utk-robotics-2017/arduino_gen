@@ -45,7 +45,7 @@ class UltrasonicList(ComponentList):
 
     def get_command_functions(self):
         rv = "void readUltrasonic() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sensor_list))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadUltrasonic);\n"
         rv += "\t\treturn;\n"

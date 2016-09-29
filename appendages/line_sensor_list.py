@@ -77,7 +77,7 @@ class LineSensorList(ComponentList):
         rv = ""
         if(len(self.digital_sensor_list) > 0):
             rv += "void readDigitalLineSensor() {\n"
-            rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+            rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
             rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
                 .format(len(self.digital_sensor_list))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadDigitalLineSensor);\n"
@@ -89,7 +89,7 @@ class LineSensorList(ComponentList):
             rv += "}\n\n"
         if(len(self.analog_sensor_list) > 0):
             rv += "void readAnalogLineSensor() {\n"
-            rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+            rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
             rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
                 .format(len(self.analog_sensor_list))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadAnalogLineSensor);\n"

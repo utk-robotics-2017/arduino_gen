@@ -81,12 +81,12 @@ class StepperList(ComponentList):
 
     def get_command_functions(self):
         rv = "void setStepperSpeed() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() ||indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.stepperList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetStepperSpeed);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
-        rv += "\tint value = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint value = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk()){\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetStepperSpeed);\n"
         rv += "\t\treturn;\n"
@@ -96,12 +96,12 @@ class StepperList(ComponentList):
         rv += "}\n\n"
 
         rv += "void stepStepper() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.stepperList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kStepStepper);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
-        rv += "\tint value = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint value = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk()){\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kStepStepper);\n"
         rv += "\t\treturn;\n"
