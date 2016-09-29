@@ -82,12 +82,12 @@ class VelocityControlledMotorList(ComponentList):
 
     def get_command_functions(self):
         rv = "void setVCMVoltage() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetVCMVoltage);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
-        rv += "\tint value = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint value = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(cmdMessenger.isArgOk() && value > -1024 && value < 1024) {\n"
         rv += "\t\tvcms[indexNum].setValue(value);\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kAcknowledge, kSetVCMVoltage);\n"
@@ -97,12 +97,12 @@ class VelocityControlledMotorList(ComponentList):
         rv += "}\n\n"
 
         rv += "void setVCMVelocity() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetVCMVelocity);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
-        rv += "\tfloat value = cmdMessenger.readFloatArg();\n"
+        rv += "\tfloat value = cmdMessenger.readBinArg<float>();\n"
         rv += "\tif(!cmdMessenger.isArgOk()){\n"
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetVCMVelocity);\n"
         rv += "\t\treturn;\n"
@@ -112,7 +112,7 @@ class VelocityControlledMotorList(ComponentList):
         rv += "}\n\n"
 
         rv += "void stopVCM() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kStopVCM);\n"
         rv += "\t\treturn;\n"
@@ -122,7 +122,7 @@ class VelocityControlledMotorList(ComponentList):
         rv += "}\n\n"
 
         rv += "void getVCMVelocity() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetVCMVelocity);\n"
         rv += "\t\treturn;\n"
@@ -132,7 +132,7 @@ class VelocityControlledMotorList(ComponentList):
         rv += "}\n\n"
 
         rv += "void getVCMPosition() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetVCMPosition);\n"
         rv += "\t\treturn;\n"

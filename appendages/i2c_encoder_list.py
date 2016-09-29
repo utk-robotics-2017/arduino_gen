@@ -72,7 +72,7 @@ class I2CEncoderList(ComponentList):
 
     def get_command_functions(self):
         rv = "void i2cEncoderPosition() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sorted_sensors))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderPosition);\n"
         rv += "\t\treturn;\n"
@@ -82,7 +82,7 @@ class I2CEncoderList(ComponentList):
         rv += "}\n\n"
 
         rv += "void i2cEncoderRawPosition() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sorted_sensors))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderRawPosition);\n"
         rv += "\t\treturn;\n"
@@ -92,7 +92,7 @@ class I2CEncoderList(ComponentList):
         rv += "}\n\n"
 
         rv += "void i2cEncoderSpeed() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sorted_sensors))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderSpeed);\n"
         rv += "\t\treturn;\n"
@@ -102,7 +102,7 @@ class I2CEncoderList(ComponentList):
         rv += "}\n\n"
 
         rv += "void i2cEncoderVelocity() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sorted_sensors))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderVelocity);\n"
         rv += "\t\treturn;\n"
@@ -112,7 +112,7 @@ class I2CEncoderList(ComponentList):
         rv += "}\n\n"
 
         rv += "void i2cEncoderZero() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.sorted_sensors))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderZero);\n"
         rv += "\t\treturn;\n"

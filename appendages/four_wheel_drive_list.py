@@ -79,14 +79,14 @@ class FourWheelDriveList(ComponentList):
 
     def get_command_functions(self):
         rv = "void driveFWD() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
         rv += "\tint values[4];\n"
         rv += "\tfor(int i = 0; i < 4; i++) {\n"
-        rv += "\t\tvalues[i] = cmdMessenger.readInt16Arg();\n"
+        rv += "\t\tvalues[i] = cmdMessenger.readBinArg<int>();\n"
         rv += "\t\tif(!cmdMessenger.isArgOk() || values[i] < -1023 || values[i] > 1023) {\n"
         rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD);\n"
         rv += "\t\t\treturn;\n"
@@ -97,7 +97,7 @@ class FourWheelDriveList(ComponentList):
         rv += "}\n\n"
 
         rv += "void stopFWD() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kStopFWD);\n"
         rv += "\t\treturn;\n"
@@ -107,14 +107,14 @@ class FourWheelDriveList(ComponentList):
         rv += "}\n\n"
 
         rv += "void driveFWD_PID() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD_PID);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
         rv += "\tfloat values[4];\n"
         rv += "\tfor(int i = 0; i < 4; i++) {\n"
-        rv += "\t\tvalues[i] = cmdMessenger.readFloatArg();\n"
+        rv += "\t\tvalues[i] = cmdMessenger.readBinArg<float>();\n"
         rv += "\t\tif(!cmdMessenger.isArgOk()){\n"
         rv += "\t\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD_PID);\n"
         rv += "\t\t\treturn;\n"
@@ -125,7 +125,7 @@ class FourWheelDriveList(ComponentList):
         rv += "}\n\n"
 
         rv += "void getFWDLeftVelocity() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDLeftVelocity);\n"
         rv += "\t\treturn;\n"
@@ -135,7 +135,7 @@ class FourWheelDriveList(ComponentList):
         rv += "}\n\n"
 
         rv += "void getFWDRightVelocity() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDRightVelocity);\n"
         rv += "\t\treturn;\n"
@@ -145,7 +145,7 @@ class FourWheelDriveList(ComponentList):
         rv += "}\n\n"
 
         rv += "void getFWDLeftPosition() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDLeftPosition);\n"
         rv += "\t\treturn;\n"
@@ -155,7 +155,7 @@ class FourWheelDriveList(ComponentList):
         rv += "}\n\n"
 
         rv += "void getFWDRightPosition() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDRightPosition);\n"
         rv += "\t\treturn;\n"

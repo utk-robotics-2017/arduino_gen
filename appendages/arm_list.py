@@ -51,7 +51,7 @@ class ArmList(ComponentList):
 
     def get_command_functions(self):
         rv = "void setArm() {\n"
-        rv += "\tint indexNum = cmdMessenger.readInt16Arg();\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.arm_list))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n"
         rv += "\t\treturn;\n"
