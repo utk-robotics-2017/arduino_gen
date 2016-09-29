@@ -1,4 +1,5 @@
 pip install -U platformio
+pip install -U flake8
 printf "Host *\n\tStrictHostKeyChecking no" > ~/.ssh/config
 sudo mkdir /Robot
 sudo chmod 0777 /Robot
