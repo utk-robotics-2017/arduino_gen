@@ -98,11 +98,15 @@ class PidList(ComponentList):
         return rv
 
     def get_commands(self):
-        rv = "\tkModifyPidConstants,\n"
+        rv = "\tkPidConstants,\n"
+        rv += "\tkPidConstantsResult,\n"
+        rv += "\tkModifyPidConstants,\n"
         rv += "\tkSetPidSetpoint,\n"
         rv += "\tkPidOff,\n"
         rv += "\tkPidDisplay,\n"
         rv += "\tkPidDisplayResult,\n"
+        rv += "\tkVpidConstants,\n"
+        rv += "\tkVpidConstantsResult,\n"
         rv += "\tkModifyVpidConstants,\n"
         rv += "\tkSetVpidSetpoint,\n"
         rv += "\tkVpidOff,\n"
@@ -111,10 +115,12 @@ class PidList(ComponentList):
         return rv
 
     def get_command_attaches(self):
-        rv = "\tcmdMessenger.attach(kModifyPidConstants, modifyPidConstants);\n"
+        rv = "\tcmdMessenger.attach(kPidConstants, pidConstants);\n"
+        rv += "\tcmdMessenger.attach(kModifyPidConstants, modifyPidConstants);\n"
         rv += "\tcmdMessenger.attach(kSetPidSetpoint, setPidSetpoint);\n"
         rv += "\tcmdMessenger.attach(kPidOff, pidOff);\n"
         rv += "\tcmdMessenger.attach(kPidDisplay, pidDisplay);\n"
+        rv += "\tcmdMessenger.attach(kVpidConstants, vpidConstants);\n"
         rv += "\tcmdMessenger.attach(kModifyVpidConstants, modifyVpidConstants);\n"
         rv += "\tcmdMessenger.attach(kSetVpidSetpoint, setVpidSetpoint);\n"
         rv += "\tcmdMessenger.attach(kVpidOff, vpidOff);\n"
@@ -124,6 +130,20 @@ class PidList(ComponentList):
     def get_command_functions(self):
         rv = ""
         if len(self.pidList) > 0:
+            rv += "void pidConstants() {\n"
+            rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+            rv += "\tif(!cmdMessenger.isArgOk() || indexNum <0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kPidConstants);\n"
+            rv += "\t\treturn;\n"
+            rv += "\t}\n"
+            rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kPidConstants);\n"
+            rv += "\tcmdMessenger.sendCmdStart(kPidConstantsResult);\n"
+            rv += "\tcmdMessenger.sendCmdBinArg(pids[indexNum].GetKp());\n"
+            rv += "\tcmdMessenger.sendCmdBinArg(pids[indexNum].GetKi());\n"
+            rv += "\tcmdMessenger.sendCmdBinArg(pids[indexNum].GetKd());\n"
+            rv += "\tcmdMessenger.sendCmdEnd();\n"
+            rv += "}\n\n"
+
             rv += "void modifyPidConstants() {\n"
             rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
             rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
@@ -183,6 +203,20 @@ class PidList(ComponentList):
             rv += "}\n\n"
 
         if len(self.vpidList) > 0:
+            rv += "void vpidConstants() {\n"
+            rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+            rv += "\tif(!cmdMessenger.isArgOk() || indexNum <0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
+            rv += "\t\tcmdMessenger.sendBinCmd(kError, kVpidConstants);\n"
+            rv += "\t\treturn;\n"
+            rv += "\t}\n"
+            rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kVpidConstants);\n"
+            rv += "\tcmdMessenger.sendCmdStart(kVpidConstantsResult);\n"
+            rv += "\tcmdMessenger.sendCmdBinArg(vpids[indexNum].GetKp());\n"
+            rv += "\tcmdMessenger.sendCmdBinArg(vpids[indexNum].GetKi());\n"
+            rv += "\tcmdMessenger.sendCmdBinArg(vpids[indexNum].GetKd());\n"
+            rv += "\tcmdMessenger.sendCmdEnd();\n"
+            rv += "}\n\n"
+
             rv += "void modifyVpidConstants() {\n"
             rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
             rv += "\tif(!cmdMessenger.isArgOk() ||indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
