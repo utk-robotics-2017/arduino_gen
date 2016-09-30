@@ -66,13 +66,6 @@ class ArduinoGen:
                 # Buttons and Limit Switches work the same as switches
                 if json_item['type'].lower() == 'limit switch' or json_item['type'].lower() == 'button':
                     json_item['type'] = 'switch'
-                # Setup the motor controller
-                if json_item['type'].lower() == 'monster moto motor':
-                    json_item['type'] = 'motor'
-                    json_item['motorController'] = 'MonsterMoto'
-                elif json_item['type'].lower() == 'rover five motor':
-                    json_item['type'] = 'motor'
-                    json_item['motorController'] = 'RoverFive'
 
                 json_item['type'] = json_item['type'].lower().replace(' ', '_')
 

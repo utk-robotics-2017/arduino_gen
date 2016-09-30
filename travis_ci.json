@@ -184,24 +184,44 @@
     {
         "label": "template_pid0",
         "type": "PID",
-        "reverse": true,
+        "kp": 0.01,
+        "ki": 3.21,
+        "kd": 4.02,
+        "min_output": -1.0,
+        "max_output": 1.0,
+		"reverse": true,
         "vpid": true
     },
     {
         "label": "template_pid1",
         "type": "PID",
+        "kp": 0.01,
+        "ki": 3.21,
+        "kd": 4.02,
+        "min_output": -1.0,
+        "max_output": 1.0,
         "reverse": false,
         "vpid": true
     },
     {
         "label": "template_pid2",
         "type": "PID",
+        "kp": 0.01,
+        "ki": 3.21,
+        "kd": 4.02,
+        "min_output": -1.0,
+        "max_output": 1.0,
         "reverse": true,
         "vpid": false
     },
     {
         "label": "template_pid3",
         "type": "PID",
+        "kp": 0.01,
+        "ki": 3.21,
+        "kd": 4.02,
+        "min_output": -1.0,
+        "max_output": 1.0,
         "reverse": false,
         "vpid": false
     },
