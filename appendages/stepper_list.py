@@ -2,13 +2,13 @@ from appendages.component_list import ComponentList
 
 
 class Stepper:
-    def __init__(self, label, steps, pinA, pinB, pinC, pinD, initial_speed):
+    def __init__(self, label, steps, pin_a, pin_b, pin_c, pin_d, initial_speed):
         self.label = label
         self.steps = steps
-        self.pinA = pinA
-        self.pinB = pinB
-        self.pinC = pinC
-        self.pinD = pinD
+        self.pin_a = pin_a
+        self.pin_b = pin_b
+        self.pin_c = pin_c
+        self.pin_d = pin_d
         self.initial_speed = initial_speed
 
 
@@ -21,8 +21,8 @@ class StepperList(ComponentList):
 
     def add(self, json_item):
         stepper = Stepper(json_item['label'], json_item['steps'],
-                          json_item['pinA'], json_item['pinB'],
-                          json_item['pinC'], json_item['pinD'],
+                          json_item['pin_a'], json_item['pin_b'],
+                          json_item['pin_c'], json_item['pin_d'],
                           json_item['initial_speed'])
         self.stepperDict[json_item['label']] = stepper
         self.stepperList.append(stepper)
@@ -37,10 +37,10 @@ class StepperList(ComponentList):
     def get_pins(self):
         rv = ""
         for stepper in self.stepperList:
-            rv += "const char {0:s}_pinA = {1:d};\n".format(stepper.label, stepper.pinA)
-            rv += "const char {0:s}_pinB = {1:d};\n".format(stepper.label, stepper.pinB)
-            rv += "const char {0:s}_pinC = {1:d};\n".format(stepper.label, stepper.pinC)
-            rv += "const char {0:s}_pinD = {1:d};\n".format(stepper.label, stepper.pinD)
+            rv += "const char {0:s}_pin_a = {1:d};\n".format(stepper.label, stepper.pin_a)
+            rv += "const char {0:s}_pin_b = {1:d};\n".format(stepper.label, stepper.pin_b)
+            rv += "const char {0:s}_pin_c = {1:d};\n".format(stepper.label, stepper.pin_c)
+            rv += "const char {0:s}_pin_d = {1:d};\n".format(stepper.label, stepper.pin_d)
         rv += "\n"
         return rv
 
@@ -51,7 +51,7 @@ class StepperList(ComponentList):
 
         rv += ("Stepper steppers[{0:d}] = {{\n").format(len(self.stepperList))
         for stepper in self.stepperList:
-            rv += ("\tStepper({0:d}, {1:s}_pinA, {1:s}_pinB, {1:s}_pinC, {1:s}_pinD), ")\
+            rv += ("\tStepper({0:d}, {1:s}_pin_a, {1:s}_pin_b, {1:s}_pin_c, {1:s}_pin_d), ")\
                     .format(stepper.steps, stepper.label)
         rv = rv[:-2] + "\n};\n"
         return rv
@@ -59,10 +59,10 @@ class StepperList(ComponentList):
     def get_setup(self):
         rv = ""
         for stepper in self.stepperList:
-            rv += "\tpinMode({0:s}_pinA, OUTPUT);\n".format(stepper.label)
-            rv += "\tpinMode({0:s}_pinB, OUTPUT);\n".format(stepper.label)
-            rv += "\tpinMode({0:s}_pinC, OUTPUT);\n".format(stepper.label)
-            rv += "\tpinMode({0:s}_pinD, OUTPUT);\n".format(stepper.label)
+            rv += "\tpinMode({0:s}_pin_a, OUTPUT);\n".format(stepper.label)
+            rv += "\tpinMode({0:s}_pin_b, OUTPUT);\n".format(stepper.label)
+            rv += "\tpinMode({0:s}_pin_c, OUTPUT);\n".format(stepper.label)
+            rv += "\tpinMode({0:s}_pin_d, OUTPUT);\n".format(stepper.label)
 
         for stepper in self.stepperList:
             rv += ("\tsteppers[{0:s}_index].setSpeed({1:f});\n").format(stepper.label,

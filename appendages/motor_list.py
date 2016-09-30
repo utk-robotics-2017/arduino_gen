@@ -2,13 +2,14 @@ from appendages.component_list import ComponentList
 
 
 class Motor:
-    def __init__(self, label, inA_pin, inB_pin, pwm_pin, reverse, motor_controller):
+    def __init__(self, label, inA_pin, inB_pin, pwm_pin, reverse, motor_controller, motor_type):
         self.label = label
         self.inA_pin = inA_pin
         self.inB_pin = inB_pin
         self.pwm_pin = pwm_pin
         self.reverse = reverse
         self.motor_controller = motor_controller
+        self.motor_type = motor_type
 
 
 class MotorList(ComponentList):
@@ -19,12 +20,12 @@ class MotorList(ComponentList):
         self.motorList = []
 
     def add(self, json_item):
-        if json_item['motorController'].lower() == 'monstermoto':
-            motor = Motor(json_item['label'], json_item['inA_pin'], json_item['inB_pin'],
-                          json_item['pwm_pin'], json_item['reverse'], 'MonsterMoto')
-        elif json_item['motorController'].lower() == 'roverfive':
-            motor = Motor(json_item['label'], json_item['dir_pin'], -1, json_item['pwm_pin'],
-                          json_item['reverse'], 'RoverFive')
+        if json_item['motor_controller'].lower() == 'Monster Moto':
+            motor = Motor(json_item['label'], json_item['in_a_pin'], json_item['in_b_pin'],
+                          json_item['pwm_pin'], json_item['reverse'], 'MonsterMoto', json_item['motor_type'])
+        elif json_item['motor_controller'].lower() == 'Rover Five':
+            motor = Motor(json_item['label'], json_item['in_a_pin'], -1, json_item['pwm_pin'],
+                          json_item['reverse'], 'RoverFive', json_item['motor_type'])
 
         self.motorDict[motor.label] = motor
         self.motorList.append(motor)
@@ -42,9 +43,9 @@ class MotorList(ComponentList):
     def get_pins(self):
         rv = ""
         for motor in self.motorList:
-            rv += "const char {0:s}_Apin = {1:d};\n".format(motor.label, motor.inA_pin)
-            rv += "const char {0:s}_Bpin = {1:d};\n".format(motor.label, motor.inB_pin)
-            rv += "const char {0:s}_PWMpin = {1:d};\n".format(motor.label, motor.pwm_pin)
+            rv += "const char {0:s}_a_pin = {1:d};\n".format(motor.label, motor.inA_pin)
+            rv += "const char {0:s}_b_pin = {1:d};\n".format(motor.label, motor.inB_pin)
+            rv += "const char {0:s}_pwm_pin = {1:d};\n".format(motor.label, motor.pwm_pin)
         return rv
 
     def get_constructor(self):
@@ -53,7 +54,7 @@ class MotorList(ComponentList):
             rv += "const char {0:s}_index = {1:d};\n".format(motor.label, i)
         rv += "Motor motors[{0:d}] = {{\n".format(len(self.motorList))
         for motor in self.motorList:
-            rv += "\tMotor({0:s}_Apin, {0:s}_Bpin, {0:s}_PWMpin, {1:d}, {2:s}),\n"\
+            rv += "\tMotor({0:s}_a_pin, {0:s}_b_pin, {0:s}_pwm_pin, {1:d}, {2:s}),\n"\
                     .format(motor.label, 1 if motor.reverse else 0,
                             motor.motor_controller)
         rv = rv[:-2] + "\n};\n"
@@ -62,10 +63,10 @@ class MotorList(ComponentList):
     def get_setup(self):
         rv = ""
         for motor in self.motorList:
-            rv += "\tpinMode({0:s}_Apin, OUTPUT);\n".format(motor.label)
+            rv += "\tpinMode({0:s}_a_pin, OUTPUT);\n".format(motor.label)
             if not motor.inB_pin == -1:
-                rv += "\tpinMode({0:s}_Bpin, OUTPUT);\n".format(motor.label)
-            rv += "\tpinMode({0:s}_PWMpin, OUTPUT);\n".format(motor.label)
+                rv += "\tpinMode({0:s}_b_pin, OUTPUT);\n".format(motor.label)
+            rv += "\tpinMode({0:s}_pwm_pin, OUTPUT);\n".format(motor.label)
         return rv
 
     def get_commands(self):
@@ -109,4 +110,6 @@ class MotorList(ComponentList):
             a['index'] = i
             a['label'] = motor.label
             a['type'] = "Motor"
+            a['motor_controller'] = motor.motor_controller
+            a['motor_type'] = motor.motor_type
             yield a
