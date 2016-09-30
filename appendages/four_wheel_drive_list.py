@@ -2,13 +2,13 @@ from appendages.component_list import ComponentList
 
 
 class FourWheelDrive:
-    def __init__(self, label, useVelocityControl, lf_motor, rf_motor, lb_motor, rb_motor):
+    def __init__(self, label, use_velocity_control, lf_motor, rf_motor, lb_motor, rb_motor):
         self.label = label
         self.lf_motor = lf_motor
         self.rf_motor = rf_motor
         self.lb_motor = lb_motor
         self.rb_motor = rb_motor
-        self.useVelocityControl = useVelocityControl
+        self.use_velocity_control = use_velocity_control
 
 
 class FourWheelDriveList(ComponentList):
@@ -18,20 +18,20 @@ class FourWheelDriveList(ComponentList):
         self.drive_list = []
 
     def add(self, json_item, motors, vcms):
-        useVelocityControl = json_item['useVelocityControl']
+        use_velocity_control = json_item['use_velocity_control']
 
-        if useVelocityControl:
-            lf_motor = vcms.get(json_item['leftFrontDriveMotor'])
-            rf_motor = vcms.get(json_item['rightFrontDriveMotor'])
-            lb_motor = vcms.get(json_item['leftBackDriveMotor'])
-            rb_motor = vcms.get(json_item['rightBackDriveMotor'])
+        if use_velocity_control:
+            lf_motor = vcms.get(json_item['left_front_drive_motor'])
+            rf_motor = vcms.get(json_item['right_front_drive_motor'])
+            lb_motor = vcms.get(json_item['left_back_drive_motor'])
+            rb_motor = vcms.get(json_item['right_back_drive_motor'])
         else:
-            lf_motor = motors.get(json_item['leftFrontDriveMotor'])
-            rf_motor = motors.get(json_item['rightFrontDriveMotor'])
-            lb_motor = motors.get(json_item['leftBackDriveMotor'])
-            rb_motor = motors.get(json_item['rightBackDriveMotor'])
+            lf_motor = motors.get(json_item['left_front_drive_motor'])
+            rf_motor = motors.get(json_item['right_front_drive_motor'])
+            lb_motor = motors.get(json_item['left_back_drive_motor'])
+            rb_motor = motors.get(json_item['right_back_drive_motor'])
 
-        self.drive_list.append(FourWheelDrive(json_item['label'], useVelocityControl, lf_motor,
+        self.drive_list.append(FourWheelDrive(json_item['label'], use_velocity_control, lf_motor,
                                               rf_motor, lb_motor, rb_motor))
 
     def get_includes(self):
@@ -40,7 +40,7 @@ class FourWheelDriveList(ComponentList):
     def get_constructor(self):
         rv = "FourWheelDrive fwds[] = {\n"
         for drivebase in self.drive_list:
-            if drivebase.useVelocityControl:
+            if drivebase.use_velocity_control:
                 rv += ("\tFourWheelDrive(&vcms[{0:s}_index], &vcms[{1:s}_index], " +
                        "&vcms[{2:s}_index], &vcms[{3:s}_index]),\n")\
                         .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
@@ -172,5 +172,5 @@ class FourWheelDriveList(ComponentList):
             a['index'] = i
             a['label'] = drivebase.label
             a['type'] = "Four Wheel Drive"
-            a['useVelocityControl'] = drivebase.useVelocityControl
+            a['use_velocity_control'] = drivebase.use_velocity_control
             yield a

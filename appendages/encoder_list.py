@@ -2,10 +2,10 @@ from appendages.component_list import ComponentList
 
 
 class Encoder:
-    def __init__(self, label, pinA, pinB):
+    def __init__(self, label, pin_a, pin_b):
         self.label = label
-        self.pinA = pinA
-        self.pinB = pinB
+        self.pin_a = pin_a
+        self.pin_b = pin_b
 
 
 class EncoderList(ComponentList):
@@ -16,7 +16,7 @@ class EncoderList(ComponentList):
         self.encoderList = []
 
     def add(self, json_item):
-        encoder = Encoder(json_item['label'], json_item['pinA'], json_item['pinB'])
+        encoder = Encoder(json_item['label'], json_item['pin_a'], json_item['pin_b'])
         self.encoderDict[json_item['label']] = encoder
         self.encoderList.append(encoder)
         self.encoderList.sort(key=lambda x: x.label, reverse=False)
@@ -33,8 +33,8 @@ class EncoderList(ComponentList):
     def get_pins(self):
         rv = ""
         for encoder in self.encoderList:
-            rv += "const char {0:s}_pinA = {1:d};\n".format(encoder.label, encoder.pinA)
-            rv += "const char {0:s}_pinB = {1:d};\n".format(encoder.label, encoder.pinB)
+            rv += "const char {0:s}_pin_a = {1:d};\n".format(encoder.label, encoder.pin_a)
+            rv += "const char {0:s}_pin_b = {1:d};\n".format(encoder.label, encoder.pin_b)
         rv += "\n"
         return rv
 
@@ -44,15 +44,15 @@ class EncoderList(ComponentList):
             rv += "const char {0:s}_index = {1:d};\n".format(encoder.label, i)
         rv += "Encoder encoders[{0:d}] = {{\n".format(len(self.encoderList))
         for encoder in self.encoderList:
-            rv += "\tEncoder({0:s}_pinA, {0:s}_pinB),\n".format(encoder.label)
+            rv += "\tEncoder({0:s}_pin_a, {0:s}_pin_b),\n".format(encoder.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_setup(self):
         rv = ""
         for encoder in self.encoderList:
-            rv += "\tpinMode({0:s}_pinA, INPUT);\n".format(encoder.label)
-            rv += "\tpinMode({0:s}_pinB, INPUT);\n".format(encoder.label)
+            rv += "\tpinMode({0:s}_pin_a, INPUT);\n".format(encoder.label)
+            rv += "\tpinMode({0:s}_pin_b, INPUT);\n".format(encoder.label)
         return rv
 
     def get_commands(self):

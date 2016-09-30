@@ -2,14 +2,14 @@ from appendages.component_list import ComponentList
 
 
 class PID:
-    def __init__(self, label, kp, ki, kd, minOutput=None, maxOutput=None, reverse=False):
+    def __init__(self, label, kp, ki, kd, min_output=None, max_output=None, reverse=False):
         self.label = label
         self.kp = float(kp)
         self.ki = float(ki)
         self.kd = float(kd)
-        if minOutput is not None:
-            self.minOutput = float(minOutput)
-            self.maxOutput = float(maxOutput)
+        if min_output is not None:
+            self.min_output = float(min_output)
+            self.max_output = float(max_output)
         self.reverse = reverse
 
 
@@ -23,22 +23,22 @@ class PidList(ComponentList):
         self.vpidList = []
 
     def add(self, json_item):
-        if 'minOutput' in json_item:
-            minOutput = json_item['minOutput']
-            maxOutput = json_item['maxOutput']
+        if 'min_output' in json_item:
+            min_output = json_item['min_output']
+            max_output = json_item['max_output']
         else:
-            minOutput = None
-            maxOutput = None
+            min_output = None
+            max_output = None
 
         if not json_item['vpid']:
             pid = PID(json_item['label'], json_item['kp'], json_item['ki'], json_item['kd'],
-                      minOutput, maxOutput, json_item['reverse'])
+                      min_output, max_output, json_item['reverse'])
             self.pidDict[pid.label] = pid
             self.pidList.append(pid)
             self.pidList.sort(key=lambda x: x.label, reverse=False)
         else:
             pid = PID(json_item['label'], json_item['kp'], json_item['ki'], json_item['kd'],
-                      minOutput, maxOutput, json_item['reverse'])
+                      min_output, max_output, json_item['reverse'])
             self.vpidDict[pid.label] = pid
             self.vpidList.append(pid)
             self.vpidList.sort(key=lambda x: x.label, reverse=False)
@@ -88,13 +88,13 @@ class PidList(ComponentList):
     def get_setup(self):
         rv = ""
         for vpid in self.vpidList:
-            if hasattr(vpid, 'minOutput'):
+            if hasattr(vpid, 'min_output'):
                 rv += ("\tvpids[{0:s}_index].SetOutputLimits({1:f}, {2:f});\n")\
-                        .format(vpid.label, vpid.minOutput, vpid.maxOutput)
+                        .format(vpid.label, vpid.min_output, vpid.max_output)
         for pid in self.pidList:
-            if hasattr(pid, 'minOutput'):
+            if hasattr(pid, 'min_output'):
                 rv += ("\tpids[{0:s}_index].SetOutputLimits({1:f}, {2:f});\n")\
-                        .format(pid.label, pid.minOutput, pid.maxOutput)
+                        .format(pid.label, pid.min_output, pid.max_output)
         return rv
 
     def get_commands(self):
