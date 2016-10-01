@@ -2,13 +2,15 @@ from appendages.component_list import ComponentList
 
 
 class FourWheelDrive:
-    def __init__(self, label, use_velocity_control, lf_motor, rf_motor, lb_motor, rb_motor):
+    def __init__(self, label, use_velocity_control, lf_motor, rf_motor, lb_motor, rb_motor,
+                 wheel_diameter):
         self.label = label
         self.lf_motor = lf_motor
         self.rf_motor = rf_motor
         self.lb_motor = lb_motor
         self.rb_motor = rb_motor
         self.use_velocity_control = use_velocity_control
+        self.wheel_diameter = wheel_diameter
 
 
 class FourWheelDriveList(ComponentList):
@@ -19,7 +21,6 @@ class FourWheelDriveList(ComponentList):
 
     def add(self, json_item, motors, vcms):
         use_velocity_control = json_item['use_velocity_control']
-
         if use_velocity_control:
             lf_motor = vcms.get(json_item['left_front_drive_motor'])
             rf_motor = vcms.get(json_item['right_front_drive_motor'])
@@ -32,7 +33,8 @@ class FourWheelDriveList(ComponentList):
             rb_motor = motors.get(json_item['right_back_drive_motor'])
 
         self.drive_list.append(FourWheelDrive(json_item['label'], use_velocity_control, lf_motor,
-                                              rf_motor, lb_motor, rb_motor))
+                                              rf_motor, lb_motor, rb_motor,
+                                              json_item['wheel_diameter']))
 
     def get_includes(self):
         return '#include "FourWheelDrive.h"'
