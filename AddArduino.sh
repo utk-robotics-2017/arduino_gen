@@ -119,7 +119,7 @@ udevRulePath="/etc/udev/rules.d/100-$devName-usb-serial.rules"
 echo $udevRule > $udevRulePath
 udevadm trigger
 
-mkdir "/CurrentArduinoCode/$devName" -m 777
+mkdir -p "/Robot/CurrentArduinoCode/$devName" -m 777
 
 boardModel="[UNKNOWN PRODUCT]"
 case $devProduct in
@@ -134,4 +134,4 @@ case $devProduct in
         ;;
 esac
 
-printf 'board-model = %s\nserial-port = /dev/%s' "$boardModel" "$devName"  > "/CurrentArduinoCode/$devName/ino.ini"
+printf 'board-model = %s\nserial-port = /dev/%s' "$boardModel" "$devName"  > "/Robot/CurrentArduinoCode/$devName/ino.ini"
