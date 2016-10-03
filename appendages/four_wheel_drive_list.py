@@ -3,7 +3,7 @@ from appendages.component_list import ComponentList
 
 class FourWheelDrive:
     def __init__(self, label, use_velocity_control, lf_motor, rf_motor, lb_motor, rb_motor,
-                 wheel_diameter):
+                 wheel_diameter, wheelbase_width, wheelbase_length):
         self.label = label
         self.lf_motor = lf_motor
         self.rf_motor = rf_motor
@@ -11,6 +11,8 @@ class FourWheelDrive:
         self.rb_motor = rb_motor
         self.use_velocity_control = use_velocity_control
         self.wheel_diameter = wheel_diameter
+        self.wheelbase_width = wheelbase_width
+        self.wheelbase_length = wheelbase_length
 
 
 class FourWheelDriveList(ComponentList):
@@ -34,7 +36,9 @@ class FourWheelDriveList(ComponentList):
 
         self.drive_list.append(FourWheelDrive(json_item['label'], use_velocity_control, lf_motor,
                                               rf_motor, lb_motor, rb_motor,
-                                              json_item['wheel_diameter']))
+                                              json_item['wheel_diameter'],
+                                              json_item['wheelbase_width'],
+                                              json_item['wheelbase_length']))
 
     def get_includes(self):
         return '#include "FourWheelDrive.h"'
@@ -222,9 +226,15 @@ class FourWheelDriveList(ComponentList):
 
     def get_core_values(self):
         for i, drivebase in enumerate(self.drive_list):
-            a = {}
-            a['index'] = i
-            a['label'] = drivebase.label
-            a['type'] = "Four Wheel Drive"
-            a['use_velocity_control'] = drivebase.use_velocity_control
-            yield a
+            config = {}
+            config['index'] = i
+            config['label'] = drivebase.label
+            config['type'] = "Four Wheel Drive"
+            config['use_velocity_control'] = drivebase.use_velocity_control
+            config['left_front_motor'] = drivebase.lf_motor.label
+            config['left_back_motor'] = drivebase.lb_motor.label
+            config['right_front_motor'] = drivebase.rf_motor.label
+            config['right_back_motor'] = drivebase.rf_motor.label
+            config['wheelbase_width'] = drivebase.wheelbase_width
+            config['wheelbase_length'] = drivebase.wheelbase_length
+            yield config

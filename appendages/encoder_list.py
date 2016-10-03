@@ -2,10 +2,11 @@ from appendages.component_list import ComponentList
 
 
 class Encoder:
-    def __init__(self, label, pin_a, pin_b):
+    def __init__(self, label, pin_a, pin_b, ticks_per_rev):
         self.label = label
         self.pin_a = pin_a
         self.pin_b = pin_b
+        self.ticks_per_rev = ticks_per_rev
 
 
 class EncoderList(ComponentList):
@@ -16,7 +17,7 @@ class EncoderList(ComponentList):
         self.encoderList = []
 
     def add(self, json_item):
-        encoder = Encoder(json_item['label'], json_item['pin_a'], json_item['pin_b'])
+        encoder = Encoder(json_item['label'], json_item['pin_a'], json_item['pin_b'], json_item['ticks_per_rev'])
         self.encoderDict[json_item['label']] = encoder
         self.encoderList.append(encoder)
         self.encoderList.sort(key=lambda x: x.label, reverse=False)
@@ -95,4 +96,5 @@ class EncoderList(ComponentList):
             a['index'] = i
             a['label'] = encoder.label
             a['type'] = "Encoder"
+            a['ticks_per_rev'] = encoder.ticks_per_rev
             yield a
