@@ -2,261 +2,271 @@
     {
         "label": "template_line_sensor0",
         "type": "Line Sensor",
-        "pin": 9,
-        "digital": true
+        "digital": true,
+        "pin": 3
     },
     {
         "label": "template_line_sensor1",
         "type": "Line Sensor",
-        "pin": 11,
-        "digital": false
+        "digital": false,
+        "pin": 7
     },
     {
         "label": "template_ultrasonic",
         "type": "Ultrasonic",
-        "pin": 12
+        "pin": 3
     },
     {
         "label": "template_switch0",
         "type": "Switch",
-        "pin": 12,
+        "invert": true,
         "pullup": true,
-        "invert": true
+        "pin": 8
     },
     {
         "label": "template_switch1",
         "type": "Switch",
-        "pin": 14,
-        "pullup": true,
-        "invert": false
+        "invert": true,
+        "pullup": false,
+        "pin": 3
     },
     {
         "label": "template_switch2",
         "type": "Switch",
-        "pin": 12,
-        "pullup": false,
-        "invert": true
+        "invert": false,
+        "pullup": true,
+        "pin": 8
     },
     {
         "label": "template_switch3",
         "type": "Switch",
-        "pin": 9,
+        "invert": false,
         "pullup": false,
-        "invert": false
+        "pin": 10
     },
     {
         "label": "template_limit_switch0",
         "type": "Limit Switch",
-        "pin": 7,
+        "invert": true,
         "pullup": true,
-        "invert": true
+        "pin": 9
     },
     {
         "label": "template_limit_switch1",
         "type": "Limit Switch",
-        "pin": 9,
-        "pullup": true,
-        "invert": false
+        "invert": true,
+        "pullup": false,
+        "pin": 11
     },
     {
         "label": "template_limit_switch2",
         "type": "Limit Switch",
-        "pin": 14,
-        "pullup": false,
-        "invert": true
+        "invert": false,
+        "pullup": true,
+        "pin": 10
     },
     {
         "label": "template_limit_switch3",
         "type": "Limit Switch",
-        "pin": 9,
+        "invert": false,
         "pullup": false,
-        "invert": false
+        "pin": 12
     },
     {
         "label": "template_button0",
         "type": "Button",
-        "pin": 14,
+        "invert": true,
         "pullup": true,
-        "invert": true
+        "pin": 3
     },
     {
         "label": "template_button1",
         "type": "Button",
-        "pin": 15,
-        "pullup": true,
-        "invert": false
+        "invert": true,
+        "pullup": false,
+        "pin": 4
     },
     {
         "label": "template_button2",
         "type": "Button",
-        "pin": 8,
-        "pullup": false,
-        "invert": true
+        "invert": false,
+        "pullup": true,
+        "pin": 4
     },
     {
         "label": "template_button3",
         "type": "Button",
-        "pin": 4,
+        "invert": false,
         "pullup": false,
-        "invert": false
+        "pin": 7
     },
     {
         "label": "template_i2c_encoder0",
         "type": "I2C Encoder",
-        "init_number": 7,
-        "reverse": true
+        "reverse": true,
+        "init_number": 15
     },
     {
         "label": "template_i2c_encoder1",
         "type": "I2C Encoder",
-        "init_number": 6,
-        "reverse": false
+        "reverse": false,
+        "init_number": 3
     },
     {
         "label": "template_encoder0",
         "type": "Encoder",
+        "pin_a": 4,
         "reverse": true,
-        "pin_b": 5,
-        "pin_a": 6
+        "ticks_per_rev": 0.17305026909729437,
+        "pin_b": 6
     },
     {
         "label": "template_encoder1",
         "type": "Encoder",
+        "pin_a": 15,
         "reverse": false,
-        "pin_b": 4,
-        "pin_a": 3
+        "ticks_per_rev": 5.682458503881898,
+        "pin_b": 7
     },
     {
-        "label": "template_servo",
+        "label": "template_servo0",
         "type": "Servo",
-        "pin": 5
+        "servo_type": "Vex",
+        "pin": 9
     },
     {
         "label": "template_stepper",
         "type": "Stepper",
-        "pin_c": 15,
-        "initial_speed": 12,
-        "steps": 11,
-        "pin_b": 5,
-        "pin_d": 4,
-        "pin_a": 11
+        "pin_d": 13,
+        "pin_a": 12,
+        "angle_per_step": 0.7028849870981692,
+        "steps": 14,
+        "pin_b": 15,
+        "pin_c": 8,
+        "initial_speed": 10
     },
     {
         "label": "template_motor0",
         "type": "Motor",
-        "reverse": true,
-        "dir_pin_b": 9,
+        "dir_pin_a": 2,
+        "dir_pin_b": 15,
         "motor_type": "Vex 393",
-        "dir_pin_a": 7,
         "motor_controller": "Monster Moto",
-        "pwm_pin": 16
+        "reverse": true,
+        "pwm_pin": 9
     },
     {
         "label": "template_motor1",
         "type": "Motor",
-        "reverse": true,
-        "dir_pin_b": 11,
+        "dir_pin_a": 9,
+        "dir_pin_b": 10,
         "motor_type": "Vex 393",
-        "dir_pin_a": 7,
         "motor_controller": "Rover Five",
-        "pwm_pin": 4
+        "reverse": true,
+        "pwm_pin": 9
     },
     {
         "label": "template_motor2",
         "type": "Motor",
-        "reverse": false,
-        "dir_pin_b": 8,
+        "dir_pin_a": 3,
+        "dir_pin_b": 16,
         "motor_type": "Vex 393",
-        "dir_pin_a": 12,
         "motor_controller": "Monster Moto",
-        "pwm_pin": 12
+        "reverse": false,
+        "pwm_pin": 6
     },
     {
         "label": "template_motor3",
         "type": "Motor",
-        "reverse": false,
-        "dir_pin_b": 4,
+        "dir_pin_a": 8,
+        "dir_pin_b": 12,
         "motor_type": "Vex 393",
-        "dir_pin_a": 14,
         "motor_controller": "Rover Five",
-        "pwm_pin": 2
+        "reverse": false,
+        "pwm_pin": 16
     },
     {
         "label": "template_pid0",
         "type": "PID",
-        "kp": 0.01,
-        "ki": 3.21,
-        "kd": 4.02,
-        "min_output": -1.0,
-        "max_output": 1.0,
-		"reverse": true,
+        "reverse": true,
+        "kd": 4.515900388293067,
+        "kp": 2.7681008886284517,
+        "ki": 0.9007004502420048,
+        "min_output": 3.1232430217062226,
+        "max_output": 4.2793963545965354,
         "vpid": true
     },
     {
         "label": "template_pid1",
         "type": "PID",
-        "kp": 0.01,
-        "ki": 3.21,
-        "kd": 4.02,
-        "min_output": -1.0,
-        "max_output": 1.0,
-        "reverse": false,
-        "vpid": true
+        "reverse": true,
+        "kd": 3.4813827969232536,
+        "kp": 2.056981623199296,
+        "ki": 4.932751992282855,
+        "min_output": 0.84425126726569,
+        "max_output": 3.6187118712934145,
+        "vpid": false
     },
     {
         "label": "template_pid2",
         "type": "PID",
-        "kp": 0.01,
-        "ki": 3.21,
-        "kd": 4.02,
-        "min_output": -1.0,
-        "max_output": 1.0,
-        "reverse": true,
-        "vpid": false
+        "reverse": false,
+        "kd": 1.9603733037765991,
+        "kp": 0.9610990015554145,
+        "ki": 2.4138794838790902,
+        "min_output": 0.962182291556654,
+        "max_output": 3.7377683222399383,
+        "vpid": true
     },
     {
         "label": "template_pid3",
         "type": "PID",
-        "kp": 0.01,
-        "ki": 3.21,
-        "kd": 4.02,
-        "min_output": -1.0,
-        "max_output": 1.0,
         "reverse": false,
+        "kd": 3.0853292251994056,
+        "kp": 5.4549347891119355,
+        "ki": 3.531039138098836,
+        "min_output": 2.2687583753143423,
+        "max_output": 3.0238677046829037,
         "vpid": false
     },
     {
         "label": "template_velocity_controlled_motor",
         "type": "Velocity Controlled Motor",
-        "encoder_label": "template_encoder1",
+        "vpid_label": "template_pid2",
         "motor_label": "template_motor3",
-        "vpid_label": "template_pid1"
+        "encoder_label": "template_i2c_encoder1"
     },
     {
         "label": "template_arm",
         "type": "Arm",
-        "elbow_label": "template_servo",
-        "wrist_label": "template_servo",
-        "shoulder_label": "template_servo",
-        "wrist_rotate_label": "template_servo",
-        "base_label": "template_servo"
+        "base_label": "template_servo0",
+        "wrist_rotate_label": "template_servo0",
+        "shoulder_label": "template_servo0",
+        "wrist_label": "template_servo0",
+        "elbow_label": "template_servo0"
     },
     {
         "label": "template_four_wheel_drive0",
         "type": "Four Wheel Drive",
-        "use_velocity_control": true,
-        "right_front_drive_motor": "template_velocity_controlled_motor",
-        "right_back_drive_motor": "template_velocity_controlled_motor",
         "left_front_drive_motor": "template_velocity_controlled_motor",
-        "left_back_drive_motor": "template_velocity_controlled_motor"
+        "wheelbase_length": 5.314386258607106,
+        "wheelbase_width": 2.5846800209366596,
+        "wheel_diameter": 5.6936932572617005,
+        "right_front_drive_motor": "template_velocity_controlled_motor",
+        "left_back_drive_motor": "template_velocity_controlled_motor",
+        "right_back_drive_motor": "template_velocity_controlled_motor",
+        "use_velocity_control": true
     },
     {
         "label": "template_four_wheel_drive1",
         "type": "Four Wheel Drive",
-        "use_velocity_control": false,
-        "right_front_drive_motor": "template_motor3",
+        "left_front_drive_motor": "template_motor1",
+        "wheelbase_length": 4.56315072749771,
+        "wheelbase_width": 5.615739129549499,
+        "wheel_diameter": 1.2312513857976335,
+        "right_front_drive_motor": "template_motor2",
+        "left_back_drive_motor": "template_motor2",
         "right_back_drive_motor": "template_motor3",
-        "left_front_drive_motor": "template_motor3",
-        "left_back_drive_motor": "template_motor3"
+        "use_velocity_control": false
     }
 ]
