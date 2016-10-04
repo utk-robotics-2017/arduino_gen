@@ -145,8 +145,11 @@ class VelocityControlledMotorList(ComponentList):
 
     def get_core_values(self):
         for i, vcm in enumerate(self.vcmList):
-            a = {}
-            a['index'] = i
-            a['label'] = vcm.label
-            a['type'] = "Velocity Controlled Motor"
-            yield a
+            config = {}
+            config['index'] = i
+            config['label'] = vcm.label
+            config['type'] = "Velocity Controlled Motor"
+            config['motor'] = vcm.motor.label
+            config['encoder'] = vcm.encoder.label
+            config['pid'] = vcm.pid.label
+            yield config

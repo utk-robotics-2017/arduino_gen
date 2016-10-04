@@ -2,7 +2,7 @@ from appendages.component_list import ComponentList
 
 
 class Stepper:
-    def __init__(self, label, steps, pin_a, pin_b, pin_c, pin_d, initial_speed):
+    def __init__(self, label, steps, pin_a, pin_b, pin_c, pin_d, initial_speed, angle_per_step):
         self.label = label
         self.steps = steps
         self.pin_a = pin_a
@@ -10,6 +10,7 @@ class Stepper:
         self.pin_c = pin_c
         self.pin_d = pin_d
         self.initial_speed = initial_speed
+        self.angle_per_step = angle_per_step
 
 
 class StepperList(ComponentList):
@@ -23,7 +24,7 @@ class StepperList(ComponentList):
         stepper = Stepper(json_item['label'], json_item['steps'],
                           json_item['pin_a'], json_item['pin_b'],
                           json_item['pin_c'], json_item['pin_d'],
-                          json_item['initial_speed'])
+                          json_item['initial_speed'], json_item['angle_per_step'])
         self.stepperDict[json_item['label']] = stepper
         self.stepperList.append(stepper)
         self.stepperList.sort(key=lambda x: x.label, reverse=False)
@@ -113,8 +114,10 @@ class StepperList(ComponentList):
 
     def get_core_values(self):
         for i, stepper in enumerate(self.stepperList):
-            a = {}
-            a['index'] = i
-            a['label'] = stepper.label
-            a['type'] = "Stepper"
-            yield a
+            config = {}
+            config['index'] = i
+            config['label'] = stepper.label
+            config['type'] = "Stepper"
+            config['initial_speed'] = stepper.initial_speed
+            config['angle_per_step'] = stepper.angle_per_step
+            yield config

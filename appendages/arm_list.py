@@ -81,8 +81,13 @@ class ArmList(ComponentList):
 
     def get_core_values(self):
         for i, arm in enumerate(self.arm_list):
-            a = {}
-            a['index'] = i
-            a['type'] = "Arm"
-            a['label'] = arm.label
-            yield a
+            config = {}
+            config['index'] = i
+            config['type'] = "Arm"
+            config['label'] = arm.label
+            config['base'] = arm.base.label
+            config['shoulder'] = arm.shoulder.label
+            config['elbow'] = arm.elbow.label
+            config['wrist'] = arm.wrist.label
+            config['wrist_rot'] = arm.wrist_rotate.label
+            yield config

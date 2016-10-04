@@ -2,9 +2,10 @@ from appendages.component_list import ComponentList
 
 
 class Servo:
-    def __init__(self, label, pin):
+    def __init__(self, label, pin, servo_type):
         self.label = label
         self.pin = pin
+        self.servo_type = servo_type
 
 
 class ServoList(ComponentList):
@@ -15,7 +16,7 @@ class ServoList(ComponentList):
         self.servoList = []
 
     def add(self, json_item):
-        servo = Servo(json_item['label'], json_item['pin'])
+        servo = Servo(json_item['label'], json_item['pin'], json_item['servo_type'])
         self.servoDict[servo.label] = servo
         self.servoList.append(servo)
         self.servoList.sort(key=lambda x: x.label, reverse=False)
@@ -97,8 +98,9 @@ class ServoList(ComponentList):
 
     def get_core_values(self):
         for i, servo in enumerate(self.servoList):
-            a = {}
-            a['index'] = i
-            a['label'] = servo.label
-            a['type'] = "Servo"
-            yield a
+            config = {}
+            config['index'] = i
+            config['label'] = servo.label
+            config['type'] = "Servo"
+            config['servo_type'] = servo.servo_type
+            yield config
