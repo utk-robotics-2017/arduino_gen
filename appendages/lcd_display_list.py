@@ -1,10 +1,10 @@
 from appendages.component_list import ComponentList
 
 
-class LCD_display:
-    def __init__(self,label,pin)
-        self.label = label
-        self.pin = pin
+#class LCD_display:
+    #def __init__(self,label,pin)
+        #self.label = label
+        #self.pin = pin
 
 
 class LcdDisplayList(ComponentList):
@@ -29,17 +29,20 @@ class LcdDisplayList(ComponentList):
         rv += "\n"
 
     def get_includes(self):
-        return '#include "lcd16.h"\n'
+        return '#include "LiquidCrystal.h"\n'
 
     def get_commands(self):
-        rv = ""
-        if(len(self.digital_sensor_list) > 0)
-            rv +=
-        if(len(self.digital_sensor_list) > 0)
-            rv +=
-        return rv
+        return "\tdisplayString"
     def get_constructor(self):
     def get_setup(self):
+        rv = ""
+        rv += "\tlcd.begin(16, 2);\n"
+        rv += "\tSerial.begin(9600);\n"
+        return rv
     def get_command_attaches():
     def get_command_functions():
+        rv = "String displayString() {\n}"
+        rv+= "\tString str = Serial.readString();\n"
+        rv+= "\tlcd.print(str);\n"
+        return rv
     def get_core_values():
