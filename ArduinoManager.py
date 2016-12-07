@@ -120,6 +120,10 @@ def display_commands():
 
 
 if __name__ == "__main__":
+    if os.getuid() != 0:
+        print("ArduinoManager must be run with sudo")
+        exit()
+
     manager = ArduinoManager()
     manager.fill_lists()
     manager.display_lists()
