@@ -26,6 +26,13 @@ class MotorList(ComponentList):
         elif json_item['motor_controller'].lower() == 'rover five':
             motor = Motor(json_item['label'], json_item['dir_pin_a'], -1, json_item['pwm_pin'],
                           json_item['reverse'], 'RoverFive', json_item['motor_type'])
+        elif json_item['motor_controller'].lower() == 'vex':
+            motor = Motor(json_item['label'], -1, -1, json_item['pwm_pin'], json_item['reverse'],
+                          'Vex', json_item['motor_type'])
+        elif json_item['motor_controller'].lower() == 'mosfet':
+            motor = Motor(json_item['label'], json_item['dir_pin_a'], -1, -1, json_item['reverse'],
+                          'Mosfet', json_item['motor_type'])
+        
 
         self.motorDict[motor.label] = motor
         self.motorList.append(motor)
