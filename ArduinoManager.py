@@ -1,6 +1,7 @@
 import pyudev
 import usb.core
 import os
+import shutil
 from subprocess import call
 
 CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode"
@@ -16,10 +17,10 @@ class LocalDevice:
         self.serial_number = kwargs.get("serial_number", "No Serial Number")
 
     def toUdevRule(self):
-        return 'SUBSYSTEM=="tty", ATTRS{{idVendor}}=="{:04X}", ATTRS{{idProduct}}=="{:04X}", ATTRS{{serial}}=="{}", SYMLINK+="{}"\n'.format(self.vendor, self.product, self.serial_number, self.name)
+        return 'SUBSYSTEM=="tty", ATTRS{{idVendor}}=="{:04x}", ATTRS{{idProduct}}=="{:04x}", ATTRS{{serial}}=="{}", SYMLINK+="{}"\n'.format(self.vendor, self.product, self.serial_number, self.name)
 
     def __str__(self):
-        return "\tName: {0:}\n\tType: {1:}\n\tVendor: 0x{2:04X}\n\tProduct: 0x{3:04X}\n\tSerial Number: {4:}".format(self.name, self.type, self.vendor, self.product, self.serial_number)
+        return "\tName: {0:}\n\tType: {1:}\n\tVendor: 0x{2:04x}\n\tProduct: 0x{3:04x}\n\tSerial Number: {4:}".format(self.name, self.type, self.vendor, self.product, self.serial_number)
 
     def __repr__(self):
         self.__str__()
@@ -55,7 +56,7 @@ class ArduinoManager:
                 self.count += 1
 
         self.udev_rules = {}
-        mode = 'r' if os.path.exists(ARDUINO_UDEV_RULES) else 'w'
+        mode = 'r' if os.path.exists(ARDUINO_UDEV_RULES) else 'w+'
         for line in open(ARDUINO_UDEV_RULES, mode):
             udev_rule = UdevRule(line)
             self.udev_rules[udev_rule.serial_number] = udev_rule
@@ -84,6 +85,18 @@ class ArduinoManager:
             del self.unnamed[index]
             device.name = device_name
             self.named[device_name] = device
+            if not os.path.exists(CURRENT_ARDUINO_CODE_DIR + "/" + device.name):
+                os.mkdir(CURRENT_ARDUINO_CODE_DIR + "/" + device.name)
+            if not os.path.exists(CURRENT_ARDUINO_CODE_DIR + "/" + device.name + "/platformio.ini"):
+                with open(CURRENT_ARDUINO_CODE_DIR + "/" + device.name + "/platformio.ini", "w+") as f:
+                    f.write("[platformio]\n")
+                    f.write("lib_dir = /Robot/ArduinoLibraries\n")
+                    f.write("env_default = {}\n\n".format(device.name))
+                    f.write("[env:{}]".format(device.name))
+                    f.write("platform = atmelavr\n")
+                    f.write("framework = arduino\n")
+                    f.write("board = {}".format("megaatmega2560" if device.type == "Mega" else "uno"))
+                    f.write("upload_port = /dev/{}".format(device.name))
         else:
             print("No unnamed arduino {}".format(index))
 
@@ -97,6 +110,7 @@ class ArduinoManager:
 
     def unname(self, old_name):
         if old_name in self.named:
+            shutil.rmtree(CURRENT_ARDUINO_CODE_DIR + "/" + old_name)
             self.unnamed[self.count] = self.named[old_name]
             self.unnamed[self.count].name = "No Name"
             del self.named[old_name]
@@ -155,7 +169,7 @@ if __name__ == "__main__":
             manager.unname(line_split[1])
         elif line_split[0] in ['quit', 'exit']:
             manager.save_udev()
-            call(['udevadm', 'trigger', '--action=change'])
+            call(['udevadm', 'trigger'])
             break
         else:
             print("Unknown command")
