@@ -5,7 +5,7 @@ import shutil
 import sys
 import importlib
 
-from Generator import Generator
+from generator import Generator
 
 # Import all the files in appendages
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
