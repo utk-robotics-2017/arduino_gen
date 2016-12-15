@@ -146,8 +146,6 @@ class ArduinoGen:
             print("Parent folder has not been set")
             sys.exit()
         print("Uploading...")
-        ino_ini = open("{0:s}/{1:s}/ino.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 'r')
-        ino_ini_text = ino_ini.read()
 
         pio_ini = open("{0:s}/{1:s}/platformio.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
         pio_ini_text = pio_ini.read()
@@ -155,10 +153,6 @@ class ArduinoGen:
         print("\tCopying {0:s} to {1:s}/{2:s}".format(self.folder, CURRENT_ARDUINO_CODE_DIR,
                                                       self.arduino))
         shutil.copytree(self.folder, "{0:s}/{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
-        ino_ini = open("{0:s}/{1:s}/ino.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 'w')
-        ino_ini.write(ino_ini_text)
-        os.chmod("{0:s}/{1:s}/ino.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 0o777)
-
         pio_ini = open("{0:s}/{1:s}/platformio.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 'w')
         pio_ini.write(pio_ini_text)
         os.chmod("{0:s}/{1:s}/platformio.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 0o777)

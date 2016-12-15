@@ -11,7 +11,7 @@ import tornado.ioloop
 import tornado.websocket
 import tornado.httpserver
 
-from ArduinoGen import ArduinoGen
+from arduino_gen import ArduinoGen
 
 clients = set()
 clientId = 0
