@@ -92,11 +92,11 @@ class ArduinoManager:
                     f.write("[platformio]\n")
                     f.write("lib_dir = /Robot/ArduinoLibraries\n")
                     f.write("env_default = {}\n\n".format(device.name))
-                    f.write("[env:{}]".format(device.name))
+                    f.write("[env:{}]\n".format(device.name))
                     f.write("platform = atmelavr\n")
                     f.write("framework = arduino\n")
-                    f.write("board = {}".format("megaatmega2560" if device.type == "Mega" else "uno"))
-                    f.write("upload_port = /dev/{}".format(device.name))
+                    f.write("board = {}\n".format("megaatmega2560" if device.type == "Mega" else "uno"))
+                    f.write("upload_port = /dev/{}\n".format(device.name))
         else:
             print("No unnamed arduino {}".format(index))
 
