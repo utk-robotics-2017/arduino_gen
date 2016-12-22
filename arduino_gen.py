@@ -5,7 +5,7 @@ import shutil
 import sys
 import importlib
 
-from Generator import Generator
+from generator import Generator
 
 # Import all the files in appendages
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -153,7 +153,6 @@ class ArduinoGen:
         print("\tCopying {0:s} to {1:s}/{2:s}".format(self.folder, CURRENT_ARDUINO_CODE_DIR,
                                                       self.arduino))
         shutil.copytree(self.folder, "{0:s}/{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
-
         pio_ini = open("{0:s}/{1:s}/platformio.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 'w')
         pio_ini.write(pio_ini_text)
         os.chmod("{0:s}/{1:s}/platformio.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 0o777)

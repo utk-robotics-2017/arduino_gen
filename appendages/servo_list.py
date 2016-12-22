@@ -70,7 +70,7 @@ class ServoList(ComponentList):
         rv = "void setServo() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.servoList))
-        rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetServo);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
         rv += "\tint value = cmdMessenger.readBinArg<int>();\n"
