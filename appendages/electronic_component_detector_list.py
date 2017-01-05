@@ -1,4 +1,4 @@
-from appendages.electronic_component_detector_list import ComponentList
+from appendages.component_list import ComponentList
 
 
 class ElectronicComponentDetector:
@@ -28,7 +28,7 @@ class ElectronicComponentDetectorList(ComponentList):
 
     def get_commands(self):
         # List of serial commands
-        return "\tkDecode\n,\tkDecodeResult\n"
+        return "\tkDecode,\n\tkDecodeResult,\n"
 
     def get_command_attaches(self):
         rv = "\tcmdMessenger.attach(kDecode, Decode);\n"
@@ -40,10 +40,11 @@ class ElectronicComponentDetectorList(ComponentList):
         rv += "\tchar code[5];\n"
         rv += "\tecd.decode(pad, code, false);\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kDecode);\n"
-        rv += "\tcmdMessenger.sendStartCmd(kDecodeResult);\n"
+        rv += "\tcmdMessenger.sendCmdStart(kDecodeResult);\n"
         rv += "\tfor(int x = 0 ; x <= 4 ; x++ ) { \n"
-        rv += "\t\tcmdMessenger.sendBinArg(code[x]);\n"
+        rv += "\t\tcmdMessenger.sendCmdBinArg(code[x]);\n"
         rv += "\t}\n"
+        rv += "\tcmdMessenger.sendCmdEnd();\n"
         rv += "}\n\n"
         return rv
 
@@ -51,6 +52,6 @@ class ElectronicComponentDetectorList(ComponentList):
         for i, arm in enumerate(self.electronic_component_detectorList):
             config = {}
             config['index'] = i
-            config['type'] = "ElectronicComponentDetector"
+            config['type'] = "Electronic Component Detector"
             config['label'] = arm.label
             yield config

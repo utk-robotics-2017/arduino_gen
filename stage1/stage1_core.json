@@ -1,0 +1,35 @@
+{
+    "commands": {
+        "kDecodeResult": 12,
+        "kDetachServo": 8,
+        "kSetLed": 3,
+        "kPing": 4,
+        "kAcknowledge": 0,
+        "kPong": 6,
+        "kUnknown": 2,
+        "kReadSwitchResult": 10,
+        "kReadSwitch": 9,
+        "kError": 1,
+        "kDecode": 11,
+        "kSetServo": 7,
+        "kPingResult": 5
+    },
+    "appendages": [
+        {
+            "servo_type": "Vex",
+            "type": "Servo",
+            "index": 0,
+            "label": "stage1_servo"
+        },
+        {
+            "type": "Switch",
+            "index": 0,
+            "label": "stage1_limit_switch"
+        },
+        {
+            "type": "ElectronicComponentDetector",
+            "index": 0,
+            "label": "pentagram"
+        }
+    ]
+}
