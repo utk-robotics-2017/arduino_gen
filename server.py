@@ -139,7 +139,7 @@ class Server(tornado.websocket.WebSocketHandler):
                     self.write_message("ClientNoLock")
                     log(self.id, "tried to get components, but doesn't have a device lock")
                 else:
-                    deviceJsonFile = confFolderAbsPath + "/" + self.device["name"] + ".json"
+                    deviceJsonFile = currentArduinoCodeFolder + "/" + self.device["name"] + "/" + self.device["name"] + ".json"
                     if not os.path.exists(deviceJsonFile):
                         self.write_message("[]")
                         log(self.id, "no file, sending empy list")
