@@ -1,1 +1,0 @@
-[{"label":"pentagram","type":"Electronic Component Detector"},{"label":"stage1_limit_switch","type":"Limit Switch","pin":18,"pullup":true,"invert":false},{"label":"stage1_servo","type":"Servo","pin":5,"servo_type":"Vex"}]
