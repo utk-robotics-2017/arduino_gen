@@ -53,7 +53,7 @@ class UltrasonicList(ComponentList):
         rv += "\t\treturn;\n"
         rv += "\t}\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kReadUltrasonic);\n"
-        rv += "\tcmdMessenger.sendBinCmd(kReadUltrasonicResult, ultrasonics[indexNum].ping());\n"
+        rv += "\tcmdMessenger.sendBinCmd(kReadUltrasonicResult, ultrasonics[indexNum].ping_cm());\n"
         rv += "}\n\n"
         return rv
 
