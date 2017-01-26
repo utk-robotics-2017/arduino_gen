@@ -256,6 +256,7 @@ def sigInt_handler(signum, frame):
     print("Server is closed")
     sys.exit(0)
 
+
 if __name__ == "__main__":
     app = make_app()
     app.listen(port)
