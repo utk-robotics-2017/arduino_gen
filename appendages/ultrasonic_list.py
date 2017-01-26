@@ -2,9 +2,10 @@ from appendages.component_list import ComponentList
 
 
 class Ultrasonic:
-    def __init__(self, label, pin):
+    def __init__(self, label, trigger, echo):
         self.label = label
-        self.pin = pin
+        self.trigger = trigger
+        self.echo = echo
 
 
 class UltrasonicList(ComponentList):
@@ -14,7 +15,7 @@ class UltrasonicList(ComponentList):
         self.sensor_list = []
 
     def add(self, json_item):
-        self.sensor_list.append(Ultrasonic(json_item['label'], json_item['pin']))
+        self.sensor_list.append(Ultrasonic(json_item['label'], json_item['trigger'], json_item['echo']))
 
     def get_includes(self):
         return '#include "NewPing.h"\n'
@@ -22,7 +23,8 @@ class UltrasonicList(ComponentList):
     def get_pins(self):
         rv = ""
         for sensor in self.sensor_list:
-            rv += "const char {0:s}_pin = {1:d};\n".format(sensor.label, sensor.pin)
+            rv += "const char {0:s}_trigger = {1:d};\n".format(sensor.label, sensor.trigger)
+            rv += "const char {0:s}_echo = {1:d};\n".format(sensor.label, sensor.echo)
         rv += "\n"
         return rv
 
@@ -33,7 +35,7 @@ class UltrasonicList(ComponentList):
         rv += "NewPing ultrasonics[{0:d}] = {{\n".format(len(self.sensor_list))
 
         for sensor in self.sensor_list:
-            rv += "\tNewPing({0:s}_pin, {0:s}_pin),\n".format(sensor.label)
+            rv += "\tNewPing({0:s}_trigger, {0:s}_echo),\n".format(sensor.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
@@ -51,7 +53,7 @@ class UltrasonicList(ComponentList):
         rv += "\t\treturn;\n"
         rv += "\t}\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kReadUltrasonic);\n"
-        rv += "\tcmdMessenger.sendBinCmd(kReadUltrasonicResult, ultrasonics[indexNum].ping());\n"
+        rv += "\tcmdMessenger.sendBinCmd(kReadUltrasonicResult, ultrasonics[indexNum].ping_cm());\n"
         rv += "}\n\n"
         return rv
 
