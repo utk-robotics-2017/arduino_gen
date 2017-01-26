@@ -4,6 +4,8 @@ from appendages.component_list import ComponentList
 class LCD:
     def __init__(self, label, rs, enable, d4, d5, d6, d7):
         self.label = label
+        self.rs = rs
+        self.enable = enable
         self.d4 = d4
         self.d5 = d5
         self.d6 = d6
@@ -11,6 +13,10 @@ class LCD:
 
 
 class LcdList(ComponentList):
+    # Tiers are 1 through 3
+    # Required for generator to add import and constructors.
+    TIER = 3
+
     def __init__(self):
         self.lcds = []
 
