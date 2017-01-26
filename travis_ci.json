@@ -14,7 +14,8 @@
     {
         "label": "template_ultrasonic",
         "type": "Ultrasonic",
-        "pin": 3
+        "trigger": 3,
+        "echo": 3
     },
     {
         "label": "template_switch0",
