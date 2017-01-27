@@ -13,9 +13,7 @@ class LCD:
 
 
 class LcdList(ComponentList):
-    # Tiers are 1 through 3
-    # Required for generator to add import and constructors.
-    TIER = 3
+    TIER = 1
 
     def __init__(self):
         self.lcds = []
