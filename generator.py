@@ -79,11 +79,14 @@ class Generator:
 
         for i in range(1, 4):
             for appendage in self.appendage_dict.values():
-                if not appendage.TIER == i:
+                if not appendage.TIER or appendage.TIER not in range(0, 4):
+                    sys.stderr.write("[ERROR] Appendage missing TIER value 1-3: " + str(appendage))
+                if appendage.TIER == i:
+                    constructor = appendage.get_constructor()
+                    if not constructor == "":
+                        rv += constructor + "\n"
+                else:
                     continue
-                constructor = appendage.get_constructor()
-                if not constructor == "":
-                    rv += constructor + "\n"
         rv += "\n"
         return rv
 
