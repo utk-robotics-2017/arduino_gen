@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode"
@@ -146,8 +147,8 @@ class Generator:
             if cmd_func is not None:
                 rv += str(cmd_func)
             else:
-                # TODO this was an error but idk where to log it
-                pass
+                print("[WARN] Appendage did not return a command function: " + str(appendage),
+                      file=sys.stderr)
         return rv
 
     def add_extra_functions(self):
