@@ -147,11 +147,8 @@ class Generator:
             if cmd_func is not None:
                 rv += str(cmd_func)
             else:
-                print(
-                    "[WARN] Appendage did not return a command function: " +
-                    str(appendage),
-                    file=sys.stderr
-                )
+                sys.stderr.write(
+                    "[WARN] Appendage did not return a command function: " + str(appendage))
         return rv
 
     def add_extra_functions(self):
