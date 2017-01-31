@@ -34,15 +34,22 @@ class LcdList(ComponentList):
         return rv
 
     def get_commands(self):
-        return "\tkPrintLCD,\n"
+        rv = "\tkPrintLCD,\n"
+        rv += "\tkClearLCD,\n"
+        rv += "\tkSetCursorLCD,\n"
+        return rv
 
     def get_command_attaches(self):
-        return "\tcmdMessenger.attach(kPrintLCD, printLCD);\n"
+        rv = "\tcmdMessenger.attach(kPrintLCD, printLCD);\n"
+        rv += "\tcmdMessenger.attach(kClearLCD, clearLCD);\n"
+        rv += "\tcmdMessenger.attach(kSetCursorLCD, setCursorLCD);\n"
+        return rv
 
     def get_command_functions(self):
         rv = "void printLCD(){\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.lcds))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+            .format(len(self.lcds))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kPrintLCD);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -50,6 +57,31 @@ class LcdList(ComponentList):
         rv += "\tlcds[indexNum].print(text);\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kPrintLCD);\n"
         rv += "}\n"
+
+        rv += "void clearLCD(){\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+            .format(len(self.lcds))
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kPrintLCD);\n"
+        rv += "\t\treturn;\n"
+        rv += "\t}\n"
+        # rv += "\tString text = cmdMessenger.readStringArg();\n"
+        rv += "\tlcds[indexNum].clear();\n"
+        rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kClearLCD);\n"
+        rv += "}\n"
+
+        rv += "void setCursorLCD(){\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+            .format(len(self.lcds))
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kPrintLCD);\n"
+        rv += "\t\treturn;\n"
+        rv += "\t}\n"
+        rv += "\tlcds[indexNum].setCursor(cmdMessenger.readBinArg<int>(), \
+                                          cmdMessenger.readBinArg<int>());\n"
+        rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kSetCursorLCD);\n"
+        rv += "}\n"
+
         return rv
 
     def get_core_values(self):
