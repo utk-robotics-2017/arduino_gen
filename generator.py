@@ -1,6 +1,5 @@
 import os
 import json
-import sys
 
 import logging
 from ourlogging import setup_logging
@@ -85,7 +84,7 @@ class Generator:
         for i in range(1, 4):
             for appendage in self.appendage_dict.values():
                 if not appendage.TIER:
-                    sys.stderr.write("[ERROR] Appendage missing TIER value: " + str(appendage))
+                    logger.error("Appendage missing TIER value: " + str(appendage))
                 if appendage.TIER == i:
                     constructor = appendage.get_constructor()
                     if not constructor == "":
@@ -156,8 +155,7 @@ class Generator:
             if cmd_func is not None:
                 rv += str(cmd_func)
             else:
-                sys.stderr.write(
-                    "[WARN] Appendage did not return a command function: " + str(appendage))
+                logger.error("Appendage did not return a command function: " + str(appendage))
         return rv
 
     def add_extra_functions(self):
