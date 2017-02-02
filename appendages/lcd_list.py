@@ -38,11 +38,11 @@ class LcdList(ComponentList):
         return rv
 
     def get_setup(self):
-        rv = "// LCD inits:\n"
+        rv = "\t// LCD inits:\n"
         # Now call the init method for each.
         for i, lcd in enumerate(self.lcds):
             # Columns, rows
-            rv += ("lcds[{0:d}].begin({1:d}, {2:d});\n"
+            rv += ("\tlcds[{0:d}].begin({1:d}, {2:d});\n"
                    .format(i, lcd.cols, lcd.rows))
 
         return rv
