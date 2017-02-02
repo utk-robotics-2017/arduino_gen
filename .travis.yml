@@ -9,8 +9,8 @@ cache:
 install:
   - sh travis_ci_install.sh
 script:
-  - sh travis_ci.sh
   - flake8
+  - sh travis_ci.sh
 
 notifications:
   flowdock:

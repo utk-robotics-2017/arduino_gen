@@ -7,6 +7,8 @@ class Magnetometer:
 
 
 class MagnetometerList(ComponentList):
+    TIER = 1
+
     def __init__(self):
         self.sensor_list = []
 

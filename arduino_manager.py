@@ -17,10 +17,14 @@ class LocalDevice:
         self.serial_number = kwargs.get("serial_number", "No Serial Number")
 
     def toUdevRule(self):
-        return 'SUBSYSTEM=="tty", ATTRS{{idVendor}}=="{:04x}", ATTRS{{idProduct}}=="{:04x}", ATTRS{{serial}}=="{}", SYMLINK+="{}"\n'.format(self.vendor, self.product, self.serial_number, self.name)
+        return 'SUBSYSTEM=="tty", ATTRS{{idVendor}}=="{:04x}", ATTRS{{idProduct}}=="{:04x}",'
+        + ' ATTRS{{serial}}=="{}", SYMLINK+="{}"\n'.format(
+            self.vendor, self.product, self.serial_number, self.name)
 
     def __str__(self):
-        return "\tName: {0:}\n\tType: {1:}\n\tVendor: 0x{2:04x}\n\tProduct: 0x{3:04x}\n\tSerial Number: {4:}".format(self.name, self.type, self.vendor, self.product, self.serial_number)
+        return "\tName: {0:}\n\tType: {1:}\n\tVendor: 0x{2:04x}\n\tProduct: 0x{3:04x}\n"
+        + "\tSerial Number: {4:}".format(
+            self.name, self.type, self.vendor, self.product, self.serial_number)
 
     def __repr__(self):
         self.__str__()
@@ -52,7 +56,12 @@ class ArduinoManager:
                 continue
             if "arduino" in device.product.lower():
                 type = "Uno" if "uno" in device.product.lower() else "Mega"
-                self.unnamed[self.count] = LocalDevice(type=type, vendor=device.idVendor, product=device.idProduct, serial_number=device.serial_number)
+                self.unnamed[self.count] = LocalDevice(
+                    type=type,
+                    vendor=device.idVendor,
+                    product=device.idProduct,
+                    serial_number=device.serial_number
+                )
                 self.count += 1
 
         self.udev_rules = {}
@@ -88,14 +97,19 @@ class ArduinoManager:
             if not os.path.exists(CURRENT_ARDUINO_CODE_DIR + "/" + device.name):
                 os.mkdir(CURRENT_ARDUINO_CODE_DIR + "/" + device.name)
             if not os.path.exists(CURRENT_ARDUINO_CODE_DIR + "/" + device.name + "/platformio.ini"):
-                with open(CURRENT_ARDUINO_CODE_DIR + "/" + device.name + "/platformio.ini", "w+") as f:
+                with open(
+                    CURRENT_ARDUINO_CODE_DIR + "/" + device.name + "/platformio.ini", "w+"
+                ) as f:
                     f.write("[platformio]\n")
                     f.write("lib_dir = /Robot/ArduinoLibraries\n")
                     f.write("env_default = {}\n\n".format(device.name))
                     f.write("[env:{}]\n".format(device.name))
                     f.write("platform = atmelavr\n")
                     f.write("framework = arduino\n")
-                    f.write("board = {}\n".format("megaatmega2560" if device.type == "Mega" else "uno"))
+                    f.write("board = {}\n".format(
+                        "megaatmega2560" if device.type == "Mega"
+                        else "uno"
+                    ))
                     f.write("upload_port = /dev/{}\n".format(device.name))
         else:
             print("No unnamed arduino {}".format(index))

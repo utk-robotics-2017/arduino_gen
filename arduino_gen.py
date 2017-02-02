@@ -86,8 +86,8 @@ class ArduinoGen:
                                                             else None, self.device_dict['pid'])
                 elif json_item['type'] == 'four_wheel_drive':
                     self.device_dict[json_item['type']]\
-                            .add(json_item, self.device_dict['motor'],
-                                 self.device_dict['velocity_controlled_motor'])
+                        .add(json_item, self.device_dict['motor'],
+                             self.device_dict['velocity_controlled_motor'])
                 else:
                     self.device_dict[json_item['type']].add(json_item)
         fi.close()
@@ -163,6 +163,7 @@ class ArduinoGen:
         os.system("sh upload.sh")
         # os.system("pio run -t upload")
         print("Done")
+
 
 if __name__ == "__main__":
     # Collect command line arguments

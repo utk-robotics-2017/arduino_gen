@@ -49,12 +49,12 @@ class VelocityControlledMotorList(ComponentList):
                 rv += ("\tVelocityControlledMotor(motors[{0:s}_index], i2cencoders[{1:s}_index], " +
                        "vpids[{2:s}_index], &Inputs_vpid[{2:s}_index], " +
                        "&Setpoints_vpid[{2:s}_index], &Outputs_vpid[{2:s}_index]),\n")\
-                        .format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
+                    .format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
             else:
                 rv += ("\tVelocityControlledMotor(motors[{0:s}_index], encoders[{1:s}_index], " +
                        "vpids[{2:s}_index], &Inputs_vpid[{2:s}_index], " +
                        "&Setpoints_vpid[{2:s}_index], &Outputs_vpid[{2:s}_index]),\n")\
-                        .format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
+                    .format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
@@ -83,7 +83,8 @@ class VelocityControlledMotorList(ComponentList):
     def get_command_functions(self):
         rv = "void setVCMVoltage() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+            .format(len(self.vcmList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetVCMVoltage);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -98,7 +99,8 @@ class VelocityControlledMotorList(ComponentList):
 
         rv += "void setVCMVelocity() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+            .format(len(self.vcmList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetVCMVelocity);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -113,7 +115,8 @@ class VelocityControlledMotorList(ComponentList):
 
         rv += "void stopVCM() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+            .format(len(self.vcmList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kStopVCM);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -123,7 +126,8 @@ class VelocityControlledMotorList(ComponentList):
 
         rv += "void getVCMVelocity() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+            .format(len(self.vcmList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetVCMVelocity);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -133,7 +137,8 @@ class VelocityControlledMotorList(ComponentList):
 
         rv += "void getVCMPosition() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+            .format(len(self.vcmList))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetVCMPosition);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -151,5 +156,5 @@ class VelocityControlledMotorList(ComponentList):
             config['type'] = "Velocity Controlled Motor"
             config['motor'] = vcm.motor.label
             config['encoder'] = vcm.encoder.label
-            config['pid'] = vcm.pid.label
+            config['vpid'] = vcm.vpid.label
             yield config

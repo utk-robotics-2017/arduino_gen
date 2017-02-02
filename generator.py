@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode"
@@ -78,11 +79,14 @@ class Generator:
 
         for i in range(1, 4):
             for appendage in self.appendage_dict.values():
-                if not appendage.TIER == i:
+                if not appendage.TIER:
+                    sys.stderr.write("[ERROR] Appendage missing TIER value: " + str(appendage))
+                if appendage.TIER == i:
+                    constructor = appendage.get_constructor()
+                    if not constructor == "":
+                        rv += constructor + "\n"
+                else:
                     continue
-                constructor = appendage.get_constructor()
-                if not constructor == "":
-                    rv += constructor + "\n"
         rv += "\n"
         return rv
 
@@ -90,6 +94,7 @@ class Generator:
         rv = "void setup() {\n\t// Init LED pin\n\tpinMode(LED, OUTPUT);\n\n"
         for appendage in self.appendage_dict.values():
             rv += appendage.get_setup()
+        rv += "\n"
         rv += "\t// Initialize Serial Communication\n\tSerial.begin(115200);\n\n"
         rv += "\t// Attach callback methods\n\tattachCommandCallbacks();\n\n"
         rv += "\n\t// Flash led 3 times at the end of setup\n"
@@ -142,7 +147,12 @@ class Generator:
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kSetLed);\n"
         rv += "}\n\n"
         for appendage in self.appendage_dict.values():
-            rv += appendage.get_command_functions()
+            cmd_func = appendage.get_command_functions()
+            if cmd_func is not None:
+                rv += str(cmd_func)
+            else:
+                sys.stderr.write(
+                    "[WARN] Appendage did not return a command function: " + str(appendage))
         return rv
 
     def add_extra_functions(self):
