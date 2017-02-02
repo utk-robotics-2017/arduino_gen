@@ -1,6 +1,10 @@
 import os
 import json
-import sys
+
+import logging
+from ourlogging import setup_logging
+setup_logging(__file__)
+logger = logging.getLogger(__name__)
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode"
@@ -80,7 +84,7 @@ class Generator:
         for i in range(1, 4):
             for appendage in self.appendage_dict.values():
                 if not appendage.TIER:
-                    sys.stderr.write("[ERROR] Appendage missing TIER value: " + str(appendage))
+                    logger.error("Appendage missing TIER value: " + str(appendage))
                 if appendage.TIER == i:
                     constructor = appendage.get_constructor()
                     if not constructor == "":
@@ -151,8 +155,7 @@ class Generator:
             if cmd_func is not None:
                 rv += str(cmd_func)
             else:
-                sys.stderr.write(
-                    "[WARN] Appendage did not return a command function: " + str(appendage))
+                logger.error("Appendage did not return a command function: " + str(appendage))
         return rv
 
     def add_extra_functions(self):
@@ -162,20 +165,18 @@ class Generator:
         return rv
 
     def write_shell_scripts(self, writeTo, arduino):
-        upload_fo = open("{0:s}/upload.sh".format(writeTo), 'w')
-        upload_fo.write("#!/usr/bin/env bash\n")
-        upload_fo.write("cd {0:s}/{1:s}\n".format(CURRENT_ARDUINO_CODE_DIR, arduino))
-        upload_fo.write("git add -A\n")
-        upload_fo.write('git commit -m "new uploaded arduino code for %s"\n' % arduino)
-        upload_fo.write("git push\n")
-        upload_fo.write("pio run -t upload\n")
-        upload_fo.close()
+        with open("{0:s}/upload.sh".format(writeTo), 'w') as upload_fo:
+            upload_fo.write("#!/usr/bin/env bash\n")
+            upload_fo.write("cd {0:s}/{1:s}\n".format(CURRENT_ARDUINO_CODE_DIR, arduino))
+            upload_fo.write("git add -A\n")
+            upload_fo.write('git commit -m "new uploaded arduino code for %s"\n' % arduino)
+            upload_fo.write("git push\n")
+            upload_fo.write("pio run -t upload\n")
         os.chmod("{0:s}/upload.sh".format(writeTo), 0o777)
 
-        serial_fo = open("{0:s}/serial.sh".format(writeTo), 'w')
-        serial_fo.write("#!/usr/bin/env bash\n")
-        serial_fo.write("picocom /dev/%s -b 115200 --echo\n" % arduino)
-        serial_fo.close()
+        with open("{0:s}/serial.sh".format(writeTo), 'w') as serial_fo:
+            serial_fo.write("#!/usr/bin/env bash\n")
+            serial_fo.write("picocom /dev/%s -b 115200 --echo\n" % arduino)
         os.chmod("{0:s}/serial.sh".format(writeTo), 0o777)
 
     def write_core_config_file(self, writeTo, arduino):

@@ -1,8 +1,13 @@
 conf/
 mega/
 uno/
+stage1/
+stage2/
+stage3/
+stage4/
 template/
 travis_ci/
+.pioenvs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
