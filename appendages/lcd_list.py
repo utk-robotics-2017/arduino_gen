@@ -2,7 +2,7 @@ from appendages.component_list import ComponentList
 
 
 class LCD:
-    def __init__(self, label, rs, enable, d4, d5, d6, d7):
+    def __init__(self, label, rs, enable, d4, d5, d6, d7, cols=16, rows=2):
         self.label = label
         self.rs = rs
         self.enable = enable
@@ -10,6 +10,8 @@ class LCD:
         self.d5 = d5
         self.d6 = d6
         self.d7 = d7
+        self.cols = cols
+        self.rows = rows
 
 
 class LcdList(ComponentList):
@@ -26,11 +28,23 @@ class LcdList(ComponentList):
         return '#include <LiquidCrystal.h>\n'
 
     def get_constructor(self):
+        # Init the array of constructors:
         rv = "LiquidCrystal lcds[{0:d}] = {{".format(len(self.lcds))
         for lcd in self.lcds:
             rv += ("\tLiquidCrystal({0:d}, {1:d}, {2:d}, {3:d}, {4:d}, {5:d}),\n"
                    .format(lcd.rs, lcd.enable, lcd.d4, lcd.d5, lcd.d6, lcd.d7))
         rv = rv[:-2] + "\n};\n"
+
+        return rv
+
+    def get_setup(self):
+        rv = "// LCD inits:\n"
+        # Now call the init method for each.
+        for i, lcd in enumerate(self.lcds):
+            # Columns, rows
+            rv += ("lcds[{0:d}].begin({1:d}, {2:d});\n"
+                   .format(i, lcd.cols, lcd.rows))
+
         return rv
 
     def get_commands(self):

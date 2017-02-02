@@ -94,6 +94,7 @@ class Generator:
         rv = "void setup() {\n\t// Init LED pin\n\tpinMode(LED, OUTPUT);\n\n"
         for appendage in self.appendage_dict.values():
             rv += appendage.get_setup()
+        rv += "\n"
         rv += "\t// Initialize Serial Communication\n\tSerial.begin(115200);\n\n"
         rv += "\t// Attach callback methods\n\tattachCommandCallbacks();\n\n"
         rv += "\n\t// Flash led 3 times at the end of setup\n"
