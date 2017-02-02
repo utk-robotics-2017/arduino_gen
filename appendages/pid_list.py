@@ -17,12 +17,10 @@ class PidList(ComponentList):
     TIER = 1
 
     def __init__(self):
-        self.pidDict = {}
-        self.pidList = []
-        self.vpidDict = {}
-        self.vpidList = []
+        self.pid_list = []
+        self.vpid_list = []
 
-    def add(self, json_item):
+    def add(self, json_item, device_dict, device_type):
         if 'min_output' in json_item:
             min_output = json_item['min_output']
             max_output = json_item['max_output']
@@ -30,54 +28,44 @@ class PidList(ComponentList):
             min_output = None
             max_output = None
 
+        pid = PID(json_item['label'], json_item['kp'], json_item['ki'], json_item['kd'],
+                  min_output, max_output, json_item['reverse'])
         if not json_item['vpid']:
-            pid = PID(json_item['label'], json_item['kp'], json_item['ki'], json_item['kd'],
-                      min_output, max_output, json_item['reverse'])
-            self.pidDict[pid.label] = pid
-            self.pidList.append(pid)
-            self.pidList.sort(key=lambda x: x.label, reverse=False)
+            self.pid_list.append(pid)
+            self.pid_list.sort(key=lambda x: x.label, reverse=False)
         else:
-            pid = PID(json_item['label'], json_item['kp'], json_item['ki'], json_item['kd'],
-                      min_output, max_output, json_item['reverse'])
-            self.vpidDict[pid.label] = pid
-            self.vpidList.append(pid)
-            self.vpidList.sort(key=lambda x: x.label, reverse=False)
+            self.vpid_list.append(pid)
+            self.vpid_list.sort(key=lambda x: x.label, reverse=False)
 
-    def get(self, label):
-        if label in self.vpidDict:
-            return self.vpidDict[label]
-        elif label in self.pidDict:
-            return self.pidDict[label]
-        else:
-            return None
+        return pid
 
     def get_includes(self):
         return '#include "PID.h"\n#include "vPID.h"\n'
 
     def get_constructor(self):
         rv = ""
-        length_vpids = len(self.vpidList)
+        length_vpids = len(self.vpid_list)
         if length_vpids > 0:
-            for i, vpid in enumerate(self.vpidList):
+            for i, vpid in enumerate(self.vpid_list):
                 rv += "const char {0:s}_index = {1:d};\n".format(vpid.label, i)
             rv += ("double lastPositions_vpid[{0:d}];\ndouble Inputs_vpid[{0:d}], " +
                    "Setpoints_vpid[{0:d}], Outputs_vpid[{0:d}];\n").format(length_vpids)
             rv += "vPID vpids[{0:d}] = {{\n".format(length_vpids)
-            for vpid in self.vpidList:
+            for vpid in self.vpid_list:
                 rv += ("\tvPID(&Inputs_vpid[{0:s}_index], &Outputs_vpid[{0:s}_index], " +
                        "&Setpoints_vpid[{0:s}_index], {1:f}, {2:f}, {3:f}, {4:s}),\n")\
                         .format(vpid.label, vpid.kp, vpid.ki, vpid.kd,
                                 "REVERSE" if vpid.reverse else "DIRECT")
             rv = rv[:-2] + "\n};\n"
 
-        length_pids = len(self.pidList)
+        length_pids = len(self.pid_list)
         if length_pids > 0:
-            for i, pid in enumerate(self.pidList):
+            for i, pid in enumerate(self.pid_list):
                 rv += "const char {0:s}_index = {1:d};\n".format(pid.label, i)
             rv += ("double lastPositions_pid[{0:d}];\ndouble Inputs_pid[{0:d}], " +
                    "Setpoints_pid[{0:d}], Outputs_pid[{0:d}];\n").format(length_pids)
             rv += "PID pids[{0:d}] = {{\n".format(length_pids)
-            for pid in self.pidList:
+            for pid in self.pid_list:
                 rv += ("\tPID(&Inputs_pid[{0:s}_index], &Outputs_pid[{0:s}_index], " +
                        "&Setpoints_pid[{0:s}_index], {1:f}, {2:f}, {3:f}, {4:s}),\n")\
                         .format(pid.label, pid.kp, pid.ki, pid.kd,
@@ -87,11 +75,11 @@ class PidList(ComponentList):
 
     def get_setup(self):
         rv = ""
-        for vpid in self.vpidList:
+        for vpid in self.vpid_list:
             if hasattr(vpid, 'min_output'):
                 rv += ("\tvpids[{0:s}_index].SetOutputLimits({1:f}, {2:f});\n")\
                         .format(vpid.label, vpid.min_output, vpid.max_output)
-        for pid in self.pidList:
+        for pid in self.pid_list:
             if hasattr(pid, 'min_output'):
                 rv += ("\tpids[{0:s}_index].SetOutputLimits({1:f}, {2:f});\n")\
                         .format(pid.label, pid.min_output, pid.max_output)
@@ -129,10 +117,10 @@ class PidList(ComponentList):
 
     def get_command_functions(self):
         rv = ""
-        if len(self.pidList) > 0:
+        if len(self.pid_list) > 0:
             rv += "void pidConstants() {\n"
             rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\tif(!cmdMessenger.isArgOk() || indexNum <0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
+            rv += "\tif(!cmdMessenger.isArgOk() || indexNum <0 || indexNum > {0:d}) {{\n".format(len(self.pid_list))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kPidConstants);\n"
             rv += "\t\treturn;\n"
             rv += "\t}\n"
@@ -146,7 +134,7 @@ class PidList(ComponentList):
 
             rv += "void modifyPidConstants() {\n"
             rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
+            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pid_list))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kModifyPidConstants);\n"
             rv += "\t\treturn;\n"
             rv += "\t}\n"
@@ -164,7 +152,7 @@ class PidList(ComponentList):
 
             rv += "void setPidSetpoint() {\n"
             rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
+            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pid_list))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetPidSetpoint);\n"
             rv += "\t\treturn;\n"
             rv += "\t}\n"
@@ -180,7 +168,7 @@ class PidList(ComponentList):
 
             rv += "void pidOff() {\n"
             rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
+            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pid_list))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kPidOff);\n"
             rv += "\t\treturn;\n"
             rv += "\t}\n"
@@ -190,7 +178,7 @@ class PidList(ComponentList):
 
             rv += "void pidDisplay() {\n"
             rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pidList))
+            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.pid_list))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kPidDisplay);\n"
             rv += "\t\treturn;\n"
             rv += "\t}\n"
@@ -202,10 +190,10 @@ class PidList(ComponentList):
             rv += "\tcmdMessenger.sendCmdEnd();\n"
             rv += "}\n\n"
 
-        if len(self.vpidList) > 0:
+        if len(self.vpid_list) > 0:
             rv += "void vpidConstants() {\n"
             rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\tif(!cmdMessenger.isArgOk() || indexNum <0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
+            rv += "\tif(!cmdMessenger.isArgOk() || indexNum <0 || indexNum > {0:d}) {{\n".format(len(self.vpid_list))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kVpidConstants);\n"
             rv += "\t\treturn;\n"
             rv += "\t}\n"
@@ -219,7 +207,7 @@ class PidList(ComponentList):
 
             rv += "void modifyVpidConstants() {\n"
             rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\tif(!cmdMessenger.isArgOk() ||indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
+            rv += "\tif(!cmdMessenger.isArgOk() ||indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpid_list))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kModifyVpidConstants);\n"
             rv += "\t\treturn;\n"
             rv += "\t}\n"
@@ -237,7 +225,7 @@ class PidList(ComponentList):
 
             rv += "void setVpidSetpoint() {\n"
             rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
+            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpid_list))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetVpidSetpoint);\n"
             rv += "\t\treturn;\n"
             rv += "\t}\n"
@@ -252,7 +240,7 @@ class PidList(ComponentList):
 
             rv += "void vpidOff() {\n"
             rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
+            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpid_list))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kVpidOff);\n"
             rv += "\t\treturn;\n"
             rv += "\t}\n"
@@ -262,7 +250,7 @@ class PidList(ComponentList):
 
             rv += "void vpidDisplay() {\n"
             rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpidList))
+            rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vpid_list))
             rv += "\t\tcmdMessenger.sendBinCmd(kError, kVpidDisplay);\n"
             rv += "\t\treturn;\n"
             rv += "\t}\n"
@@ -277,14 +265,14 @@ class PidList(ComponentList):
         return rv
 
     def get_core_values(self):
-        for i, vpid in enumerate(self.vpidList):
+        for i, vpid in enumerate(self.vpid_list):
             a = {}
             a['index'] = i
             a['label'] = vpid.label
             a['type'] = "PID"
             a['vpid'] = True
             yield a
-        for i, pid in enumerate(self.pidList):
+        for i, pid in enumerate(self.pid_list):
             a = {}
             a['index'] = i
             a['label'] = pid.label

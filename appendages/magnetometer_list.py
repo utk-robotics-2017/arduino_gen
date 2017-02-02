@@ -10,10 +10,12 @@ class MagnetometerList(ComponentList):
     TIER = 1
 
     def __init__(self):
-        self.sensor_list = []
+        self.list_ = []
 
-    def add(self, json_item):
-        self.sensor_list.append(Magnetometer(json_item['label']))
+    def add(self, json_item, device_dict, device_type):
+        m = Magnetometer(json_item['label'])
+        self.list_.append(m)
+        return m
 
     def get_includes(self):
         return '#include <Wire.h>\n#include "Magnetometer.h"\n'
@@ -46,11 +48,11 @@ class MagnetometerList(ComponentList):
         return rv
 
     def get_indices(self):
-        return [0, self.sensor_list[0].label]
+        return [0, self.list_[0].label]
 
     def get_core_values(self):
         a = {}
         a['index'] = 0
-        a['label'] = self.sensor_list[0].label
+        a['label'] = self.list_[0].label
         a['type'] = "Magnetometer"
         return a

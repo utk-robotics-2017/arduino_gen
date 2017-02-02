@@ -18,19 +18,21 @@ class LcdList(ComponentList):
     TIER = 1
 
     def __init__(self):
-        self.lcds = []
+        self.list_ = []
 
-    def add(self, json_item):
-        self.lcds.append(LCD(json_item['label'], json_item['rs'], json_item['enable'],
-                             json_item['d4'], json_item['d5'], json_item['d6'], json_item['d7']))
+    def add(self, json_item, device_dict, device_type):
+        lcd = LCD(json_item['label'], json_item['rs'], json_item['enable'],
+                  json_item['d4'], json_item['d5'], json_item['d6'], json_item['d7'])
+        self.list_.append(lcd)
+        return lcd
 
     def get_includes(self):
         return '#include <LiquidCrystal.h>\n'
 
     def get_constructor(self):
         # Init the array of constructors:
-        rv = "LiquidCrystal lcds[{0:d}] = {{".format(len(self.lcds))
-        for lcd in self.lcds:
+        rv = "LiquidCrystal list_[{0:d}] = {{".format(len(self.list_))
+        for lcd in self.list_:
             rv += ("\tLiquidCrystal({0:d}, {1:d}, {2:d}, {3:d}, {4:d}, {5:d}),\n"
                    .format(lcd.rs, lcd.enable, lcd.d4, lcd.d5, lcd.d6, lcd.d7))
         rv = rv[:-2] + "\n};\n"
@@ -40,9 +42,9 @@ class LcdList(ComponentList):
     def get_setup(self):
         rv = "\t// LCD inits:\n"
         # Now call the init method for each.
-        for i, lcd in enumerate(self.lcds):
+        for i, lcd in enumerate(self.list_):
             # Columns, rows
-            rv += ("\tlcds[{0:d}].begin({1:d}, {2:d});\n"
+            rv += ("\tlist_[{0:d}].begin({1:d}, {2:d});\n"
                    .format(i, lcd.cols, lcd.rows))
 
         return rv
@@ -63,35 +65,35 @@ class LcdList(ComponentList):
         rv = "void printLCD(){\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
-            .format(len(self.lcds))
+            .format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kPrintLCD);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
         rv += "\tString text = cmdMessenger.readStringArg();\n"
-        rv += "\tlcds[indexNum].print(text);\n"
+        rv += "\tlist_[indexNum].print(text);\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kPrintLCD);\n"
         rv += "}\n"
 
         rv += "void clearLCD(){\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
-            .format(len(self.lcds))
+            .format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kPrintLCD);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
         # rv += "\tString text = cmdMessenger.readStringArg();\n"
-        rv += "\tlcds[indexNum].clear();\n"
+        rv += "\tlist_[indexNum].clear();\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kClearLCD);\n"
         rv += "}\n"
 
         rv += "void setCursorLCD(){\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
-            .format(len(self.lcds))
+            .format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kPrintLCD);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
-        rv += "\tlcds[indexNum].setCursor(cmdMessenger.readBinArg<int>(), \
+        rv += "\tlist_[indexNum].setCursor(cmdMessenger.readBinArg<int>(), \
                                           cmdMessenger.readBinArg<int>());\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kSetCursorLCD);\n"
         rv += "}\n"
@@ -99,7 +101,7 @@ class LcdList(ComponentList):
         return rv
 
     def get_core_values(self):
-        for i, lcd in enumerate(self.lcds):
+        for i, lcd in enumerate(self.list_):
             a = {}
             a['index'] = i
             a['label'] = lcd.label
