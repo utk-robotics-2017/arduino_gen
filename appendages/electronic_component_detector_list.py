@@ -27,6 +27,7 @@ The code would be 42315, packed into an int would be:
 0|101|001|011|010|100; Without seperators: 0101001011010100
 '''
 
+
 class ElectronicComponentDetector:
     def __init__(self, label):
         self.label = label
