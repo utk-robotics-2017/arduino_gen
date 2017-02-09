@@ -18,7 +18,6 @@ class ArmList(ComponentList):
         self.list_ = []
 
     def add(self, json_item, device_dict, device_type):
-
         if 'servo' not in device_dict:
             for device_level in device_type:
                 if 'servo' in device_level:
