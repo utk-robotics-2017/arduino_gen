@@ -3,6 +3,10 @@ mega/
 uno/
 template/
 travis_ci/
+stage1/
+stage2/
+stage3/
+stage4/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
