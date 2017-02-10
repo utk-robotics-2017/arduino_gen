@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 from arduino_gen import ArduinoGen
 deviceJsonFile = "travis_ci.json"
