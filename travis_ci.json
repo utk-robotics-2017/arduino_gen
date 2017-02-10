@@ -14,7 +14,8 @@
     {
         "label": "template_ultrasonic",
         "type": "Ultrasonic",
-        "pin": 3
+        "trigger": 3,
+        "echo": 3
     },
     {
         "label": "template_switch0",
@@ -268,5 +269,15 @@
         "left_back_drive_motor": "template_motor2",
         "right_back_drive_motor": "template_motor3",
         "use_velocity_control": false
+    },
+    {
+        "label": "template_lcd",
+        "type": "LCD",
+        "rs": 18,
+        "enable": 19,
+        "d4": 2,
+        "d5": 3,
+        "d6": 4,
+        "d7": 5
     }
 ]
