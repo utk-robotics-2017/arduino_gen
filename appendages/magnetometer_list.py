@@ -61,4 +61,4 @@ class MagnetometerList(ComponentList):
         a['index'] = 0
         a['label'] = self.list_[0].label
         a['type'] = "Magnetometer"
-        return a
+        yield a
