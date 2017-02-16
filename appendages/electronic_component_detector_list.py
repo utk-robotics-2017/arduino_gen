@@ -37,17 +37,15 @@ class ElectronicComponentDetectorList(ComponentList):
     TIER = 1
 
     def __init__(self):
-        self.list_ = []
+        self.electronic_component_detectorList = []
 
-    def add(self, json_item, device_dict, device_type):
-        ecd = ElectronicComponentDetector(json_item['label'])
-        self.list_.append(ecd)
-        return ecd
+    def add(self, json_item):
+        self.electronic_component_detectorList.append(ElectronicComponentDetector(json_item['label']))
 
     def get_includes(self):
         return '#include "ElectronicComponentDetector.h"\n'
 
-    def get_constructors(self):
+    def get_constructor(self):
         rv = "ElectronicComponentDetector ecd;\n"
         return rv
 
@@ -78,7 +76,7 @@ class ElectronicComponentDetectorList(ComponentList):
         return rv
 
     def get_core_values(self):
-        for i, arm in enumerate(self.list_):
+        for i, arm in enumerate(self.electronic_component_detectorList):
             config = {}
             config['index'] = i
             config['type'] = "Electronic Component Detector"
