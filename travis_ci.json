@@ -279,5 +279,9 @@
         "d5": 3,
         "d6": 4,
         "d7": 5
+    },
+    {
+        "label": "template_ecd",
+        "type": "Electronic Component Detector"
     }
 ]
