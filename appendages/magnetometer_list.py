@@ -27,7 +27,7 @@ class MagnetometerList(ComponentList):
         return "\tWire.begin();\n\tmagnetometer.config();\n"
 
     def get_commands(self):
-        return "\tkReadX,\n\tkReadXResult,\n\tkReadY,\n\tkReadYResult\n\tkReadZ,\n\tkReadZResult,\n"
+        return "\tkReadX,\n\tkReadXResult,\n\tkReadY,\n\tkReadYResult,\n\tkReadZ,\n\tkReadZResult,\n"
 
     def get_command_functions(self):
         rv = "void readX() {\n"
@@ -45,6 +45,12 @@ class MagnetometerList(ComponentList):
         rv += "\tcmdMessenger.sendBinCmd(kReadZResult, magnetometer.readZ());\n"
         rv += "}\n"
 
+        return rv
+
+    def get_command_attaches(self):
+        rv = "\tcmdMessenger.attach(kReadX, readX);\n"
+        rv += "\tcmdMessenger.attach(kReadY, readY);\n"
+        rv += "\tcmdMessenger.attach(kReadZ, readZ);\n"
         return rv
 
     def get_indices(self):

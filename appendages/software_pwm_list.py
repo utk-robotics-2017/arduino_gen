@@ -19,7 +19,7 @@ class SoftwarePwmList(ComponentList):
         return pwm
 
     def get_includes(self):
-        return "#include <SoftPWM.h>"
+        return "#include <SoftPWM.h>\n"
 
     def get_pins(self):
         rv = "int software_pwm_pin[] = {\n"
@@ -62,5 +62,5 @@ class SoftwarePwmList(ComponentList):
             a = {}
             a['index'] = i
             a['label'] = pwm.label
-            a['type'] = "SoftwarePwm"
+            a['type'] = "Software Pwm"
             yield a
