@@ -23,7 +23,7 @@ class VelocityControlledMotorList(ComponentList):
                 if 'motor' in device_level:
                     device_dict['motor'] = device_level['motor']
                     break
-        motor = device_dict['motor'].add(json_item['motor'])
+        motor = device_dict['motor'].add(json_item['motor'], device_dict, device_type)
 
         if 'i2cencoder' in json_item:
             if 'i2cencoder' not in device_dict:
@@ -31,20 +31,20 @@ class VelocityControlledMotorList(ComponentList):
                     if 'i2cencoder' in device_level:
                         device_dict['i2cencoder'] = device_level['i2cencoder']
                         break
-            encoder = device_dict['i2cencoder'].add(json_item['i2cencoder'])
+            encoder = device_dict['i2cencoder'].add(json_item['i2cencoder'], device_dict, device_type)
         else:
             if 'encoder' not in device_dict:
                 for device_level in device_type:
                     if 'encoder' in device_level:
                         device_dict['encoder'] = device_level['encoder']
                         break
-            encoder = device_dict['encoder'].add(json_item['encoder'])
+            encoder = device_dict['encoder'].add(json_item['encoder'], device_dict, device_type)
         if 'pid' not in device_dict:
             for device_level in device_type:
                 if 'pid' in device_level:
                     device_dict['pid'] = device_level['pid']
                     break
-        vpid = device_dict.add(json_item['pid'])
+        vpid = device_dict.add(json_item['pid'], device_dict, device_type)
         vcm = VelocityControlledMotor(json_item['label'], motor, encoder, vpid)
         self.list_.append(vcm)
         self.list_.sort(key=lambda x: x.label, reverse=False)
