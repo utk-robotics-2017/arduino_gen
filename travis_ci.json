@@ -505,5 +505,9 @@
         "dir_pin": 12,
         "step_pin": 13,
         "initial_speed": 100
+    },
+    {
+        "label": "template_ecd",
+        "type": "Electronic Component Detector"
     }
 ]
