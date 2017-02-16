@@ -15,25 +15,35 @@ class ArmList(ComponentList):
     TIER = 2
 
     def __init__(self):
-        self.arm_list = []
+        self.list_ = []
 
-    def add(self, json_item, servos):
+    def add(self, json_item, device_dict, device_type):
+        if 'servo' not in device_dict:
+            for device_level in device_type:
+                if 'servo' in device_level:
+                    device_dict['servo'] = device_level['servo']
+                    break
 
-        base_servo = servos.get(json_item['base_label'])
-        shoulder_servo = servos.get(json_item['shoulder_label'])
-        elbow_servo = servos.get(json_item['elbow_label'])
-        wrist_servo = servos.get(json_item['wrist_label'])
-        wrist_rotate_servo = servos.get(json_item['wrist_rotate_label'])
+        base_servo = device_dict['servo'].add(json_item['base_label'], device_dict, device_type)
+        shoulder_servo = device_dict['servo'].add(json_item['shoulder_label'], device_dict, device_type)
+        elbow_servo = device_dict['servo'].add(json_item['elbow_label'], device_dict, device_type)
+        wrist_servo = device_dict['servo'].add(json_item['wrist_label'], device_dict, device_type)
+        wrist_rotate_servo = device_dict['servo'].add(json_item['wrist_rotate_label'],
+                                                      device_dict, device_type)
 
-        self.arm_list.append(Arm(json_item['label'], base_servo, shoulder_servo, elbow_servo,
-                                 wrist_servo, wrist_rotate_servo))
+        arm = Arm(json_item['label'], base_servo, shoulder_servo, elbow_servo,
+                  wrist_servo, wrist_rotate_servo)
+
+        self.list_.append(arm)
+
+        return arm
 
     def get_includes(self):
         return '#include "Arm.h"\n'
 
-    def get_constructor(self):
-        rv = "Arm arms[{0:d}] = {{\n".format(len(self.arm_list))
-        for arm in self.arm_list:
+    def get_constructors(self):
+        rv = "Arm arms[{0:d}] = {{\n".format(len(self.list_))
+        for arm in self.list_:
             rv += ("\tArm({0:s}_index, {1:s}_index, {2:s}_index, {3:s}_index, {4:s}_index, " +
                    "servo_pins, servos),\n").format(arm.base.label, arm.shoulder.label,
                                                     arm.elbow.label, arm.wrist.label,
@@ -52,7 +62,7 @@ class ArmList(ComponentList):
     def get_command_functions(self):
         rv = "void setArm() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.arm_list))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetArm);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -70,7 +80,7 @@ class ArmList(ComponentList):
 
         rv += "void detachArm() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.arm_list))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kDetachArm);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -80,7 +90,7 @@ class ArmList(ComponentList):
         return rv
 
     def get_core_values(self):
-        for i, arm in enumerate(self.arm_list):
+        for i, arm in enumerate(self.list_):
             config = {}
             config['index'] = i
             config['type'] = "Arm"

@@ -4,10 +4,8 @@ class ComponentList:
     def __init__(self):
         pass
 
-    def add(self, json_item):
+    def add(self, json_item, device_dict, device_type):
         raise NotImplementedError("ComponentList: add not implemented")
-
-    def get(self, label):
         return None
 
     def get_includes(self):
