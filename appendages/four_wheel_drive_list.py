@@ -29,20 +29,28 @@ class FourWheelDriveList(ComponentList):
                     if 'velocity controlled motor' in device_level:
                         device_dict['velocity controlled motor'] = device_level['velocity controlled motor']
                         break
-            lf_motor = device_dict['velocity controlled motor'].add(json_item['left_front_drive_motor'])
-            rf_motor = device_dict['velocity controlled motor'].add(json_item['right_front_drive_motor'])
-            lb_motor = device_dict['velocity controlled motor'].add(json_item['left_back_drive_motor'])
-            rb_motor = device_dict['velocity controlled motor'].add(json_item['right_back_drive_motor'])
+            lf_motor = device_dict['velocity controlled motor'].add(json_item['left_front_drive_motor'],
+                                                                    device_dict, device_type)
+            rf_motor = device_dict['velocity controlled motor'].add(json_item['right_front_drive_motor'],
+                                                                    device_dict, device_type)
+            lb_motor = device_dict['velocity controlled motor'].add(json_item['left_back_drive_motor'],
+                                                                    device_dict, device_type)
+            rb_motor = device_dict['velocity controlled motor'].add(json_item['right_back_drive_motor'],
+                                                                    device_dict, device_type)
         else:
             if 'motor' not in device_dict:
                 for device_level in device_type:
                     if 'motor' in device_level:
                         device_dict['motor'] = device_level['motor']
                         break
-            lf_motor = device_dict['motor'].add(json_item['left_front_drive_motor'])
-            rf_motor = device_dict['motor'].add(json_item['right_front_drive_motor'])
-            lb_motor = device_dict['motor'].add(json_item['left_back_drive_motor'])
-            rb_motor = device_dict['motor'].add(json_item['right_back_drive_motor'])
+            lf_motor = device_dict['motor'].add(json_item['left_front_drive_motor'],
+                                                device_dict, device_type)
+            rf_motor = device_dict['motor'].add(json_item['right_front_drive_motor'],
+                                                device_dict, device_type)
+            lb_motor = device_dict['motor'].add(json_item['left_back_drive_motor'],
+                                                device_dict, device_type)
+            rb_motor = device_dict['motor'].add(json_item['right_back_drive_motor'],
+                                                device_dict, device_type)
 
         fwd = FourWheelDrive(json_item['label'], use_velocity_control, lf_motor,
                              rf_motor, lb_motor, rb_motor,
