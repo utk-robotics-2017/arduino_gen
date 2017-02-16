@@ -20,7 +20,7 @@ class MagnetometerList(ComponentList):
     def get_includes(self):
         return '#include <Wire.h>\n#include "Magnetometer.h"\n'
 
-    def get_constructor(self):
+    def get_constructors(self):
         return "Magnetometer magnetometer;\n"
 
     def get_setup(self):

@@ -18,7 +18,6 @@ class EncoderList(ComponentList):
     def add(self, json_item, device_dict, device_type):
         encoder = Encoder(json_item['label'], json_item['pin_a'], json_item['pin_b'], json_item['ticks_per_rev'])
         self.list_.append(encoder)
-        self.list_.sort(key=lambda x: x.label, reverse=False)
         return encoder
 
     def get_includes(self):
@@ -32,7 +31,7 @@ class EncoderList(ComponentList):
         rv += "\n"
         return rv
 
-    def get_constructor(self):
+    def get_constructors(self):
         rv = ""
         for i, encoder in enumerate(self.list_):
             rv += "const char {0:s}_index = {1:d};\n".format(encoder.label, i)

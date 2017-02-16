@@ -23,7 +23,7 @@ class I2CEncoderList(ComponentList):
     def get_includes(self):
         return '#include <Wire.h>\n#include "I2CEncoder.h"\n'
 
-    def get_constructor(self):
+    def get_constructors(self):
         rv = ""
         for i in range(len(self.list_)):
             rv += "const char {0:s}_index = {1:d};\n".format(self.list_[i].label, i)

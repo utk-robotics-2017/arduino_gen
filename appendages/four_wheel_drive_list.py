@@ -57,7 +57,7 @@ class FourWheelDriveList(ComponentList):
     def get_includes(self):
         return '#include "FourWheelDrive.h"'
 
-    def get_constructor(self):
+    def get_constructors(self):
         rv = "FourWheelDrive fwds[] = {\n"
         for drivebase in self.list_:
             if drivebase.use_velocity_control:

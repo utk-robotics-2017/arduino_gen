@@ -33,7 +33,7 @@ class LineSensorList(ComponentList):
         rv += "\n"
         return rv
 
-    def get_constructor(self):
+    def get_constructors(self):
         rv = ""
         if(len(self.digital_list) > 0):
             for i, linesensor in enumerate(self.digital_list):

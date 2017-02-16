@@ -32,7 +32,6 @@ class MotorList(ComponentList):
             motor = Motor(json_item['label'], json_item['dir_pin_a'], -1, -1, json_item['reverse'],
                           'Mosfet', json_item['motor_type'])
         self.list_.append(motor)
-        self.list_.sort(key=lambda x: x.label, reverse=False)
         return motor
 
     def get_includes(self):
@@ -46,7 +45,7 @@ class MotorList(ComponentList):
             rv += "const char {0:s}_pwm_pin = {1:d};\n".format(motor.label, motor.pwm_pin)
         return rv
 
-    def get_constructor(self):
+    def get_constructors(self):
         rv = ""
         for i, motor in enumerate(self.list_):
             rv += "const char {0:s}_index = {1:d};\n".format(motor.label, i)

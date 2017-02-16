@@ -32,17 +32,15 @@ class PidList(ComponentList):
                   min_output, max_output, json_item['reverse'])
         if not json_item['vpid']:
             self.pid_list.append(pid)
-            self.pid_list.sort(key=lambda x: x.label, reverse=False)
         else:
             self.vpid_list.append(pid)
-            self.vpid_list.sort(key=lambda x: x.label, reverse=False)
 
         return pid
 
     def get_includes(self):
         return '#include "PID.h"\n#include "vPID.h"\n'
 
-    def get_constructor(self):
+    def get_constructors(self):
         rv = ""
         length_vpids = len(self.vpid_list)
         if length_vpids > 0:

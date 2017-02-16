@@ -17,7 +17,6 @@ class ServoList(ComponentList):
     def add(self, json_item, device_dict, device_type):
         servo = Servo(json_item['label'], json_item['pin'], json_item['servo_type'])
         self.list_.append(servo)
-        self.list_.sort(key=lambda x: x.label, reverse=False)
         return servo
 
     def get_includes(self):
@@ -30,7 +29,7 @@ class ServoList(ComponentList):
         rv += "\n"
         return rv
 
-    def get_constructor(self):
+    def get_constructors(self):
         rv = ""
         for i, servo in enumerate(self.list_):
             rv += "const char {0:s}_index = {1:d};\n".format(servo.label, i)

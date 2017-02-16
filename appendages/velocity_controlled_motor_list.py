@@ -53,7 +53,7 @@ class VelocityControlledMotorList(ComponentList):
     def get_includes(self):
         return '#include "VelocityControlledMotor.h"\n'
 
-    def get_constructor(self):
+    def get_constructors(self):
         rv = ""
         for i, vcm in enumerate(self.list_):
             rv += "const char {0:s}_index = {1:d};\n".format(vcm.label, i)

@@ -20,7 +20,7 @@ class ElectronicComponentDetectorList(ComponentList):
     def get_includes(self):
         return '#include "ElectronicComponentDetector.h"\n'
 
-    def get_constructor(self):
+    def get_constructors(self):
         rv = "ElectronicComponentDetector ecd;\n"
         return rv
 

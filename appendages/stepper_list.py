@@ -41,7 +41,7 @@ class StepperList(ComponentList):
         rv += "\n"
         return rv
 
-    def get_constructor(self):
+    def get_constructors(self):
         rv = ""
         for i, stepper in enumerate(self.list_):
             rv += "const char {0:s}_index = {1:d};\n".format(stepper.label, i)

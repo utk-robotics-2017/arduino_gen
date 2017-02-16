@@ -13,17 +13,20 @@ class SoftwarePwmList(ComponentList):
     def __init__(self):
         self.list_ = []
 
-    def add(self, json_item):
-        self.list_.append(SoftwarePWM(json_item['label'], json_item['pin']))
+    def add(self, json_item, device_dict, device_type):
+        pwm = SoftwarePWM(json_item['label'], json_item['pin'])
+        self.list_.append(pwm)
+        return pwm
 
-    def get_include(self):
+    def get_includes(self):
         return "#include <SoftPWM.h>"
 
     def get_pins(self):
-        rv = "int[] software_pwm_pin = {\n"
+        rv = "int software_pwm_pin[] = {\n"
         for pwm in self.list_:
-            rv += "\t{0:d}\n".format(pwm.pin)
-        rv += "}\n"
+            rv += "\t{0:d},\n".format(pwm.pin)
+        rv = rv[:-2] + "\n};\n"
+        return rv
 
     def get_setup(self):
         rv = "\tSoftPWMBegin();\n"
@@ -41,13 +44,14 @@ class SoftwarePwmList(ComponentList):
         rv = "void setPWM(){\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
         rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.list_))
-        rv += "\t\tcmdMessenger.sendBinCmd(kError, kReadEncoder);\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetPWM);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
         rv += "\tint value = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tSoftPWM(software_pwm_pin[indexNum], value);\n"
+        rv += "\tSoftPWMSet(software_pwm_pin[indexNum], value);\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kSetPWM);\n"
         rv += "}\n\n"
+        return rv
 
     def get_indices(self):
         for i, pwm in enumerate(self.list_):

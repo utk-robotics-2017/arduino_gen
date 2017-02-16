@@ -29,7 +29,7 @@ class LcdList(ComponentList):
     def get_includes(self):
         return '#include <LiquidCrystal.h>\n'
 
-    def get_constructor(self):
+    def get_constructors(self):
         # Init the array of constructors:
         rv = "LiquidCrystal list_[{0:d}] = {{".format(len(self.list_))
         for lcd in self.list_:

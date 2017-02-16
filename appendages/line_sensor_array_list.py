@@ -31,7 +31,7 @@ class LineSensorArrayList(ComponentList):
     def get_includes(self):
         return '#include "QTRSensors.h"\n'
 
-    def get_constructor(self):
+    def get_constructors(self):
         rv = ""
         if len(self.digital_list) > 0:
             for i, sensor in enumerate(self.digital_list):

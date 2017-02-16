@@ -40,7 +40,7 @@ class ArmList(ComponentList):
     def get_includes(self):
         return '#include "Arm.h"\n'
 
-    def get_constructor(self):
+    def get_constructors(self):
         rv = "Arm arms[{0:d}] = {{\n".format(len(self.list_))
         for arm in self.list_:
             rv += ("\tArm({0:s}_index, {1:s}_index, {2:s}_index, {3:s}_index, {4:s}_index, " +
