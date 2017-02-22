@@ -68,7 +68,7 @@ class ElectronicComponentDetectorList(ComponentList):
         rv += "\tchar pad = cmdMessenger.readBinArg<char>();\n"
         rv += "\tchar code[5];\n"
         rv += "\tint rv = 0;\n"
-        rv += "\tecd.decode(pad, code, false);\n"
+        rv += "\tecd.decode(pad - '0', code, false);\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kDecode);\n"
         rv += "\tfor(int i = 0; i < 5; i++) { \n"
         rv += "\t\trv |= code[i] << (i * 3);\n"
