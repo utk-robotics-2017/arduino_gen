@@ -265,11 +265,41 @@
     {
         "label": "template_arm",
         "type": "Arm",
-        "base_label": "template_servo0",
-        "wrist_rotate_label": "template_servo0",
-        "shoulder_label": "template_servo0",
-        "wrist_label": "template_servo0",
-        "elbow_label": "template_servo0"
+        "base":
+        {
+            "label": "template_servo0",
+            "type": "Servo",
+            "servo_type": "Vex",
+            "pin": 9
+        },
+        "wrist_rotate":
+        {
+            "label": "template_servo0",
+            "type": "Servo",
+            "servo_type": "Vex",
+            "pin": 9
+        },
+        "shoulder":
+        {
+            "label": "template_servo0",
+            "type": "Servo",
+            "servo_type": "Vex",
+            "pin": 9
+        },
+        "wrist":
+        {
+            "label": "template_servo0",
+            "type": "Servo",
+            "servo_type": "Vex",
+            "pin": 9
+        },
+        "elbow":
+        {
+            "label": "template_servo0",
+            "type": "Servo",
+            "servo_type": "Vex",
+            "pin": 9
+        }
     },
     {
         "label": "template_four_wheel_drive0",
