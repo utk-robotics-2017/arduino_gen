@@ -104,8 +104,8 @@ class EasyStepperList(ComponentList):
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kEasyStepAngle);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
-        rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kEasyStepAngle);\n"
         rv += "\teasySteppers[indexNum].stepAng(value);\n"
+        rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kEasyStepAngle);\n"
         rv += "}\n\n"
 
         rv += "void step() {\n"
@@ -119,8 +119,8 @@ class EasyStepperList(ComponentList):
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kEasyStep);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
-        rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kEasyStep);\n"
         rv += "\teasySteppers[indexNum].step(value);\n"
+        rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kEasyStep);\n"
         rv += "}\n\n"
         return rv
 
