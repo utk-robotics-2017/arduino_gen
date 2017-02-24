@@ -265,36 +265,31 @@
     {
         "label": "template_arm",
         "type": "Arm",
-        "base":
-        {
+        "base": {
             "label": "template_servo0",
             "type": "Servo",
             "servo_type": "Vex",
             "pin": 9
         },
-        "wrist_rotate":
-        {
+        "wrist_rotate": {
             "label": "template_servo0",
             "type": "Servo",
             "servo_type": "Vex",
             "pin": 9
         },
-        "shoulder":
-        {
+        "shoulder": {
             "label": "template_servo0",
             "type": "Servo",
             "servo_type": "Vex",
             "pin": 9
         },
-        "wrist":
-        {
+        "wrist": {
             "label": "template_servo0",
             "type": "Servo",
             "servo_type": "Vex",
             "pin": 9
         },
-        "elbow":
-        {
+        "elbow": {
             "label": "template_servo0",
             "type": "Servo",
             "servo_type": "Vex",
@@ -304,6 +299,9 @@
     {
         "label": "template_four_wheel_drive0",
         "type": "Four Wheel Drive",
+        "wheelbase_length": 5.314386258607106,
+        "wheelbase_width": 2.5846800209366596,
+        "wheel_diameter": 5.6936932572617005,
         "left_front_drive_motor": {
             "label": "template_velocity_controlled_motor",
             "type": "Velocity Controlled Motor",
@@ -337,9 +335,6 @@
                 "pin_b": 7
             }
         },
-        "wheelbase_length": 5.314386258607106,
-        "wheelbase_width": 2.5846800209366596,
-        "wheel_diameter": 5.6936932572617005,
         "right_front_drive_motor": {
             "label": "template_velocity_controlled_motor",
             "type": "Velocity Controlled Motor",
@@ -447,49 +442,137 @@
         "wheelbase_length": 4.56315072749771,
         "wheelbase_width": 5.615739129549499,
         "wheel_diameter": 1.2312513857976335,
-        "left_front_drive_motor":
-        {
-            "label": "template_motor1",
-            "type": "Motor",
-            "dir_pin_a": 9,
-            "dir_pin_b": 10,
-            "motor_type": "Vex 393",
-            "motor_controller": "Rover Five",
-            "reverse": true,
-            "pwm_pin": 9
+        "left_front_drive_motor": {
+            "label": "template_velocity_controlled_motor",
+            "type": "Velocity Controlled Motor",
+            "vpid": {
+                "label": "template_pid2",
+                "type": "PID",
+                "reverse": false,
+                "kd": 1.9603733037765991,
+                "kp": 0.9610990015554145,
+                "ki": 2.4138794838790902,
+                "min_output": 0.962182291556654,
+                "max_output": 3.7377683222399383,
+                "vpid": true
+            },
+            "motor": {
+                "label": "template_motor3",
+                "type": "Motor",
+                "dir_pin_a": 8,
+                "dir_pin_b": 12,
+                "motor_type": "Vex 393",
+                "motor_controller": "Rover Five",
+                "reverse": false,
+                "pwm_pin": 16
+            },
+            "encoder": {
+                "label": "template_encoder1",
+                "type": "Encoder",
+                "pin_a": 15,
+                "reverse": false,
+                "ticks_per_rev": 5.682458503881898,
+                "pin_b": 7
+            }
         },
-        "right_front_drive_motor":
-        {
-            "label": "template_motor2",
-            "type": "Motor",
-            "dir_pin_a": 3,
-            "dir_pin_b": 16,
-            "motor_type": "Vex 393",
-            "motor_controller": "Monster Moto",
-            "reverse": false,
-            "pwm_pin": 6
+        "right_front_drive_motor": {
+            "label": "template_velocity_controlled_motor",
+            "type": "Velocity Controlled Motor",
+            "vpid": {
+                "label": "template_pid2",
+                "type": "PID",
+                "reverse": false,
+                "kd": 1.9603733037765991,
+                "kp": 0.9610990015554145,
+                "ki": 2.4138794838790902,
+                "min_output": 0.962182291556654,
+                "max_output": 3.7377683222399383,
+                "vpid": true
+            },
+            "motor": {
+                "label": "template_motor3",
+                "type": "Motor",
+                "dir_pin_a": 8,
+                "dir_pin_b": 12,
+                "motor_type": "Vex 393",
+                "motor_controller": "Rover Five",
+                "reverse": false,
+                "pwm_pin": 16
+            },
+            "encoder": {
+                "label": "template_encoder1",
+                "type": "Encoder",
+                "pin_a": 15,
+                "reverse": false,
+                "ticks_per_rev": 5.682458503881898,
+                "pin_b": 7
+            }
         },
-        "left_back_drive_motor":
-        {
-            "label": "template_motor2",
-            "type": "Motor",
-            "dir_pin_a": 3,
-            "dir_pin_b": 16,
-            "motor_type": "Vex 393",
-            "motor_controller": "Monster Moto",
-            "reverse": false,
-            "pwm_pin": 6
+        "left_back_drive_motor": {
+            "label": "template_velocity_controlled_motor",
+            "type": "Velocity Controlled Motor",
+            "vpid": {
+                "label": "template_pid2",
+                "type": "PID",
+                "reverse": false,
+                "kd": 1.9603733037765991,
+                "kp": 0.9610990015554145,
+                "ki": 2.4138794838790902,
+                "min_output": 0.962182291556654,
+                "max_output": 3.7377683222399383,
+                "vpid": true
+            },
+            "motor": {
+                "label": "template_motor3",
+                "type": "Motor",
+                "dir_pin_a": 8,
+                "dir_pin_b": 12,
+                "motor_type": "Vex 393",
+                "motor_controller": "Rover Five",
+                "reverse": false,
+                "pwm_pin": 16
+            },
+            "encoder": {
+                "label": "template_encoder1",
+                "type": "Encoder",
+                "pin_a": 15,
+                "reverse": false,
+                "ticks_per_rev": 5.682458503881898,
+                "pin_b": 7
+            }
         },
-        "right_back_drive_motor":
-        {
-            "label": "template_motor3",
-            "type": "Motor",
-            "dir_pin_a": 8,
-            "dir_pin_b": 12,
-            "motor_type": "Vex 393",
-            "motor_controller": "Rover Five",
-            "reverse": false,
-            "pwm_pin": 16
+        "right_back_drive_motor": {
+            "label": "template_velocity_controlled_motor",
+            "type": "Velocity Controlled Motor",
+            "vpid": {
+                "label": "template_pid2",
+                "type": "PID",
+                "reverse": false,
+                "kd": 1.9603733037765991,
+                "kp": 0.9610990015554145,
+                "ki": 2.4138794838790902,
+                "min_output": 0.962182291556654,
+                "max_output": 3.7377683222399383,
+                "vpid": true
+            },
+            "motor": {
+                "label": "template_motor3",
+                "type": "Motor",
+                "dir_pin_a": 8,
+                "dir_pin_b": 12,
+                "motor_type": "Vex 393",
+                "motor_controller": "Rover Five",
+                "reverse": false,
+                "pwm_pin": 16
+            },
+            "encoder": {
+                "label": "template_encoder1",
+                "type": "Encoder",
+                "pin_a": 15,
+                "reverse": false,
+                "ticks_per_rev": 5.682458503881898,
+                "pin_b": 7
+            }
         },
         "use_velocity_control": false
     },
