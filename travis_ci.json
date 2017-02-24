@@ -444,13 +444,53 @@
     {
         "label": "template_four_wheel_drive1",
         "type": "Four Wheel Drive",
-        "left_front_drive_motor": "template_motor1",
         "wheelbase_length": 4.56315072749771,
         "wheelbase_width": 5.615739129549499,
         "wheel_diameter": 1.2312513857976335,
-        "right_front_drive_motor": "template_motor2",
-        "left_back_drive_motor": "template_motor2",
-        "right_back_drive_motor": "template_motor3",
+        "left_front_drive_motor":
+        {
+            "label": "template_motor1",
+            "type": "Motor",
+            "dir_pin_a": 9,
+            "dir_pin_b": 10,
+            "motor_type": "Vex 393",
+            "motor_controller": "Rover Five",
+            "reverse": true,
+            "pwm_pin": 9
+        },
+        "right_front_drive_motor":
+        {
+            "label": "template_motor2",
+            "type": "Motor",
+            "dir_pin_a": 3,
+            "dir_pin_b": 16,
+            "motor_type": "Vex 393",
+            "motor_controller": "Monster Moto",
+            "reverse": false,
+            "pwm_pin": 6
+        },
+        "left_back_drive_motor":
+        {
+            "label": "template_motor2",
+            "type": "Motor",
+            "dir_pin_a": 3,
+            "dir_pin_b": 16,
+            "motor_type": "Vex 393",
+            "motor_controller": "Monster Moto",
+            "reverse": false,
+            "pwm_pin": 6
+        },
+        "right_back_drive_motor":
+        {
+            "label": "template_motor3",
+            "type": "Motor",
+            "dir_pin_a": 8,
+            "dir_pin_b": 12,
+            "motor_type": "Vex 393",
+            "motor_controller": "Rover Five",
+            "reverse": false,
+            "pwm_pin": 16
+        },
         "use_velocity_control": false
     },
     {
