@@ -71,13 +71,13 @@ class FourWheelDriveList(ComponentList):
             if drivebase.use_velocity_control:
                 rv += ("\tFourWheelDrive(&vcms[{0:s}_index], &vcms[{1:s}_index], " +
                        "&vcms[{2:s}_index], &vcms[{3:s}_index]),\n")\
-                        .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
-                                drivebase.lb_motor.label, drivebase.rb_motor.label)
+                    .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
+                            drivebase.lb_motor.label, drivebase.rb_motor.label)
             else:
                 rv += ("\tFourWheelDrive(&motors[{0:s}_index], &motors[{1:s}_index], " +
                        "&motors[{2:s}_index], &motors[{3:s}_index]),\n")\
-                        .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
-                                drivebase.lb_motor.label, drivebase.rb_motor.label)
+                    .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
+                            drivebase.lb_motor.label, drivebase.rb_motor.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 

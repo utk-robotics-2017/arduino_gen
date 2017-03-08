@@ -317,7 +317,7 @@
                 "vpid": true
             },
             "motor": {
-                "label": "template_vcm_motor3",
+                "label": "template_fwd_vcm_motor_lf",
                 "type": "Motor",
                 "dir_pin_a": 8,
                 "dir_pin_b": 12,
@@ -350,7 +350,7 @@
                 "vpid": true
             },
             "motor": {
-                "label": "template_vcm_motor3",
+                "label": "template_fwd_vcm_motor_rf",
                 "type": "Motor",
                 "dir_pin_a": 8,
                 "dir_pin_b": 12,
@@ -383,7 +383,7 @@
                 "vpid": true
             },
             "motor": {
-                "label": "template_vcm_motor3",
+                "label": "template_fwd_vcm_motor_lb",
                 "type": "Motor",
                 "dir_pin_a": 8,
                 "dir_pin_b": 12,
@@ -416,7 +416,7 @@
                 "vpid": true
             },
             "motor": {
-                "label": "template_vcm_motor3",
+                "label": "template_fwd_vcm_motor_rb",
                 "type": "Motor",
                 "dir_pin_a": 8,
                 "dir_pin_b": 12,
@@ -443,7 +443,7 @@
         "wheelbase_width": 5.615739129549499,
         "wheel_diameter": 1.2312513857976335,
         "left_front_drive_motor": {
-            "label": "template_fwd_motor3",
+            "label": "template_fwd_motor_lf",
             "type": "Motor",
             "dir_pin_a": 8,
             "dir_pin_b": 12,
@@ -453,7 +453,7 @@
             "pwm_pin": 16
         },
         "right_front_drive_motor": {
-            "label": "template_fwd_motor3",
+            "label": "template_fwd_motor_rf",
             "type": "Motor",
             "dir_pin_a": 8,
             "dir_pin_b": 12,
@@ -463,7 +463,7 @@
             "pwm_pin": 16
         },
         "left_back_drive_motor": {
-            "label": "template_fwd_motor3",
+            "label": "template_fwd_motor_lb",
             "type": "Motor",
             "dir_pin_a": 8,
             "dir_pin_b": 12,
@@ -473,7 +473,7 @@
             "pwm_pin": 16
         },
         "right_back_drive_motor": {
-            "label": "template_fwd_motor3",
+            "label": "template_fwd_motor_rb",
             "type": "Motor",
             "dir_pin_a": 8,
             "dir_pin_b": 12,
