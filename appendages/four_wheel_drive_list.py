@@ -27,15 +27,15 @@ class FourWheelDriveList(ComponentList):
             if 'velocity controlled motor' not in device_dict:
                 for device_level in device_type:
                     if 'velocity controlled motor' in device_level:
-                        device_dict['velocity controlled motor'] = device_level['velocity controlled motor']
+                        device_dict['velocity_controlled_motor'] = device_level['velocity_controlled_motor']
                         break
-            lf_motor = device_dict['velocity controlled motor'].add(json_item['left_front_drive_motor'],
+            lf_motor = device_dict['velocity_controlled_motor'].add(json_item['left_front_drive_motor'],
                                                                     device_dict, device_type)
-            rf_motor = device_dict['velocity controlled motor'].add(json_item['right_front_drive_motor'],
+            rf_motor = device_dict['velocity_controlled_motor'].add(json_item['right_front_drive_motor'],
                                                                     device_dict, device_type)
-            lb_motor = device_dict['velocity controlled motor'].add(json_item['left_back_drive_motor'],
+            lb_motor = device_dict['velocity_controlled_motor'].add(json_item['left_back_drive_motor'],
                                                                     device_dict, device_type)
-            rb_motor = device_dict['velocity controlled motor'].add(json_item['right_back_drive_motor'],
+            rb_motor = device_dict['velocity_controlled_motor'].add(json_item['right_back_drive_motor'],
                                                                     device_dict, device_type)
         else:
             if 'motor' not in device_dict:
