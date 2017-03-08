@@ -501,7 +501,7 @@
     {
         "label": "template_easystepper",
         "type": "Easy Stepper",
-        "number_of_steps": "1600",
+        "number_of_steps": 1600,
         "dir_pin": 12,
         "step_pin": 13,
         "initial_speed": 100
