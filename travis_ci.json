@@ -233,7 +233,7 @@
         "label": "template_velocity_controlled_motor",
         "type": "Velocity Controlled Motor",
         "vpid": {
-            "label": "template_pid2",
+            "label": "template_vcm_pid",
             "type": "PID",
             "reverse": false,
             "kd": 1.9603733037765991,
@@ -244,7 +244,7 @@
             "vpid": true
         },
         "motor": {
-            "label": "template_motor3",
+            "label": "template_vcm_motor",
             "type": "Motor",
             "dir_pin_a": 8,
             "dir_pin_b": 12,
@@ -254,7 +254,7 @@
             "pwm_pin": 16
         },
         "encoder": {
-            "label": "template_encoder1",
+            "label": "template_vcm_encoder",
             "type": "Encoder",
             "pin_a": 15,
             "reverse": false,
@@ -266,47 +266,47 @@
         "label": "template_arm",
         "type": "Arm",
         "base": {
-            "label": "template_servo0",
+            "label": "template_arm_servo_base",
             "type": "Servo",
             "servo_type": "Vex",
             "pin": 9
         },
         "wrist_rotate": {
-            "label": "template_servo0",
+            "label": "template_arm_servo_wrist_rotate",
             "type": "Servo",
             "servo_type": "Vex",
             "pin": 9
         },
         "shoulder": {
-            "label": "template_servo0",
+            "label": "template_arm_servo_shoulder",
             "type": "Servo",
             "servo_type": "Vex",
             "pin": 9
         },
         "wrist": {
-            "label": "template_servo0",
+            "label": "template_arm_servo_wrist",
             "type": "Servo",
             "servo_type": "Vex",
             "pin": 9
         },
         "elbow": {
-            "label": "template_servo0",
+            "label": "template_arm_servo_elbow",
             "type": "Servo",
             "servo_type": "Vex",
             "pin": 9
         }
     },
     {
-        "label": "template_four_wheel_drive0",
+        "label": "template_four_wheel_drive_vcm",
         "type": "Four Wheel Drive",
         "wheelbase_length": 5.314386258607106,
         "wheelbase_width": 2.5846800209366596,
         "wheel_diameter": 5.6936932572617005,
         "left_front_drive_motor": {
-            "label": "template_velocity_controlled_motor",
+            "label": "template_fwd_vcm_lf",
             "type": "Velocity Controlled Motor",
             "vpid": {
-                "label": "template_pid2",
+                "label": "template_fwd_vcm_pid_lf",
                 "type": "PID",
                 "reverse": false,
                 "kd": 1.9603733037765991,
@@ -327,7 +327,7 @@
                 "pwm_pin": 16
             },
             "encoder": {
-                "label": "template_encoder1",
+                "label": "template_fwd_vcm_encoder_lf",
                 "type": "Encoder",
                 "pin_a": 15,
                 "reverse": false,
@@ -336,10 +336,10 @@
             }
         },
         "right_front_drive_motor": {
-            "label": "template_velocity_controlled_motor",
+            "label": "template_fwd_vcm_rf",
             "type": "Velocity Controlled Motor",
             "vpid": {
-                "label": "template_pid2",
+                "label": "template_fwd_vcm_pid_rf",
                 "type": "PID",
                 "reverse": false,
                 "kd": 1.9603733037765991,
@@ -360,7 +360,7 @@
                 "pwm_pin": 16
             },
             "encoder": {
-                "label": "template_encoder1",
+                "label": "template_fwd_vcm_encoder_rf",
                 "type": "Encoder",
                 "pin_a": 15,
                 "reverse": false,
@@ -369,10 +369,10 @@
             }
         },
         "left_back_drive_motor": {
-            "label": "template_velocity_controlled_motor",
+            "label": "template_fwd_vcm_lb",
             "type": "Velocity Controlled Motor",
             "vpid": {
-                "label": "template_pid2",
+                "label": "template_fwd_vcm_pid_lb",
                 "type": "PID",
                 "reverse": false,
                 "kd": 1.9603733037765991,
@@ -393,7 +393,7 @@
                 "pwm_pin": 16
             },
             "encoder": {
-                "label": "template_encoder1",
+                "label": "template_fwd_vcm_encoder_lb",
                 "type": "Encoder",
                 "pin_a": 15,
                 "reverse": false,
@@ -402,10 +402,10 @@
             }
         },
         "right_back_drive_motor": {
-            "label": "template_velocity_controlled_motor",
+            "label": "template_fwd_vcm_rb",
             "type": "Velocity Controlled Motor",
             "vpid": {
-                "label": "template_pid2",
+                "label": "template_fwd_vcm_pid_rb",
                 "type": "PID",
                 "reverse": false,
                 "kd": 1.9603733037765991,
@@ -426,7 +426,7 @@
                 "pwm_pin": 16
             },
             "encoder": {
-                "label": "template_encoder1",
+                "label": "template_fwd_vcm_encoder_rb",
                 "type": "Encoder",
                 "pin_a": 15,
                 "reverse": false,
@@ -437,7 +437,7 @@
         "use_velocity_control": true
     },
     {
-        "label": "template_four_wheel_drive1",
+        "label": "template_four_wheel_drive",
         "type": "Four Wheel Drive",
         "wheelbase_length": 4.56315072749771,
         "wheelbase_width": 5.615739129549499,
