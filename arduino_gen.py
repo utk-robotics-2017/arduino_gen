@@ -80,8 +80,6 @@ class ArduinoGen:
                 if not json_item['type'] in self.device_dict:
                     self.device_dict[json_item['type']] = device_level[json_item['type']]
 
-                print("\n" + str(type(self.device_dict[json_item['type']])) + ": " +
-                      str(self.device_dict[json_item['type']]))
                 self.device_dict[json_item['type']].add(json_item, self.device_dict, device_type)
         logger.info("Done")
 

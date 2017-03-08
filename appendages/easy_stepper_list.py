@@ -18,7 +18,7 @@ class EasyStepperList(ComponentList):
         self.stepperDict = {}
         self.stepperList = []
 
-    def add(self, json_item):
+    def add(self, json_item, device_dict, device_type):
         stepper = EasyStepper(json_item['label'], json_item['number_of_steps'],
                               json_item['dir_pin'], json_item['step_pin'],
                               json_item['initial_speed'])
