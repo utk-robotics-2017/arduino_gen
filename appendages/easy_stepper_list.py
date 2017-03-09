@@ -26,9 +26,6 @@ class EasyStepperList(ComponentList):
         self.stepperList.append(stepper)
         self.stepperList.sort(key=lambda x: x.label, reverse=False)
 
-    def get(self, label):
-        return self.actuators[label]
-
     def get_includes(self):
         return '#include "EasyDriver.h"\n'
 
