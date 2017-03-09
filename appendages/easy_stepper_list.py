@@ -49,7 +49,7 @@ class EasyStepperList(ComponentList):
         rv += ("EasyStepper easySteppers[{0:d}] = {{\n").format(len(self.stepperList))
         for stepper in self.stepperList:
             rv += ("\tEasyStepper({0:d}, {1:s}_dir_pin, {1:s}_step_pin, {1:s}_init_speed),\n")\
-                    .format(stepper.steps, stepper.label)
+                .format(stepper.steps, stepper.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
