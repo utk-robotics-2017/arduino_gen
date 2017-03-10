@@ -24,11 +24,11 @@ class ArmList(ComponentList):
                     device_dict['servo'] = device_level['servo']
                     break
 
-        base_servo = device_dict['servo'].add(json_item['base_label'], device_dict, device_type)
-        shoulder_servo = device_dict['servo'].add(json_item['shoulder_label'], device_dict, device_type)
-        elbow_servo = device_dict['servo'].add(json_item['elbow_label'], device_dict, device_type)
-        wrist_servo = device_dict['servo'].add(json_item['wrist_label'], device_dict, device_type)
-        wrist_rotate_servo = device_dict['servo'].add(json_item['wrist_rotate_label'],
+        base_servo = device_dict['servo'].add(json_item['base'], device_dict, device_type)
+        shoulder_servo = device_dict['servo'].add(json_item['shoulder'], device_dict, device_type)
+        elbow_servo = device_dict['servo'].add(json_item['elbow'], device_dict, device_type)
+        wrist_servo = device_dict['servo'].add(json_item['wrist'], device_dict, device_type)
+        wrist_rotate_servo = device_dict['servo'].add(json_item['wrist_rotate'],
                                                       device_dict, device_type)
 
         arm = Arm(json_item['label'], base_servo, shoulder_servo, elbow_servo,

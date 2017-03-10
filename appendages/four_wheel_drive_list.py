@@ -27,15 +27,15 @@ class FourWheelDriveList(ComponentList):
             if 'velocity controlled motor' not in device_dict:
                 for device_level in device_type:
                     if 'velocity controlled motor' in device_level:
-                        device_dict['velocity controlled motor'] = device_level['velocity controlled motor']
+                        device_dict['velocity_controlled_motor'] = device_level['velocity_controlled_motor']
                         break
-            lf_motor = device_dict['velocity controlled motor'].add(json_item['left_front_drive_motor'],
+            lf_motor = device_dict['velocity_controlled_motor'].add(json_item['left_front_drive_motor'],
                                                                     device_dict, device_type)
-            rf_motor = device_dict['velocity controlled motor'].add(json_item['right_front_drive_motor'],
+            rf_motor = device_dict['velocity_controlled_motor'].add(json_item['right_front_drive_motor'],
                                                                     device_dict, device_type)
-            lb_motor = device_dict['velocity controlled motor'].add(json_item['left_back_drive_motor'],
+            lb_motor = device_dict['velocity_controlled_motor'].add(json_item['left_back_drive_motor'],
                                                                     device_dict, device_type)
-            rb_motor = device_dict['velocity controlled motor'].add(json_item['right_back_drive_motor'],
+            rb_motor = device_dict['velocity_controlled_motor'].add(json_item['right_back_drive_motor'],
                                                                     device_dict, device_type)
         else:
             if 'motor' not in device_dict:
@@ -71,13 +71,13 @@ class FourWheelDriveList(ComponentList):
             if drivebase.use_velocity_control:
                 rv += ("\tFourWheelDrive(&vcms[{0:s}_index], &vcms[{1:s}_index], " +
                        "&vcms[{2:s}_index], &vcms[{3:s}_index]),\n")\
-                        .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
-                                drivebase.lb_motor.label, drivebase.rb_motor.label)
+                    .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
+                            drivebase.lb_motor.label, drivebase.rb_motor.label)
             else:
                 rv += ("\tFourWheelDrive(&motors[{0:s}_index], &motors[{1:s}_index], " +
                        "&motors[{2:s}_index], &motors[{3:s}_index]),\n")\
-                        .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
-                                drivebase.lb_motor.label, drivebase.rb_motor.label)
+                    .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
+                            drivebase.lb_motor.label, drivebase.rb_motor.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 

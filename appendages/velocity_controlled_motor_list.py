@@ -44,7 +44,7 @@ class VelocityControlledMotorList(ComponentList):
                 if 'pid' in device_level:
                     device_dict['pid'] = device_level['pid']
                     break
-        vpid = device_dict.add(json_item['pid'], device_dict, device_type)
+        vpid = device_dict['pid'].add(json_item['vpid'], device_dict, device_type)
         vcm = VelocityControlledMotor(json_item['label'], motor, encoder, vpid)
         self.list_.append(vcm)
         self.list_.sort(key=lambda x: x.label, reverse=False)

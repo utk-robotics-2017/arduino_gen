@@ -7,6 +7,10 @@ stage3/
 stage4/
 template/
 travis_ci/
+stage1/
+stage2/
+stage3/
+stage4/
 .pioenvs/
 
 # Byte-compiled / optimized / DLL files
