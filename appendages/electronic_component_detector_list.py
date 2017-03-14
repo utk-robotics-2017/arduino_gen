@@ -67,13 +67,13 @@ class ElectronicComponentDetectorList(ComponentList):
         rv = "void Decode() {\n"
         rv += "\tchar pad = cmdMessenger.readBinArg<char>();\n"
         rv += "\tchar code[5];\n"
-        rv += "\tint rv = 0;\n"
+        rv += "\tint ecd_code = 0;\n"
         rv += "\tecd.decode(pad - '0', code, false);\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kDecode);\n"
         rv += "\tfor(int i = 0; i < 5; i++) { \n"
-        rv += "\t\trv |= code[i] << (i * 3);\n"
+        rv += "\t\tecd_code |= code[i] << (i * 3);\n"
         rv += "\t}\n"
-        rv += "\tcmdMessenger.sendBinCmd(kDecodeResult, rv);"
+        rv += "\tcmdMessenger.sendBinCmd(kDecodeResult, ecd_code);"
         rv += "}\n\n"
         return rv
 
