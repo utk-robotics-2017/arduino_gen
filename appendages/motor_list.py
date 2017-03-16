@@ -52,8 +52,8 @@ class MotorList(ComponentList):
         rv += "Motor motors[{0:d}] = {{\n".format(len(self.list_))
         for motor in self.list_:
             rv += "\tMotor({0:s}_dir_pin_a, {0:s}_dir_pin_b, {0:s}_pwm_pin, {1:d}, {2:s}),\n"\
-                    .format(motor.label, 1 if motor.reverse else 0,
-                            motor.motor_controller)
+                .format(motor.label, 1 if motor.reverse else 0,
+                        motor.motor_controller)
         rv = rv[:-2] + "\n};\n"
         return rv
 
