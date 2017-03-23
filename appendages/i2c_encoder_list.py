@@ -121,5 +121,5 @@ class I2CEncoderList(ComponentList):
             a = {}
             a['index'] = i
             a['label'] = encoder.label
-            a['type'] = "Encoder"
+            a['type'] = "I2C Encoder"
             yield a
