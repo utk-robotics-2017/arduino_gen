@@ -19,43 +19,65 @@ class FourWheelDriveList(ComponentList):
     TIER = 3
 
     def __init__(self):
-        self.drive_list = []
+        self.list_ = []
 
-    def add(self, json_item, motors, vcms):
+    def add(self, json_item, device_dict, device_type):
         use_velocity_control = json_item['use_velocity_control']
         if use_velocity_control:
-            lf_motor = vcms.get(json_item['left_front_drive_motor'])
-            rf_motor = vcms.get(json_item['right_front_drive_motor'])
-            lb_motor = vcms.get(json_item['left_back_drive_motor'])
-            rb_motor = vcms.get(json_item['right_back_drive_motor'])
+            if 'velocity controlled motor' not in device_dict:
+                for device_level in device_type:
+                    if 'velocity controlled motor' in device_level:
+                        device_dict['velocity_controlled_motor'] = device_level['velocity_controlled_motor']
+                        break
+            lf_motor = device_dict['velocity_controlled_motor'].add(json_item['left_front_drive_motor'],
+                                                                    device_dict, device_type)
+            rf_motor = device_dict['velocity_controlled_motor'].add(json_item['right_front_drive_motor'],
+                                                                    device_dict, device_type)
+            lb_motor = device_dict['velocity_controlled_motor'].add(json_item['left_back_drive_motor'],
+                                                                    device_dict, device_type)
+            rb_motor = device_dict['velocity_controlled_motor'].add(json_item['right_back_drive_motor'],
+                                                                    device_dict, device_type)
         else:
-            lf_motor = motors.get(json_item['left_front_drive_motor'])
-            rf_motor = motors.get(json_item['right_front_drive_motor'])
-            lb_motor = motors.get(json_item['left_back_drive_motor'])
-            rb_motor = motors.get(json_item['right_back_drive_motor'])
+            if 'motor' not in device_dict:
+                for device_level in device_type:
+                    if 'motor' in device_level:
+                        device_dict['motor'] = device_level['motor']
+                        break
+            lf_motor = device_dict['motor'].add(json_item['left_front_drive_motor'],
+                                                device_dict, device_type)
+            rf_motor = device_dict['motor'].add(json_item['right_front_drive_motor'],
+                                                device_dict, device_type)
+            lb_motor = device_dict['motor'].add(json_item['left_back_drive_motor'],
+                                                device_dict, device_type)
+            rb_motor = device_dict['motor'].add(json_item['right_back_drive_motor'],
+                                                device_dict, device_type)
 
-        self.drive_list.append(FourWheelDrive(json_item['label'], use_velocity_control, lf_motor,
-                                              rf_motor, lb_motor, rb_motor,
-                                              json_item['wheel_diameter'],
-                                              json_item['wheelbase_width'],
-                                              json_item['wheelbase_length']))
+        fwd = FourWheelDrive(json_item['label'], use_velocity_control, lf_motor,
+                             rf_motor, lb_motor, rb_motor,
+                             json_item['wheel_diameter'],
+                             json_item['wheelbase_width'],
+                             json_item['wheelbase_length'])
+
+        self.list_.append(fwd)
+
+        return fwd
 
     def get_includes(self):
         return '#include "FourWheelDrive.h"'
 
-    def get_constructor(self):
+    def get_constructors(self):
         rv = "FourWheelDrive fwds[] = {\n"
-        for drivebase in self.drive_list:
+        for drivebase in self.list_:
             if drivebase.use_velocity_control:
                 rv += ("\tFourWheelDrive(&vcms[{0:s}_index], &vcms[{1:s}_index], " +
                        "&vcms[{2:s}_index], &vcms[{3:s}_index]),\n")\
-                        .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
-                                drivebase.lb_motor.label, drivebase.rb_motor.label)
+                    .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
+                            drivebase.lb_motor.label, drivebase.rb_motor.label)
             else:
                 rv += ("\tFourWheelDrive(&motors[{0:s}_index], &motors[{1:s}_index], " +
                        "&motors[{2:s}_index], &motors[{3:s}_index]),\n")\
-                        .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
-                                drivebase.lb_motor.label, drivebase.rb_motor.label)
+                    .format(drivebase.lf_motor.label, drivebase.rf_motor.label,
+                            drivebase.lb_motor.label, drivebase.rb_motor.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
@@ -98,7 +120,7 @@ class FourWheelDriveList(ComponentList):
     def get_command_functions(self):
         rv = "void driveFWD() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -116,7 +138,7 @@ class FourWheelDriveList(ComponentList):
 
         rv += "void stopFWD() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kStopFWD);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -126,7 +148,7 @@ class FourWheelDriveList(ComponentList):
 
         rv += "void driveFWD_PID() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kDriveFWD_PID);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -144,7 +166,7 @@ class FourWheelDriveList(ComponentList):
 
         rv += "void getFWDLeftVelocity() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDLeftVelocity);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -154,7 +176,7 @@ class FourWheelDriveList(ComponentList):
 
         rv += "void getFWDRightVelocity() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDRightVelocity);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -164,7 +186,7 @@ class FourWheelDriveList(ComponentList):
 
         rv += "void getFWDLeftFrontVelocity() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDLeftFrontVelocity);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -174,7 +196,7 @@ class FourWheelDriveList(ComponentList):
 
         rv += "void getFWDLeftBackVelocity() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDLeftBackVelocity);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -184,7 +206,7 @@ class FourWheelDriveList(ComponentList):
 
         rv += "void getFWDRightFrontVelocity() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDRightFrontVelocity);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -194,7 +216,7 @@ class FourWheelDriveList(ComponentList):
 
         rv += "void getFWDRightBackVelocity() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDRightBackVelocity);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -204,7 +226,7 @@ class FourWheelDriveList(ComponentList):
 
         rv += "void getFWDLeftPosition() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDLeftPosition);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -214,7 +236,7 @@ class FourWheelDriveList(ComponentList):
 
         rv += "void getFWDRightPosition() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.drive_list))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetFWDRightPosition);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -225,7 +247,7 @@ class FourWheelDriveList(ComponentList):
         return rv
 
     def get_core_values(self):
-        for i, drivebase in enumerate(self.drive_list):
+        for i, drivebase in enumerate(self.list_):
             config = {}
             config['index'] = i
             config['label'] = drivebase.label

@@ -14,53 +14,67 @@ class VelocityControlledMotorList(ComponentList):
     TIER = 2
 
     def __init__(self):
-        self.vcmDict = {}
-        self.vcmList = []
+        self.list_ = []
 
-    def add(self, json_item, motors, i2cencoders, encoders, vpids):
-        motor = motors.get(json_item['motor_label'])
-        encoder = None
-        if i2cencoders is not None:
-            encoder = i2cencoders.get(json_item['encoder_label'])
-        if encoder is None:
-            encoder = encoders.get(json_item['encoder_label'])
-        vpid = vpids.get(json_item['vpid_label'])
-        vcm = VelocityControlledMotor(json_item['label'], motor, encoder, vpid)
-        self.vcmDict[json_item['label']] = vcm
-        self.vcmList.append(vcm)
-        self.vcmList.sort(key=lambda x: x.label, reverse=False)
+    def add(self, json_item, device_dict, device_type):
 
-    def get(self, label):
-        if label in self.vcmDict:
-            return self.vcmDict[label]
+        if 'motor' not in device_dict:
+            for device_level in device_type:
+                if 'motor' in device_level:
+                    device_dict['motor'] = device_level['motor']
+                    break
+        motor = device_dict['motor'].add(json_item['motor'], device_dict, device_type)
+
+        if 'i2cencoder' in json_item:
+            if 'i2cencoder' not in device_dict:
+                for device_level in device_type:
+                    if 'i2cencoder' in device_level:
+                        device_dict['i2cencoder'] = device_level['i2cencoder']
+                        break
+            encoder = device_dict['i2cencoder'].add(json_item['i2cencoder'], device_dict, device_type)
         else:
-            return None
+            if 'encoder' not in device_dict:
+                for device_level in device_type:
+                    if 'encoder' in device_level:
+                        device_dict['encoder'] = device_level['encoder']
+                        break
+            encoder = device_dict['encoder'].add(json_item['encoder'], device_dict, device_type)
+        if 'pid' not in device_dict:
+            for device_level in device_type:
+                if 'pid' in device_level:
+                    device_dict['pid'] = device_level['pid']
+                    break
+        vpid = device_dict['pid'].add(json_item['vpid'], device_dict, device_type)
+        vcm = VelocityControlledMotor(json_item['label'], motor, encoder, vpid)
+        self.list_.append(vcm)
+        self.list_.sort(key=lambda x: x.label, reverse=False)
+        return vcm
 
     def get_includes(self):
         return '#include "VelocityControlledMotor.h"\n'
 
-    def get_constructor(self):
+    def get_constructors(self):
         rv = ""
-        for i, vcm in enumerate(self.vcmList):
+        for i, vcm in enumerate(self.list_):
             rv += "const char {0:s}_index = {1:d};\n".format(vcm.label, i)
-        rv += "VelocityControlledMotor vcms[{0:d}] = {{\n".format(len(self.vcmList))
-        for vcm in self.vcmList:
+        rv += "VelocityControlledMotor vcms[{0:d}] = {{\n".format(len(self.list_))
+        for vcm in self.list_:
             if isinstance(vcm.encoder, I2CEncoder):
                 rv += ("\tVelocityControlledMotor(motors[{0:s}_index], i2cencoders[{1:s}_index], " +
                        "vpids[{2:s}_index], &Inputs_vpid[{2:s}_index], " +
                        "&Setpoints_vpid[{2:s}_index], &Outputs_vpid[{2:s}_index]),\n")\
-                        .format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
+                    .format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
             else:
                 rv += ("\tVelocityControlledMotor(motors[{0:s}_index], encoders[{1:s}_index], " +
                        "vpids[{2:s}_index], &Inputs_vpid[{2:s}_index], " +
                        "&Setpoints_vpid[{2:s}_index], &Outputs_vpid[{2:s}_index]),\n")\
-                        .format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
+                    .format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_loop_functions(self):
         return "\tfor(int i = 0; i < {0:d}; i++) {{\n\t\t\tvcms[i].runVPID();\n\t\t}}\n".format(
-            len(self.vcmList))
+            len(self.list_))
 
     def get_commands(self):
         rv = "\tkSetVCMVoltage,\n"
@@ -83,7 +97,8 @@ class VelocityControlledMotorList(ComponentList):
     def get_command_functions(self):
         rv = "void setVCMVoltage() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+            .format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetVCMVoltage);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -98,7 +113,8 @@ class VelocityControlledMotorList(ComponentList):
 
         rv += "void setVCMVelocity() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+            .format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetVCMVelocity);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -113,7 +129,8 @@ class VelocityControlledMotorList(ComponentList):
 
         rv += "void stopVCM() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+            .format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kStopVCM);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -123,7 +140,8 @@ class VelocityControlledMotorList(ComponentList):
 
         rv += "void getVCMVelocity() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+            .format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetVCMVelocity);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -133,7 +151,8 @@ class VelocityControlledMotorList(ComponentList):
 
         rv += "void getVCMPosition() {\n"
         rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
-        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n".format(len(self.vcmList))
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+            .format(len(self.list_))
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kGetVCMPosition);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
@@ -144,12 +163,12 @@ class VelocityControlledMotorList(ComponentList):
         return rv
 
     def get_core_values(self):
-        for i, vcm in enumerate(self.vcmList):
+        for i, vcm in enumerate(self.list_):
             config = {}
             config['index'] = i
             config['label'] = vcm.label
             config['type'] = "Velocity Controlled Motor"
             config['motor'] = vcm.motor.label
             config['encoder'] = vcm.encoder.label
-            config['pid'] = vcm.pid.label
+            config['vpid'] = vcm.vpid.label
             yield config

@@ -7,6 +7,11 @@ import importlib
 
 from generator import Generator
 
+import logging
+from ourlogging import setup_logging
+setup_logging(__file__)
+logger = logging.getLogger(__name__)
+
 # Import all the files in appendages
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode"
@@ -23,23 +28,23 @@ class ArduinoGen:
         if not hasattr(self, 'folder'):
             print("Folder has not been set")
             sys.exit()
-        print("Making directory...")
+        logger.info("Making directory...")
         if os.path.exists(self.folder):
             shutil.rmtree(self.folder)
         os.makedirs(self.folder, 0o777)
         os.chmod(self.folder, 0o777)
         os.makedirs("{0:s}/src".format(self.folder), 0o777)
         os.chmod("{0:s}/src".format(self.folder), 0o777)
-        print("Done")
+        logger.info("Done")
 
     def readConfig(self, f, copy=True):
         if copy:
             shutil.copyfile(f, "{0:s}/{1:s}.json".format(self.folder, self.arduino))
             os.chmod("{0:s}/{1:s}.json".format(self.folder, self.arduino), 0o777)
 
-        print("Reading config file...")
-        fi = open(f)
-        file_text = fi.read()
+        logger.info("Reading config file...")
+        with open(f) as fi:
+            file_text = fi.read()
         json_data = json.loads(file_text)
 
         # Split into levels based on dependencies
@@ -51,10 +56,10 @@ class ArduinoGen:
             if os.path.isfile(current_search_path + f) and f[-3:] == ".py" and not f == "__init__.py":
                 file_list.append(f)
         for f in file_list:
-            print("\tModule: {0:s}.{1:s}".format(current_import_path, f[:-3]))
+            logger.info("Module: {0:s}.{1:s}".format(current_import_path, f[:-3]))
             module = importlib.import_module("{0:s}.{1:s}".format(current_import_path, f[:-3]))
             class_name = f[:-3].replace('_', ' ').title().replace(' ', '')
-            print("\tClass: {0:s}".format(class_name))
+            logger.info("Class: {0:s}".format(class_name))
             class_ = getattr(module, class_name)
             while class_.TIER > len(device_type):
                 device_type.append({})
@@ -75,94 +80,79 @@ class ArduinoGen:
                 if not json_item['type'] in self.device_dict:
                     self.device_dict[json_item['type']] = device_level[json_item['type']]
 
-                if json_item['type'] == 'arm':
-                    self.device_dict[json_item['type']].add(json_item, self.device_dict['servo'])
-                elif json_item['type'] == 'velocity_controlled_motor':
-                    self.device_dict[json_item['type']].add(json_item, self.device_dict['motor'],
-                                                            self.device_dict['i2c_encoder'] if
-                                                            'i2c_encoder' in self.device_dict
-                                                            else None, self.device_dict['encoder']
-                                                            if 'encoder' in self.device_dict
-                                                            else None, self.device_dict['pid'])
-                elif json_item['type'] == 'four_wheel_drive':
-                    self.device_dict[json_item['type']]\
-                            .add(json_item, self.device_dict['motor'],
-                                 self.device_dict['velocity_controlled_motor'])
-                else:
-                    self.device_dict[json_item['type']].add(json_item)
-        fi.close()
-        print("Done")
+                self.device_dict[json_item['type']].add(json_item, self.device_dict, device_type)
+        logger.info("Done")
 
     def generateOutput(self):
         if not hasattr(self, 'folder'):
-            print("Parent folder has not been set")
+            logger.error("Parent folder has not been set")
             sys.exit()
         elif not hasattr(self, 'device_dict'):
-            print("Config file has not been read")
+            logger.error("Config file has not been read")
             sys.exit()
 
-        print("Generating output...")
-        fo = open("{0:s}/src/{1:s}.ino".format(self.folder, self.arduino), 'w')
-        gen = Generator(self.device_dict)
-        print("\tWriting headers")
-        fo.write(gen.add_header())
-        print("\tWriting includes")
-        fo.write(gen.add_includes())
-        print("\tWriting pins")
-        fo.write(gen.add_pins())
-        print("\tWriting constructors")
-        fo.write(gen.add_constructors())
-        print("\tWriting setup")
-        fo.write(gen.add_setup())
-        print("\tWriting loop")
-        fo.write(gen.add_loop())
-        print("\tWriting command callbacks")
-        fo.write(gen.add_commands())
-        print("\tWriting extra functions")
-        fo.write(gen.add_extra_functions())
-        fo.write("\n")
-        fo.close()
+        logger.info("Generating output...")
+        with open("{0:s}/src/{1:s}.ino".format(self.folder, self.arduino), 'w') as fo:
+            gen = Generator(self.device_dict)
+            logger.info("\tWriting headers")
+            fo.write(gen.add_header())
+            logger.info("\tWriting includes")
+            fo.write(gen.add_includes())
+            logger.info("\tWriting pins")
+            fo.write(gen.add_pins())
+            logger.info("\tWriting constructors")
+            fo.write(gen.add_constructors())
+            logger.info("\tWriting setup")
+            fo.write(gen.add_setup())
+            logger.info("\tWriting loop")
+            fo.write(gen.add_loop())
+            logger.info("\tWriting command callbacks")
+            fo.write(gen.add_commands())
+            logger.info("\tWriting extra functions")
+            fo.write(gen.add_extra_functions())
+            fo.write("\n")
         os.chmod("{0:s}/src/{1:s}.ino".format(self.folder, self.arduino), 0o777)
 
-        print("\tWriting indices file")
+        logger.info("\tWriting indices file")
         gen.write_core_config_file(self.folder, self.arduino)
 
-        print("\tWriting build, serial, and upload shell scripts")
+        logger.info("\tWriting build, serial, and upload shell scripts")
         gen.write_shell_scripts(self.folder, self.arduino)
-        print("Done")
-        print("Your output can be found at {0:s}".format(self.folder))
+        logger.info("Done")
+        logger.info("Your output can be found at {0:s}".format(self.folder))
 
     def build(self):
         if not hasattr(self, 'folder'):
-            print("Parent folder has not been set")
+            logger.error("Parent folder has not been set")
             sys.exit()
-        print("Building...")
+        logger.info("Building...")
         os.chdir("{0:s}/{1:s}".format(self.folder, self.arduino))
         os.system("ino build")
-        print("Done")
+        logger.info("Done")
 
     def upload(self):
         if not hasattr(self, 'folder'):
-            print("Parent folder has not been set")
+            logger.error("Parent folder has not been set")
             sys.exit()
-        print("Uploading...")
+        logger.info("Uploading...")
 
         with open("{0:s}/{1:s}/platformio.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 'r') as pio_ini:
             pio_ini_text = pio_ini.read()
         shutil.rmtree("{0:s}/{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
-        print("\tCopying {0:s} to {1:s}/{2:s}".format(self.folder, CURRENT_ARDUINO_CODE_DIR,
-                                                      self.arduino))
+        logger.info("Copying {0:s} to {1:s}/{2:s}".format(self.folder, CURRENT_ARDUINO_CODE_DIR,
+                                                          self.arduino))
         shutil.copytree(self.folder, "{0:s}/{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
         with open("{0:s}/{1:s}/platformio.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 'w') as pio_ini:
             pio_ini.write(pio_ini_text)
         os.chmod("{0:s}/{1:s}/platformio.ini".format(CURRENT_ARDUINO_CODE_DIR, self.arduino), 0o777)
 
-        print("\tYou have moved to {0:s}/{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
+        logger.info("You have moved to {0:s}/{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
         os.chdir("{0:s}/{1:s}".format(CURRENT_ARDUINO_CODE_DIR, self.arduino))
-        print(os.getcwd())
+        logger.info(os.getcwd())
         os.system("sh upload.sh")
         # os.system("pio run -t upload")
         print("Done")
+
 
 if __name__ == "__main__":
     # Collect command line arguments
@@ -176,7 +166,7 @@ if __name__ == "__main__":
     ap.add_argument("-u", "--upload", required=False, help="Build the ino file and upload that on to the arduino")
     args = vars(ap.parse_args())
 
-    # TODO:Add creating lock file
+    # TODO: Add creating lock file
 
     ag = ArduinoGen(args['arduino'])
     ag.setParentFolder(args['parent_folder'])
