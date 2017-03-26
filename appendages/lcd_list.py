@@ -46,7 +46,7 @@ class LcdList(ComponentList):
             # Columns, rows
             rv += ("\tlist_[{0:d}].begin({1:d}, {2:d});\n"
                    .format(i, lcd.cols, lcd.rows))
-
+        rv += "\n"
         return rv
 
     def get_commands(self):
@@ -96,7 +96,7 @@ class LcdList(ComponentList):
         rv += "\tlist_[indexNum].setCursor(cmdMessenger.readBinArg<int>(), \
                                           cmdMessenger.readBinArg<int>());\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kSetCursorLCD);\n"
-        rv += "}\n"
+        rv += "}\n\n"
 
         return rv
 
