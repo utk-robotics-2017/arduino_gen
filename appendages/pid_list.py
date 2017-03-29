@@ -81,36 +81,44 @@ class PidList(ComponentList):
             if hasattr(pid, 'min_output'):
                 rv += ("\tpids[{0:s}_index].SetOutputLimits({1:f}, {2:f});\n")\
                         .format(pid.label, pid.min_output, pid.max_output)
+            rv += ("\tpids[{0:s}_index].SetMode(AUTOMATIC);\n")\
+                    .format(pid.label)
         return rv
 
     def get_commands(self):
-        rv = "\tkPidConstants,\n"
-        rv += "\tkPidConstantsResult,\n"
-        rv += "\tkModifyPidConstants,\n"
-        rv += "\tkSetPidSetpoint,\n"
-        rv += "\tkPidOff,\n"
-        rv += "\tkPidDisplay,\n"
-        rv += "\tkPidDisplayResult,\n"
-        rv += "\tkVpidConstants,\n"
-        rv += "\tkVpidConstantsResult,\n"
-        rv += "\tkModifyVpidConstants,\n"
-        rv += "\tkSetVpidSetpoint,\n"
-        rv += "\tkVpidOff,\n"
-        rv += "\tkVpidDisplay,\n"
-        rv += "\tkVpidDisplayResult,\n"
+        rv = ""
+        if len(self.pid_list) > 0:
+            rv += "\tkPidConstants,\n"
+            rv += "\tkPidConstantsResult,\n"
+            rv += "\tkModifyPidConstants,\n"
+            rv += "\tkSetPidSetpoint,\n"
+            rv += "\tkPidOff,\n"
+            rv += "\tkPidDisplay,\n"
+            rv += "\tkPidDisplayResult,\n"
+        if len(self.vpid_list) > 0:
+            rv += "\tkVpidConstants,\n"
+            rv += "\tkVpidConstantsResult,\n"
+            rv += "\tkModifyVpidConstants,\n"
+            rv += "\tkSetVpidSetpoint,\n"
+            rv += "\tkVpidOff,\n"
+            rv += "\tkVpidDisplay,\n"
+            rv += "\tkVpidDisplayResult,\n"
         return rv
 
     def get_command_attaches(self):
-        rv = "\tcmdMessenger.attach(kPidConstants, pidConstants);\n"
-        rv += "\tcmdMessenger.attach(kModifyPidConstants, modifyPidConstants);\n"
-        rv += "\tcmdMessenger.attach(kSetPidSetpoint, setPidSetpoint);\n"
-        rv += "\tcmdMessenger.attach(kPidOff, pidOff);\n"
-        rv += "\tcmdMessenger.attach(kPidDisplay, pidDisplay);\n"
-        rv += "\tcmdMessenger.attach(kVpidConstants, vpidConstants);\n"
-        rv += "\tcmdMessenger.attach(kModifyVpidConstants, modifyVpidConstants);\n"
-        rv += "\tcmdMessenger.attach(kSetVpidSetpoint, setVpidSetpoint);\n"
-        rv += "\tcmdMessenger.attach(kVpidOff, vpidOff);\n"
-        rv += "\tcmdMessenger.attach(kVpidDisplay, vpidDisplay);\n"
+        rv = ""
+        if len(self.pid_list) > 0:
+            rv += "\tcmdMessenger.attach(kPidConstants, pidConstants);\n"
+            rv += "\tcmdMessenger.attach(kModifyPidConstants, modifyPidConstants);\n"
+            rv += "\tcmdMessenger.attach(kSetPidSetpoint, setPidSetpoint);\n"
+            rv += "\tcmdMessenger.attach(kPidOff, pidOff);\n"
+            rv += "\tcmdMessenger.attach(kPidDisplay, pidDisplay);\n"
+        if len(self.vpid_list) > 0:
+            rv += "\tcmdMessenger.attach(kVpidConstants, vpidConstants);\n"
+            rv += "\tcmdMessenger.attach(kModifyVpidConstants, modifyVpidConstants);\n"
+            rv += "\tcmdMessenger.attach(kSetVpidSetpoint, setVpidSetpoint);\n"
+            rv += "\tcmdMessenger.attach(kVpidOff, vpidOff);\n"
+            rv += "\tcmdMessenger.attach(kVpidDisplay, vpidDisplay);\n"
         return rv
 
     def get_command_functions(self):

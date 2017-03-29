@@ -27,19 +27,19 @@ class I2CEncoderList(ComponentList):
         rv = ""
         for i in range(len(self.list_)):
             rv += "const char {0:s}_index = {1:d};\n".format(self.list_[i].label, i)
-        rv += "I2CEncoder i2cencoders[{0:d}];\n".format(len(self.list_))
+        rv += "I2CEncoder i2c_encoders[{0:d}];\n".format(len(self.list_))
         return rv
 
     def get_setup(self):
         rv = "\tWire.begin();\n"
         for sensor in self.list_:
-            rv += ("\ti2cencoders[{0:s}_index].init(MOTOR_393_TORQUE_ROTATIONS, " +
+            rv += ("\ti2c_encoders[{0:s}_index].init(MOTOR_393_TORQUE_ROTATIONS, " +
                    "MOTOR_393_TIME_DELTA);\n").format(sensor.label)
         for sensor in self.list_:
             if sensor.reverse:
-                rv += "\ti2cencoders[{0:s}_index].setReversed(true);\n".format(sensor.label)
+                rv += "\ti2c_encoders[{0:s}_index].setReversed(true);\n".format(sensor.label)
         for sensor in self.list_:
-            rv += "\ti2cencoders[{0:s}_index].zero();\n".format(sensor.label)
+            rv += "\ti2c_encoders[{0:s}_index].zero();\n".format(sensor.label)
         rv += "\n"
         return rv
 
@@ -71,7 +71,7 @@ class I2CEncoderList(ComponentList):
         rv += "\t\treturn;\n"
         rv += "\t}\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderPosition);\n"
-        rv += "\tcmdMessenger.sendBinCmd(kI2CEncoderPositionResult, i2cencoders[indexNum].getPosition());\n"
+        rv += "\tcmdMessenger.sendBinCmd(kI2CEncoderPositionResult, i2c_encoders[indexNum].getPosition());\n"
         rv += "}\n\n"
 
         rv += "void i2cEncoderRawPosition() {\n"
@@ -81,7 +81,7 @@ class I2CEncoderList(ComponentList):
         rv += "\t\treturn;\n"
         rv += "\t}\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderRawPosition);\n"
-        rv += "\tcmdMessenger.sendBinCmd(kI2CEncoderRawPositionResult, i2cencoders[indexNum].getRawPosition());\n"
+        rv += "\tcmdMessenger.sendBinCmd(kI2CEncoderRawPositionResult, i2c_encoders[indexNum].getRawPosition());\n"
         rv += "}\n\n"
 
         rv += "void i2cEncoderSpeed() {\n"
@@ -91,7 +91,7 @@ class I2CEncoderList(ComponentList):
         rv += "\t\treturn;\n"
         rv += "\t}\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderSpeed);\n"
-        rv += "\tcmdMessenger.sendBinCmd(kI2CEncoderSpeedResult, i2cencoders[indexNum].getSpeed());\n"
+        rv += "\tcmdMessenger.sendBinCmd(kI2CEncoderSpeedResult, i2c_encoders[indexNum].getSpeed());\n"
         rv += "}\n\n"
 
         rv += "void i2cEncoderVelocity() {\n"
@@ -101,7 +101,7 @@ class I2CEncoderList(ComponentList):
         rv += "\t\treturn;\n"
         rv += "\t}\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderVelocity);\n"
-        rv += "\tcmdMessenger.sendBinCmd(kI2CEncoderVelocityResult, i2cencoders[indexNum].getVelocity());\n"
+        rv += "\tcmdMessenger.sendBinCmd(kI2CEncoderVelocityResult, i2c_encoders[indexNum].getVelocity());\n"
         rv += "}\n\n"
 
         rv += "void i2cEncoderZero() {\n"
@@ -110,7 +110,7 @@ class I2CEncoderList(ComponentList):
         rv += "\t\tcmdMessenger.sendBinCmd(kError, kI2CEncoderZero);\n"
         rv += "\t\treturn;\n"
         rv += "\t}\n"
-        rv += "\ti2cencoders[indexNum].zero();\n"
+        rv += "\ti2c_encoders[indexNum].zero();\n"
         rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kI2CEncoderZero);\n"
         rv += "}\n\n"
 
