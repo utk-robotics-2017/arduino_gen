@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import json
 import os
@@ -126,8 +128,9 @@ class ArduinoGen:
             logger.error("Parent folder has not been set")
             sys.exit()
         logger.info("Building...")
-        os.chdir("{0:s}/{1:s}".format(self.folder, self.arduino))
-        os.system("ino build")
+        # os.chdir("{0:s}/{1:s}".format(self.folder, self.arduino))
+        os.chdir(self.folder)
+        os.system("pio run")
         logger.info("Done")
 
     def upload(self):
