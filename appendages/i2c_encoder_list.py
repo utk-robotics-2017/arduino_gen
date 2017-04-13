@@ -26,7 +26,7 @@ class I2CEncoderList(ComponentList):
     def get_constructors(self):
         rv = ""
         for i in range(len(self.list_)):
-            rv += "const char {0:s}_index = {1:d};\n".format(self.list_[i].label, i)
+            rv += "const byte {0:s}_index = {1:d};\n".format(self.list_[i].label, i)
         rv += "I2CEncoder i2c_encoders[{0:d}];\n".format(len(self.list_))
         return rv
 

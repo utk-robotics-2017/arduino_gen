@@ -1,4 +1,3 @@
-from appendages.i2c_encoder_list import I2CEncoder
 from appendages.component_list import ComponentList
 
 
@@ -24,26 +23,20 @@ class VelocityControlledMotorList(ComponentList):
                     break
         motor = device_dict['motor'].add(json_item['motor'], device_dict, device_type)
 
-        if 'i2c_encoder' in json_item:
-            if 'i2c_encoder' not in device_dict:
-                for device_level in device_type:
-                    if 'i2c_encoder' in device_level:
-                        device_dict['i2c_encoder'] = device_level['i2c_encoder']
-                        break
-            encoder = device_dict['i2c_encoder'].add(json_item['i2c_encoder'], device_dict, device_type)
-        else:
-            if 'encoder' not in device_dict:
-                for device_level in device_type:
-                    if 'encoder' in device_level:
-                        device_dict['encoder'] = device_level['encoder']
-                        break
-            encoder = device_dict['encoder'].add(json_item['encoder'], device_dict, device_type)
-        if 'pid' not in device_dict:
+        if 'i2c_encoder' not in device_dict:
             for device_level in device_type:
-                if 'pid' in device_level:
-                    device_dict['pid'] = device_level['pid']
+                if 'i2c_encoder' in device_level:
+                    device_dict['i2c_encoder'] = device_level['i2c_encoder']
                     break
-        vpid = device_dict['pid'].add(json_item['pid'], device_dict, device_type)
+        encoder = device_dict['i2c_encoder'].add(json_item['i2c_encoder'], device_dict, device_type)
+
+        if 'vpid' not in device_dict:
+            for device_level in device_type:
+                if 'vpid' in device_level:
+                    device_dict['vpid'] = device_level['vpid']
+                    break
+        vpid = device_dict['vpid'].add(json_item['vpid'], device_dict, device_type)
+
         vcm = VelocityControlledMotor(json_item['label'], motor, encoder, vpid)
         self.list_.append(vcm)
         self.list_.sort(key=lambda x: x.label, reverse=False)
@@ -55,24 +48,18 @@ class VelocityControlledMotorList(ComponentList):
     def get_constructors(self):
         rv = ""
         for i, vcm in enumerate(self.list_):
-            rv += "const char {0:s}_index = {1:d};\n".format(vcm.label, i)
+            rv += "const byte {0:s}_index = {1:d};\n".format(vcm.label, i)
         rv += "VelocityControlledMotor vcms[{0:d}] = {{\n".format(len(self.list_))
         for vcm in self.list_:
-            if isinstance(vcm.encoder, I2CEncoder):
-                rv += ("\tVelocityControlledMotor(motors[{0:s}_index], i2c_encoders[{1:s}_index], " +
-                       "pids[{2:s}_index], &Inputs_pid[{2:s}_index], " +
-                       "&Setpoints_pid[{2:s}_index], &Outputs_pid[{2:s}_index]),\n")\
-                    .format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
-            else:
-                rv += ("\tVelocityControlledMotor(motors[{0:s}_index], encoders[{1:s}_index], " +
-                       "pids[{2:s}_index], &Inputs_pid[{2:s}_index], " +
-                       "&Setpoints_pid[{2:s}_index], &Outputs_pid[{2:s}_index]),\n")\
-                    .format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
+            rv += ("\tVelocityControlledMotor(motors[{0:s}_index], i2c_encoders[{1:s}_index], " +
+                   "vpids[{2:s}_index], &Inputs_vpid[{2:s}_index], " +
+                   "&Setpoints_vpid[{2:s}_index], &Outputs_vpid[{2:s}_index]),\n")\
+                .format(vcm.motor.label, vcm.encoder.label, vcm.vpid.label)
         rv = rv[:-2] + "\n};\n"
         return rv
 
     def get_loop_functions(self):
-        return "\tfor(int i = 0; i < {0:d}; i++) {{\n\t\t\tvcms[i].runPID();\n\t\t}}\n".format(
+        return "\tfor(int i = 0; i < {0:d}; i++) {{\n\t\t\tvcms[i].runVPID();\n\t\t}}\n".format(
             len(self.list_))
 
     def get_commands(self):
@@ -168,6 +155,6 @@ class VelocityControlledMotorList(ComponentList):
             config['label'] = vcm.label
             config['type'] = "Velocity Controlled Motor"
             config['motor'] = vcm.motor.label
-            config['encoder'] = vcm.encoder.label
-            config['pid'] = vcm.vpid.label
+            config['i2c_encoder'] = vcm.encoder.label
+            config['vpid'] = vcm.vpid.label
             yield config

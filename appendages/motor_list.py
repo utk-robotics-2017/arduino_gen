@@ -40,15 +40,15 @@ class MotorList(ComponentList):
     def get_pins(self):
         rv = ""
         for motor in self.list_:
-            rv += "const char {0:s}_dir_pin_a = {1:d};\n".format(motor.label, motor.dir_pin_a)
-            rv += "const char {0:s}_dir_pin_b = {1:d};\n".format(motor.label, motor.dir_pin_b)
-            rv += "const char {0:s}_pwm_pin = {1:d};\n".format(motor.label, motor.pwm_pin)
+            rv += "const byte {0:s}_dir_pin_a = {1:d};\n".format(motor.label, motor.dir_pin_a)
+            rv += "const byte {0:s}_dir_pin_b = {1:d};\n".format(motor.label, motor.dir_pin_b)
+            rv += "const byte {0:s}_pwm_pin = {1:d};\n".format(motor.label, motor.pwm_pin)
         return rv
 
     def get_constructors(self):
         rv = ""
         for i, motor in enumerate(self.list_):
-            rv += "const char {0:s}_index = {1:d};\n".format(motor.label, i)
+            rv += "const byte {0:s}_index = {1:d};\n".format(motor.label, i)
         rv += "Motor motors[{0:d}] = {{\n".format(len(self.list_))
         for motor in self.list_:
             rv += "\tMotor({0:s}_dir_pin_a, {0:s}_dir_pin_b, {0:s}_pwm_pin, {1:d}, {2:s}),\n"\
