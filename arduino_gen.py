@@ -6,6 +6,7 @@ import os
 import shutil
 import sys
 import importlib
+import re
 
 from generator import Generator
 
@@ -93,26 +94,29 @@ class ArduinoGen:
             logger.error("Config file has not been read")
             sys.exit()
 
+        output = ""
         logger.info("Generating output...")
+        gen = Generator(self.device_dict)
+        logger.info("\tWriting headers")
+        output += gen.add_header()
+        logger.info("\tWriting includes")
+        output += gen.add_includes()
+        logger.info("\tWriting pins")
+        output += gen.add_pins()
+        logger.info("\tWriting constructors")
+        output += gen.add_constructors()
+        logger.info("\tWriting setup")
+        output += gen.add_setup()
+        logger.info("\tWriting loop")
+        output += gen.add_loop()
+        logger.info("\tWriting command callbacks")
+        output += gen.add_commands()
+        logger.info("\tWriting extra functions")
+        output += gen.add_extra_functions()
+        output += "\n"
+        output = re.sub("\t", "    ", output)
         with open("{0:s}/src/{1:s}.ino".format(self.folder, self.arduino), 'w') as fo:
-            gen = Generator(self.device_dict)
-            logger.info("\tWriting headers")
-            fo.write(gen.add_header())
-            logger.info("\tWriting includes")
-            fo.write(gen.add_includes())
-            logger.info("\tWriting pins")
-            fo.write(gen.add_pins())
-            logger.info("\tWriting constructors")
-            fo.write(gen.add_constructors())
-            logger.info("\tWriting setup")
-            fo.write(gen.add_setup())
-            logger.info("\tWriting loop")
-            fo.write(gen.add_loop())
-            logger.info("\tWriting command callbacks")
-            fo.write(gen.add_commands())
-            logger.info("\tWriting extra functions")
-            fo.write(gen.add_extra_functions())
-            fo.write("\n")
+            fo.write(output)
         os.chmod("{0:s}/src/{1:s}.ino".format(self.folder, self.arduino), 0o777)
 
         logger.info("\tWriting indices file")
