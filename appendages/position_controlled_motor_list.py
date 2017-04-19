@@ -53,7 +53,7 @@ class PositionControlledMotorList(ComponentList):
         for pcm in self.list_:
             rv += ("\tPositionControlledMotor(motors[{0:s}_index], i2c_encoders[{1:s}_index], " +
                    "pids[{2:s}_index], &Inputs_pid[{2:s}_index], " +
-                   "&Setpoints_pid[{2:s}_index], &Outputs_pid[{2:s}_index]),\n")\
+                   "&Outputs_pid[{2:s}_index], &Setpoints_pid[{2:s}_index]),\n")\
                 .format(pcm.motor.label, pcm.encoder.label, pcm.pid.label)
         rv = rv[:-2] + "\n};\n"
         return rv
@@ -67,12 +67,14 @@ class PositionControlledMotorList(ComponentList):
         rv += "\tkStopPCM,\n"
         rv += "\tkGetPCMPosition,\n"
         rv += "\tkGetPCMPositionResult,\n"
+        rv += "\tkSetPCMPosition,\n"
         return rv
 
     def get_command_attaches(self):
         rv = "\tcmdMessenger.attach(kSetPCMVoltage, setPCMVoltage);\n"
         rv += "\tcmdMessenger.attach(kStopPCM, stopPCM);\n"
         rv += "\tcmdMessenger.attach(kGetPCMPosition, getPCMPosition);\n"
+        rv += "\tcmdMessenger.attach(kSetPCMPosition, setPCMPosition);\n"
         return rv
 
     def get_command_functions(self):
@@ -114,6 +116,22 @@ class PositionControlledMotorList(ComponentList):
         rv += "\tcmdMessenger.sendBinCmd(kGetPCMPositionResult, pcms[indexNum].getPosition());\n"
         rv += "}\n\n"
 
+        rv += "void setPCMPosition() {\n"
+        rv += "\tint indexNum = cmdMessenger.readBinArg<int>();\n"
+        rv += "\tif(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > {0:d}) {{\n"\
+            .format(len(self.list_))
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetPCMPosition);\n"
+        rv += "\t\treturn;\n"
+        rv += "\t}\n"
+        rv += "\tfloat value = cmdMessenger.readBinArg<float>();\n"
+        rv += "\tif(!cmdMessenger.isArgOk()){\n"
+        rv += "\t\tcmdMessenger.sendBinCmd(kError, kSetPCMPosition);\n"
+        rv += "\t\treturn;\n"
+        rv += "\t}\n"
+        rv += "\tpcms[indexNum].setPosition(value);\n"
+        rv += "\tcmdMessenger.sendBinCmd(kAcknowledge, kSetPCMPosition);\n"
+        rv += "}\n\n"
+
         return rv
 
     def get_core_values(self):
@@ -121,8 +139,8 @@ class PositionControlledMotorList(ComponentList):
             config = {}
             config['index'] = i
             config['label'] = pcm.label
-            config['type'] = "Velocity Controlled Motor"
+            config['type'] = "Position Controlled Motor"
             config['motor'] = pcm.motor.label
-            config['i2c_encoder'] = pcm.encoder.label
+            config['encoder'] = pcm.encoder.label
             config['pid'] = pcm.pid.label
             yield config

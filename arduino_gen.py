@@ -168,9 +168,10 @@ if __name__ == "__main__":
     ap.add_argument("-pf", "--parent_folder", required=False,
                     help="Parent folder of the folder to put all the output files")
     ap.add_argument("-c", "--config", required=True, help="Location of the config json file")
-    ap.add_argument("-b", "--build", required=False,
+    ap.add_argument("-b", "--build", required=False, action="store_true", default=False,
                     help="Build the ino file into something that can be uploaded to the arduino")
-    ap.add_argument("-u", "--upload", required=False, help="Build the ino file and upload that on to the arduino")
+    ap.add_argument("-u", "--upload", required=False, action="store_true", default=False,
+                    help="Build the ino file and upload that on to the arduino")
     args = vars(ap.parse_args())
 
     # TODO: Add creating lock file
