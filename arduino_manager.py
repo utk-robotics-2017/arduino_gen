@@ -3,20 +3,31 @@ import usb.core
 import os
 import shutil
 from subprocess import call
+from decorators import attr_check, type_check
+
 
 CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode"
 ARDUINO_UDEV_RULES = "/etc/udev/rules.d/100-arduino-usb-serial.rules"
 
 
+@attr_check
 class LocalDevice:
+    name = str
+    type_ = str
+    vendor = str
+    product = str
+    serial_number = str
+
+    @type_check
     def __init__(self, **kwargs):
         self.name = kwargs.get("name", "No Name")
-        self.type = kwargs.get("type", "No Type")
+        self.type_ = kwargs.get("type_", "No Type")
         self.vendor = kwargs.get("vendor", "No Vendor")
         self.product = kwargs.get("product", "No Product")
         self.serial_number = kwargs.get("serial_number", "No Serial Number")
 
-    def toUdevRule(self):
+    @type_check
+    def toUdevRule(self) -> str:
         return 'SUBSYSTEM=="tty", ATTRS{{idVendor}}=="{:04x}", ATTRS{{idProduct}}=="{:04x}",'
         + ' ATTRS{{serial}}=="{}", SYMLINK+="{}"\n'.format(
             self.vendor, self.product, self.serial_number, self.name)
@@ -24,14 +35,22 @@ class LocalDevice:
     def __str__(self):
         return "\tName: {0:}\n\tType: {1:}\n\tVendor: 0x{2:04x}\n\tProduct: 0x{3:04x}\n"
         + "\tSerial Number: {4:}".format(
-            self.name, self.type, self.vendor, self.product, self.serial_number)
+            self.name, self.type_, self.vendor, self.product, self.serial_number)
 
     def __repr__(self):
         self.__str__()
 
 
+@attr_check
 class UdevRule:
-    def __init__(self, text):
+    subsystem = str
+    vendor = str
+    product = str
+    serial_number = str
+    symlink = str
+
+    @type_check
+    def __init__(self, text: str):
         text_split = text.split('"')
         self.subsystem = text_split[1]
         self.vendor = text_split[3]
@@ -40,7 +59,16 @@ class UdevRule:
         self.symlink = text_split[9]
 
 
+@attr_check
 class ArduinoManager:
+    context = pyudev.Context
+    unnamed = dict
+    named = dict
+    udev_rules = dict
+    current_arduinos = list
+    count = int
+
+
     def __init__(self):
         self.context = pyudev.Context()
         self.usb = usb.core
@@ -49,15 +77,17 @@ class ArduinoManager:
         self.udev_rules = {}
         self.current_arduinos = os.listdir(CURRENT_ARDUINO_CODE_DIR)
 
-    def fill_lists(self):
+    @type_check
+    def fill_lists(self) -> None:
         self.count = 0
         for device in self.usb.find(find_all=1):
             if(device is None or device.product is None):
                 continue
             if "arduino" in device.product.lower():
-                type = "Uno" if "uno" in device.product.lower() else "Mega"
+                # TODO: modify to allow more options
+                type_ = "Uno" if "uno" in device.product.lower() else "Mega"
                 self.unnamed[self.count] = LocalDevice(
-                    type=type,
+                    type_=type_,
                     vendor=device.idVendor,
                     product=device.idProduct,
                     serial_number=device.serial_number
@@ -79,7 +109,8 @@ class ArduinoManager:
         for item in del_list:
             del self.unnamed[item]
 
-    def display_lists(self):
+    @type_check
+    def display_lists(self) -> str:
         print("Named:")
         for name, device in self.named.items():
             print(device)
@@ -88,7 +119,8 @@ class ArduinoManager:
             print("Device [{}]".format(name))
             print(device)
 
-    def name(self, index, device_name):
+    @type_check
+    def name(self, index: int, device_name: str) ->None:
         if index in self.unnamed:
             device = self.unnamed[index]
             del self.unnamed[index]
@@ -114,7 +146,8 @@ class ArduinoManager:
         else:
             print("No unnamed arduino {}".format(index))
 
-    def edit_name(self, old_name, new_name):
+    @type_check
+    def edit_name(self, old_name: str, new_name: str) -> None:
         if old_name in self.named:
             self.named[new_name] = self.named[old_name]
             del self.named[old_name]
@@ -122,7 +155,8 @@ class ArduinoManager:
         else:
             print("No arduino named {} exists".format(old_name))
 
-    def unname(self, old_name):
+    @type_check
+    def unname(self, old_name: str) -> None:
         if old_name in self.named:
             shutil.rmtree(CURRENT_ARDUINO_CODE_DIR + "/" + old_name)
             self.unnamed[self.count] = self.named[old_name]
@@ -132,13 +166,15 @@ class ArduinoManager:
         else:
             print("No arduino named {} exists".format(old_name))
 
-    def save_udev(self):
+    @type_check
+    def save_udev(self) -> None:
         with open(ARDUINO_UDEV_RULES, 'w') as f:
             for name, device in self.named.items():
                 f.write(device.toUdevRule())
 
 
-def display_commands():
+@type_check
+def display_commands() -> None:
     print("Commands:")
     print("\tname <device number> <device name>")
     print("\tedit-name <old name> <new name>")

@@ -13,58 +13,68 @@ import tornado.websocket
 import tornado.httpserver
 
 from arduino_gen import ArduinoGen
+from decorators import attr_check, type_check
+
 
 clients = set()
-clientId = 0
+client_id = 0
 
 port = 9000
-currentArduinoCodeFolder = "/Robot/CurrentArduinoCode"
-confFolder = "./conf"
-lockFolder = "/var/lock"
+current_arduino_code_folder = "/Robot/CurrentArduinoCode"
+conf_folder = "./conf"
+lock_folder = "/var/lock"
 pin = random.randint(0, 99999)
 
-currentArduinoCodeFolderAbsPath = os.path.abspath(currentArduinoCodeFolder)
-if not os.path.isdir(currentArduinoCodeFolderAbsPath):
-    os.mkdir(currentArduinoCodeFolderAbsPath)
+current_arduino_code_folder_abs_path = os.path.abspath(current_arduino_code_folder)
+if not os.path.isdir(current_arduino_code_folder_abs_path):
+    os.mkdir(current_arduino_code_folder_abs_path)
 
-confFolderAbsPath = os.path.abspath(confFolder)
-if not os.path.isdir(confFolderAbsPath):
-    os.mkdir(confFolderAbsPath)
+conf_folder_abs_path = os.path.abspath(conf_folder)
+if not os.path.isdir(conf_folder_abs_path):
+    os.mkdir(conf_folder_abs_path)
 
-lockFolderAbsPath = os.path.abspath(lockFolder)
-if not os.path.isdir(lockFolderAbsPath):
-    os.mkdir(lockFolderAbsPath)
+lock_folder_abs_path = os.path.abspath(lock_folder)
+if not os.path.isdir(lock_folder_abs_path):
+    os.mkdir(lock_folder_abs_path)
 
 
-arduinos = [{"name": d} for d in os.listdir(currentArduinoCodeFolder)
-            if os.path.isdir(currentArduinoCodeFolder + "/" + d) and not d == ".git"]
+arduinos = [{"name": d} for d in os.listdir(current_arduino_code_folder)
+            if os.path.isdir(current_arduino_code_folder + "/" + d) and not d == ".git"]
 
 for arduino in arduinos:
-    arduino["locked"] = os.path.exists(lockFolderAbsPath + "/" + arduino["name"] + ".lck")
+    arduino["locked"] = os.path.exists(lock_folder_abs_path + "/" + arduino["name"] + ".lck")
 
-
-def log(wsId, message):
+@type_check
+def log(wsId: int, message: str): -> None
     print(("{}\tClient {:2d}\t{}".format(
         time.strftime("%H:%M:%S", time.localtime()), wsId, message
     )))
 
 
+@attr_check
 class Server(tornado.websocket.WebSocketHandler):
-    def check_origin(self, origin):
+
+    id_ = int
+    verified = bool
+
+    @type_check
+    def check_origin(self, origin): -> bool
         return True
 
-    def open(self):
-        global clients, clientId
+    @type_check
+    def open(self): -> None
+        global clients, client_id
 
-        self.id = clientId
-        clientId += 1
+        self.id_ = client_id
+        client_id += 1
         clients.add(self)
 
         self.verified = False
 
         log(self.id, "connected with ip: " + self.request.remote_ip)
 
-    def on_message(self, message):
+    @type_check
+    def on_message(self, message: str): -> None
         if not self.verified:
             try:
                 clientPin = int(message)
@@ -90,32 +100,32 @@ class Server(tornado.websocket.WebSocketHandler):
                     self.write_message("ClientHasLock")
                     log(self.id, "tried to lock, but already has a device lock")
                 else:
-                    devName = message[len(cmd):]
+                    dev_name = message[len(cmd):]
 
-                    dev = list([x for x in arduinos if x["name"] == devName])
+                    dev = list([x for x in arduinos if x["name"] == dev_name])
                     if len(dev):
                         dev = dev[0]
                     else:
                         self.write_message("DeviceNotRegistered")
-                        log(self.id, devName + " device not registered")
+                        log(self.id, dev_name + " device not registered")
                         return
 
                     if dev["locked"]:
                         self.write_message("DeviceInUse")
-                        log(self.id, devName + " device is in use")
+                        log(self.id, dev_name + " device is in use")
                     else:
                         dev["locked"] = True
                         self.device = dev
-                        lockFileName = lockFolderAbsPath + "/" + self.device["name"] + ".lck"
-                        with open(lockFileName, "w") as f:
+                        lock_filename = lock_folder_abs_path + "/" + self.device["name"] + ".lck"
+                        with open(lock_filename, "w") as f:
                             f.write("Locked by ArduinoGenServer")
-                        os.chmod(lockFileName, 0o777)
+                        os.chmod(lock_filename, 0o777)
                         for client in clients:
                             client.write_message("DeviceList" + json.dumps(arduinos))
                         log(self.id, "updated devices")
 
-                        self.write_message("LockedDevice" + devName)
-                        log(self.id, "locked " + devName)
+                        self.write_message("LockedDevice" + dev_name)
+                        log(self.id, "locked " + dev_name)
                 return
 
             cmd = "Unlock"
@@ -124,8 +134,8 @@ class Server(tornado.websocket.WebSocketHandler):
                     self.write_message("ClientNoLock")
                     log(self.id, "tried to unlock, but doesn't have a device lock")
                 else:
-                    lockFileName = lockFolderAbsPath + "/" + self.device["name"] + ".lck"
-                    os.remove(lockFileName)
+                    lock_filename = lock_folder_abs_path + "/" + self.device["name"] + ".lck"
+                    os.remove(lock_filename)
                     self.device["locked"] = False
                     self.write_message("UnlockedDevice" + self.device["name"])
                     log(self.id, "unlocked " + self.device["name"])
@@ -142,15 +152,15 @@ class Server(tornado.websocket.WebSocketHandler):
                     self.write_message("ClientNoLock")
                     log(self.id, "tried to get components, but doesn't have a device lock")
                 else:
-                    deviceJsonFile = currentArduinoCodeFolder + "/" + self.device["name"] + "/" + \
+                    device_json_file = current_arduino_code_folder + "/" + self.device["name"] + "/" + \
                         self.device["name"] + ".json"
-                    if not os.path.exists(deviceJsonFile):
+                    if not os.path.exists(device_json_file):
                         self.write_message("[]")
                         log(self.id, "no file, sending empy list")
                     else:
-                        with open(deviceJsonFile, 'r') as jsonFile:
-                            jsonData = jsonFile.read().replace('\n', '')
-                            self.write_message("ComponentList" + jsonData)
+                        with open(device_json_file, 'r') as json_file:
+                            json_data = json_file.read().replace('\n', '')
+                            self.write_message("ComponentList" + json_data)
                             log(self.id, "requested " + self.device["name"] + "'s components")
                 return
 
@@ -160,9 +170,9 @@ class Server(tornado.websocket.WebSocketHandler):
                     self.write_message("ClientNoLock")
                     log(self.id, "tried to post components, but doesn't have a device lock")
                 else:
-                    deviceJsonFile = confFolderAbsPath + "/" + self.device["name"] + ".json"
-                    with open(deviceJsonFile, 'w') as jsonFile:
-                        jsonFile.write(message[len(cmd):])
+                    device_json_file = conf_folder_abs_path + "/" + self.device["name"] + ".json"
+                    with open(device_json_file, 'w') as json_file:
+                        json_file.write(message[len(cmd):])
                         self.write_message("PostedComponents")
                         log(self.id, "posted " + self.device["name"] + "'s components")
                 return
@@ -173,9 +183,9 @@ class Server(tornado.websocket.WebSocketHandler):
                     self.write_message("ClientNoLock")
                     log(self.id, "tried to generate arduino code, but doesn't have a device lock")
                 else:
-                    deviceJsonFile = confFolderAbsPath + "/" + self.device["name"] + ".json"
-                    with open(deviceJsonFile, 'w') as jsonFile:
-                        jsonFile.write(message[len(cmd):])
+                    device_json_file = conf_folder_abs_path + "/" + self.device["name"] + ".json"
+                    with open(device_json_file, 'w') as json_file:
+                        json_file.write(message[len(cmd):])
                         self.write_message("PostedComponents")
                         log(self.id, "posted " + self.device["name"] + "'s components")
 
@@ -184,7 +194,7 @@ class Server(tornado.websocket.WebSocketHandler):
                     ag = ArduinoGen(arduino=self.device["name"])
                     ag.setParentFolder(os.path.dirname(os.path.realpath(__file__)))
                     ag.setupFolder()
-                    ag.readConfig(deviceJsonFile)
+                    ag.readConfig(device_json_file)
                     ag.generateOutput()
                     log(self.id, "generated arduino code for " + self.device["name"])
                     self.write_message("GeneratedArduinoCode")
@@ -196,9 +206,9 @@ class Server(tornado.websocket.WebSocketHandler):
                     self.write_message("ClientNoLock")
                     log(self.id, "tried to write components, but doesn't have a device lock")
                 else:
-                    deviceJsonFile = confFolderAbsPath + "/" + self.device["name"] + ".json"
-                    with open(deviceJsonFile, 'w') as jsonFile:
-                        jsonFile.write(message[len(cmd):])
+                    device_json_file = conf_folder_abs_path + "/" + self.device["name"] + ".json"
+                    with open(deviceJsonFile, 'w') as json_file:
+                        json_file.write(message[len(cmd):])
                         self.write_message("PostedComponents")
                         log(self.id, "posted " + self.device["name"] + "'s components")
 
@@ -207,14 +217,15 @@ class Server(tornado.websocket.WebSocketHandler):
                     ag = ArduinoGen(arduino=self.device["name"])
                     ag.setParentFolder(os.path.dirname(os.path.realpath(__file__)))
                     ag.setupFolder()
-                    ag.readConfig(deviceJsonFile)
+                    ag.readConfig(device_json_file)
                     ag.generateOutput()
                     ag.upload()
                     log(self.id, "written components to " + self.device["name"])
                     self.write_message("WrittenComponents")
                 return
 
-    def on_close(self):
+    @type_check
+    def on_close(self): -> None
         if hasattr(self, 'device'):
             dev = self.device
             dev["locked"] = False
@@ -233,12 +244,14 @@ class Server(tornado.websocket.WebSocketHandler):
         log(self.id, "disconnected")
 
 
+@attr_check
 class SetupTLS(tornado.web.RequestHandler):
-    def get(self):
+    @type_check
+    def get(self): -> None
         self.write("Please accept the TLS certificate to use websockets from this device.")
 
-
-def make_app():
+@type_check
+def make_app(): -> tornado.httpserver.HTTPServer
     return tornado.httpserver.HTTPServer(tornado.web.Application([
         (r"/", Server),
         (r"/setuptls", SetupTLS)
@@ -247,8 +260,8 @@ def make_app():
         "keyfile": "/etc/ssl/certs/tornado.key"
     })
 
-
-def sigInt_handler(signum, frame):
+@type_check
+def sigInt_handler(signum, frame): -> None
     print("Closing Server")
 
     while clients:

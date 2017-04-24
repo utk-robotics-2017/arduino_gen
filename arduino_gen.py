@@ -6,6 +6,7 @@ import sys
 import importlib
 
 from generator import Generator
+from decorators import attr_check, type_check
 
 import logging
 from ourlogging import setup_logging
@@ -17,14 +18,21 @@ CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode"
 
 
+@attr_check
 class ArduinoGen:
-    def __init__(self, arduino):
+    arduino = str
+    device_dict = dict
+
+    @type_check
+    def __init__(self, arduino: str):
         self.arduino = arduino
 
-    def setParentFolder(self, parentFolder):
+    @type_check
+    def set_parent_folder(self, parentFolder: str) -> None:
         self.folder = "{0:s}/{1:s}".format(parentFolder, self.arduino)
 
-    def setupFolder(self):
+    @type_check
+    def setup_folder(self) -> None:
         if not hasattr(self, 'folder'):
             print("Folder has not been set")
             sys.exit()
@@ -37,7 +45,8 @@ class ArduinoGen:
         os.chmod("{0:s}/src".format(self.folder), 0o777)
         logger.info("Done")
 
-    def readConfig(self, f, copy=True):
+    @type_check
+    def read_config(self, f, copy: bool=True) -> None:
         if copy:
             shutil.copyfile(f, "{0:s}/{1:s}.json".format(self.folder, self.arduino))
             os.chmod("{0:s}/{1:s}.json".format(self.folder, self.arduino), 0o777)
@@ -83,7 +92,8 @@ class ArduinoGen:
                 self.device_dict[json_item['type']].add(json_item, self.device_dict, device_type)
         logger.info("Done")
 
-    def generateOutput(self):
+    @type_check
+    def generate_output(self) -> None:
         if not hasattr(self, 'folder'):
             logger.error("Parent folder has not been set")
             sys.exit()
@@ -121,7 +131,8 @@ class ArduinoGen:
         logger.info("Done")
         logger.info("Your output can be found at {0:s}".format(self.folder))
 
-    def build(self):
+    @type_check
+    def build(self) -> None:
         if not hasattr(self, 'folder'):
             logger.error("Parent folder has not been set")
             sys.exit()
@@ -130,7 +141,8 @@ class ArduinoGen:
         os.system("ino build")
         logger.info("Done")
 
-    def upload(self):
+    @type_check
+    def upload(self) -> None:
         if not hasattr(self, 'folder'):
             logger.error("Parent folder has not been set")
             sys.exit()
@@ -169,9 +181,9 @@ if __name__ == "__main__":
     # TODO: Add creating lock file
 
     ag = ArduinoGen(args['arduino'])
-    ag.setParentFolder(args['parent_folder'])
-    ag.readConfig(args['config'])
-    ag.generateOutput()
+    ag.set_parent_folder(args['parent_folder'])
+    ag.read_config(args['config'])
+    ag.generate_output()
 
     if args['upload']:
         ag.upload()
