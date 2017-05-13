@@ -15,7 +15,7 @@ class TemplateParser:
         self.section_head_pattern = re.compile(r'\s*(.*)\s*{{{')
         self.include_pattern = re.compile(r'(["|<][\w.]*["|>])')
         self.local_pattern = re.compile(r'<<<([\w.]*)>>>')
-        self.loop_seperated_by_pattern = re.compile(r'loop_seperated_by\([\'|\"](.+)[\'|\"]\)')
+        self.loop_separated_by_pattern = re.compile(r'loop_separated_by\([\'|\"](.+)[\'|\"]\)')
         self.core_values_pattern = re.compile(r'(.+)\s*=\s*(.+)')
 
     @type_check
@@ -247,8 +247,8 @@ class TemplateParser:
                     # inner section
                     elif isinstance(line, tuple):
                         rv += self.inner_section(line)
-        if 'loop_seperated_by' in section_head:
-            m = self.loop_seperated_by_pattern.match(section_head)
+        if 'loop_separated_by' in section_head:
+            m = self.loop_separated_by_pattern.match(section_head)
             if m is not None:
                 matches = m.groups()
                 if len(matches) == 1:
