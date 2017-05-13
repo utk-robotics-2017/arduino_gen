@@ -1,0 +1,28 @@
+{
+    "appendages": [
+        {
+            "label": "encoder",
+            "index": 0,
+            "type": "Encoder",
+            "ticks_per_revolution ": "400"
+        },
+        {
+            "label": "encoder2",
+            "index": 1,
+            "type": "Encoder",
+            "ticks_per_revolution ": "400"
+        }
+    ],
+    "commands": {
+        "kAcknowledge": 0,
+        "kError": 1,
+        "kUnknown": 2,
+        "kSetLed": 3,
+        "kPing": 4,
+        "kPingResult": 5,
+        "kPong": 6,
+        "kReadEncoder": 7,
+        "kReadEncoderResult": 8,
+        "kZeroEncoder": 9
+    }
+}

@@ -89,13 +89,12 @@ class ArduinoGen:
             sys.exit()
 
         logger.info("Generating output...")
-        with open("{0:s}/src/{1:s}.ino".format(self.folder, self.arduino), 'w') as fo:
-            generator = Generator(self.device_dict)
-            logger.info("\tLoading templates... [{0:s}] 0/{1:d}".format(' ' * 20, len(self.device_dict)),
-                        extra={'repeated': True})
-            generator.load_templates()
-            logger.info("\tWriting file... [{0:s}] 0/10".format(' ' * 10), extra={'repeated': True})
-            generator.write_file(fo)
+        generator = Generator(self.device_dict)
+        logger.info("\tLoading templates... [{0:s}] 0/{1:d}".format(' ' * 20, len(self.device_dict)),
+                    extra={'repeated': True})
+        generator.load_templates()
+        logger.info("\tWriting file... [{0:s}] 0/10".format(' ' * 10), extra={'repeated': True})
+        generator.write_file("{0:s}/src/{1:s}.ino".format(self.folder, self.arduino))
         os.chmod("{0:s}/src/{1:s}.ino".format(self.folder, self.arduino), 0o777)
 
         logger.info("\tWriting indices file")

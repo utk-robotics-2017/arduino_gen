@@ -2,18 +2,19 @@
 
 // Includes
 #include "CmdMessenger.h"
-!{includes}
+<<<includes>>>
 
 // Globals
 int ledState = HIGH;
 
 // Pin definitions
 const char LED = 13;
-!{pins}
+<<<pins>>>
 
 // Constructors
 // Attach a new CmdMessenger object to the default Serial port
 CmdMessenger cmdMessenger = CmdMessenger(Serial);
+<<<constructors>>>
 
 // This is the list of recognized commands. These can be commands that can either be sent or received.
 // In order to receive, attach a callback function to these events
@@ -25,14 +26,14 @@ enum {
     kPing,
     kPingResult,
     kPong,
-    !{commands}
+    <<<commands>>>
 };
 
 void setup() {
     // Init LED pin
     pinMode(LED, OUTPUT);
 
-    !{setup}
+    <<<setup>>>
     
     // Initialize Serial Communication
     Serial.begin(115200);
@@ -54,7 +55,7 @@ void loop() {
     // Process incoming serial data, and perform callbacks
     cmdMessenger.feedinSerialData();
 
-    !{loop}
+    <<<loop_functions>>>
 }
 
 // Callbacks define on which received commands we take action
@@ -63,7 +64,7 @@ void attachCommandCallbacks() {
     cmdMessenger.attach(unknownCommand);
     cmdMessenger.attach(kPing, ping);
     cmdMessenger.attach(kSetLed, setLed);
-    !{command_attaches}
+    <<<command_attaches>>>
 }
 
 // Called when a received command has no attached function
@@ -72,7 +73,7 @@ void unknownCommand() {
 }
 
 // Called upon initialization of Spine to check connection
-void ping() {\n"
+void ping() {
     cmdMessenger.sendBinCmd(kAcknowledge, kPing);
     cmdMessenger.sendBinCmd(kPingResult, kPong);
 }
@@ -85,6 +86,6 @@ void setLed() {
     cmdMessenger.sendBinCmd(kAcknowledge, kSetLed);
 }
 
-!{command_functions}
+<<<command_functions>>>
 
-!{extra_functions}
+<<<extra_functions>>>

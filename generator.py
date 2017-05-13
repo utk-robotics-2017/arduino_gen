@@ -1,5 +1,7 @@
 import os
 import json
+import platform
+from subprocess import call
 
 from template_parser import TemplateParser
 from appendages.util.decorators import singleton, attr_check, type_check
@@ -36,69 +38,81 @@ class Generator:
             self.parsed_templates.append(parsed_template)
         self.parsed_templates.sort(key=lambda i: i.tier)
 
-    def write_file(self, file):
-        with open('arduino.template') as f:
+    def write_file(self, filename):
+        with open('{0:s}/arduino.template'.format(CURRENT_DIR)) as f:
             template = f.read()
 
         logger.info("\tWriting file... [{0:s}] 1/10".format('=' * 1 + ' ' * 9), extra={'repeated': True})
-        template.replace('!{includes}', self.get_includes())
+        template = template.replace('<<<includes>>>', self.get_includes())
         logger.info("\tWriting file... [{0:s}] 2/10".format('=' * 2 + ' ' * 8), extra={'repeated': True})
-        template.replace('!{pins}', self.get_pins())
+        template = template.replace('<<<pins>>>', self.get_pins())
         logger.info("\tWriting file... [{0:s}] 3/10".format('=' * 3 + ' ' * 7), extra={'repeated': True})
-        template.replace('!{constructors}', self.get_constructors())
+        template = template.replace('<<<constructors>>>', self.get_constructors())
         logger.info("\tWriting file... [{0:s}] 4/10".format('=' * 4 + ' ' * 6), extra={'repeated': True})
-        template.replace('!{setup}', self.get_setup())
+        template = template.replace('<<<setup>>>', self.get_setup())
         logger.info("\tWriting file... [{0:s}] 5/10".format('=' * 5 + ' ' * 5), extra={'repeated': True})
-        template.replace('!{loop}', self.get_loop())
+        template = template.replace('<<<loop_functions>>>', self.get_loop())
         logger.info("\tWriting file... [{0:s}] 6/10".format('=' * 6 + ' ' * 4), extra={'repeated': True})
-        template.replace('!{commands}', self.get_commands())
+        template = template.replace('<<<commands>>>', self.get_commands())
         logger.info("\tWriting file... [{0:s}] 7/10".format('=' * 7 + ' ' * 3), extra={'repeated': True})
-        template.replace('!{command_attaches}', self.get_command_attaches())
+        template = template.replace('<<<command_attaches>>>', self.get_command_attaches())
         logger.info("\tWriting file... [{0:s}] 8/10".format('=' * 8 + ' ' * 2), extra={'repeated': True})
-        template.replace('!{command_functions}', self.get_command_functions())
+        template = template.replace('<<<command_functions>>>', self.get_command_functions())
         logger.info("\tWriting file... [{0:s}] 9/10".format('=' * 9 + ' ' * 1), extra={'repeated': True})
-        template.replace('!{extra_functions}', self.get_extra_functions())
+        template = template.replace('<<<extra_functions>>>', self.get_extra_functions())
         logger.info("\tWriting file... [{0:s}] 10/10".format('=' * 10), extra={'repeated': True})
+        with open(filename, 'w') as f:
+            f.write(template)
+            f.flush()
 
-        file.write(template)
-        file.flush()
+        if platform.system() == "Linux":
+            #TODO
+            #call([CURRENT_DIR + ?, "--style=allman", "-n",filename])
+            pass
+        elif platform.system() == "Darwin": # Mac
+            call([CURRENT_DIR + "/astyle/mac/build/mac/bin/Astyle", "--style=allman", "-n",filename])
+        elif platform.system() == "Windows":
+            #TODO: Anthony?
+            #call([CURRENT_DIR + ?, "--style=allman", "-n",filename])
+            pass
+
+
 
     def get_includes(self):
         includes = []
         for parsed_template in self.parsed_templates:
-            for temp_include in parsed_template.get_includes():
+            for temp_include in parsed_template.includes:
                 if temp_include not in includes:
                     includes.append(temp_include)
 
         rv = ""
         for include in includes:
-            rv += "{0:s}\n".format(include)
+            rv += "#include {0:s}\n".format(include)
 
         return rv
 
     def get_pins(self):
         rv = ""
         for parsed_template in self.parsed_templates:
-            for pin_line in parsed_template.get_pins():
-                rv += "{0:s}\n".format(pin_line)
+            rv += "{0:s}\n".format(parsed_template.pins)
         return rv
 
     def get_constructors(self):
         rv = ""
         for parsed_template in self.parsed_templates:
-            rv += parsed_template.get_constructors()
+            rv += parsed_template.constructors
         return rv
 
     def get_setup(self):
         rv = ""
         for parsed_template in self.parsed_templates:
-            rv += parsed_template.get_setup()
+            rv += parsed_template.setup
         return rv
 
     def get_loop(self):
         rv = ""
         for parsed_template in self.parsed_templates:
-            rv += parsed_template.get_loop_functions()
+            rv += parsed_template.loop_functions
         return rv
 
     def get_commands(self):
@@ -113,7 +127,7 @@ class Generator:
         self.commands['kPong'] = 6
         cmd_idx = 7
         for parsed_template in self.parsed_templates:
-            cmds = parsed_template.get_commands()
+            cmds = parsed_template.commands
             rv += cmds
             cmds = cmds.split(',')
             for cmd in cmds:
@@ -121,25 +135,25 @@ class Generator:
                 if cmd != "":
                     self.commands[cmd] = cmd_idx
                     cmd_idx += 1
-        rv = rv[:-2] + '\n'  # remove last comma
+        rv = rv[:-2] # remove last comma
         return rv
 
     def get_command_attaches(self):
         rv = ""
         for parsed_template in self.parsed_templates:
-            rv += parsed_template.get_command_attaches()
+            rv += parsed_template.command_attaches
         return rv
 
     def get_command_functions(self):
-        rv = ""
+        rv = "// Command Functions\n"
         for parsed_template in self.parsed_templates:
-            rv += parsed_template.get_command_functions()
+            rv += parsed_template.command_functions
         return rv
 
-    def add_extra_functions(self):
-        rv = ""
+    def get_extra_functions(self):
+        rv = "// Extra Functions"
         for parsed_template in self.parsed_templates:
-            rv += parsed_template.get_extra_functions()
+            rv += parsed_template.extra_functions
         return rv
 
     def write_shell_scripts(self, folder, arduino):
@@ -162,7 +176,7 @@ class Generator:
         core_config['appendages'] = []
 
         for parsed_template in self.parsed_templates:
-                core_config['appendages'] += parsed_template.get_core_values()
+            core_config['appendages'] += parsed_template.core_values
 
         core_config['commands'] = self.commands
 

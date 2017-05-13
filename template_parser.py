@@ -39,7 +39,7 @@ class TemplateParser:
             self.line_number = end_line_number + 1
 
         pt = ParsedTemplate()
-        pt.include = []
+        pt.includes = []
         if 'include' in template_heirachy:
             include_list = template_heirachy['include']
             for include in include_list:
@@ -50,7 +50,7 @@ class TemplateParser:
                         #TODO: check is m.groups() returns a tuple or list
                         # if list then replace the below line with:
                         # pt.include += matches
-                        pt.include += [matches[0]]
+                        pt.includes += [matches[0]]
         pt.pins = ""
         if 'pins' in template_heirachy:
             for line in template_heirachy['pins']:
@@ -87,17 +87,17 @@ class TemplateParser:
                 elif isinstance(line, tuple):
                     pt.setup += self.inner_section(line)
 
-        pt.loop = ""
+        pt.loop_functions = ""
         if 'loop_functions' in template_heirachy:
             for line in template_heirachy['loop_functions']:
                 if isinstance(line, str):
                     line = line.strip()  # Remove leading and trailing whitespace
                     if line == "":
                         continue
-                    pt.loop += self.apply_globals(line) + "\n"
+                    pt.loop_functions += self.apply_globals(line) + "\n"
                 # inner section
                 elif isinstance(line, tuple):
-                    pt.loop += self.inner_section(line)
+                    pt.loop_functions += self.inner_section(line)
 
         pt.commands = ""
         if 'commands' in template_heirachy:
@@ -173,6 +173,7 @@ class TemplateParser:
                             d[matches[0]] = matches[1]
                         else:
                             raise Exception("core values format not correct")
+                pt.core_values.append(d)
         else:
             raise Exception("core values section not in template")
 
@@ -262,7 +263,7 @@ class TemplateParser:
                                 # inner section
                             elif isinstance(line, tuple):
                                 rv += self.inner_section(line)
-                    rv = rv[:-(len(matches[0]) + 1)] + '\n' # Remove the last separator
+                    #rv = rv[:-(len(matches[0]) + 1)] + '\n' # Remove the last separator
 
         return rv
 
