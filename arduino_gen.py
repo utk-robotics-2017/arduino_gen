@@ -7,7 +7,7 @@ import importlib
 
 from generator import Generator
 
-from appendages.utils.logger import Logger
+from appendages.util.logger import Logger
 logger = Logger()
 
 # Import all the files in appendages
@@ -19,10 +19,10 @@ class ArduinoGen:
     def __init__(self, arduino):
         self.arduino = arduino
 
-    def setParentFolder(self, parentFolder):
-        self.folder = "{0:s}/{1:s}".format(parentFolder, self.arduino)
+    def set_parent_folder(self, parent_folder):
+        self.folder = "{0:s}/{1:s}".format(parent_folder, self.arduino)
 
-    def setupFolder(self):
+    def setup_folder(self):
         if not hasattr(self, 'folder'):
             print("Folder has not been set")
             sys.exit()
@@ -35,7 +35,7 @@ class ArduinoGen:
         os.chmod("{0:s}/src".format(self.folder), 0o777)
         logger.info("Done")
 
-    def readConfig(self, f, copy=True):
+    def read_config(self, f, copy=True):
         if copy:
             shutil.copyfile(f, "{0:s}/{1:s}.json".format(self.folder, self.arduino))
             os.chmod("{0:s}/{1:s}.json".format(self.folder, self.arduino), 0o777)
@@ -46,9 +46,8 @@ class ArduinoGen:
         json_data = json.loads(file_text)
 
         # Split into levels based on dependencies
-        device_type = []
         current_search_path = CURRENT_DIR + "/appendages/arduino_gen/"
-        current_import_path = "appendages.arduino_gen."
+        current_import_path = "appendages.arduino_gen"
         file_list = []
         # Grab all appendage files from directory
         for f in os.listdir(current_search_path):
@@ -56,7 +55,7 @@ class ArduinoGen:
                 file_list.append(f)
 
         class_dict = {}
-        device_dict = {}
+        self.device_dict = {}
         for f in file_list:
             logger.info("Module: {0:s}.{1:s}".format(current_import_path, f[:-3]))
             module = importlib.import_module("{0:s}.{1:s}".format(current_import_path, f[:-3]))
@@ -72,14 +71,16 @@ class ArduinoGen:
             if json_item['type'].lower() in ['led']:
                 json_item['type'] = 'DigitalOutput'
 
-            if json_item['type'] not in device_dict:
-                device_dict[json_item['type']] = []
+            if json_item['type'] not in self.device_dict:
+                self.device_dict[json_item['type']] = []
 
-            device_dict[json_item['type']].append(class_dict[json_item['type']](json_item=json_item, class_dict=class_dict, device_dict=device_dict))
+            self.device_dict[json_item['type']].append(class_dict[json_item['type']](json_item=json_item,
+                                                                                     class_dict=class_dict,
+                                                                                     device_dict=self.device_dict))
 
         logger.info("Done")
 
-    def generateOutput(self):
+    def generate_output(self):
         if not hasattr(self, 'folder'):
             logger.error("Parent folder has not been set")
             sys.exit()
@@ -90,9 +91,10 @@ class ArduinoGen:
         logger.info("Generating output...")
         with open("{0:s}/src/{1:s}.ino".format(self.folder, self.arduino), 'w') as fo:
             generator = Generator(self.device_dict)
-            logger.write("\tLoading templates... [{0:s}] 0/{1:d}".format(' ' * 20, len(self.device_dict)), repeated=True)
+            logger.info("\tLoading templates... [{0:s}] 0/{1:d}".format(' ' * 20, len(self.device_dict)),
+                        extra={'repeated': True})
             generator.load_templates()
-            logger.info("\tWriting file... [{0:s}] 0/10".format(' ' * 10), repeated=True)
+            logger.info("\tWriting file... [{0:s}] 0/10".format(' ' * 10), extra={'repeated': True})
             generator.write_file(fo)
         os.chmod("{0:s}/src/{1:s}.ino".format(self.folder, self.arduino), 0o777)
 
@@ -152,9 +154,10 @@ if __name__ == "__main__":
     # TODO: Add creating lock file
 
     ag = ArduinoGen(args['arduino'])
-    ag.setParentFolder(args['parent_folder'])
-    ag.readConfig(args['config'])
-    ag.generateOutput()
+    ag.set_parent_folder(args['parent_folder'])
+    ag.setup_folder()
+    ag.read_config(args['config'])
+    ag.generate_output()
 
     if args['upload']:
         ag.upload()

@@ -1,23 +1,37 @@
 import os
 import json
 
-from appendages.utils.logger import Logger
+from template_parser import TemplateParser
+from appendages.util.decorators import singleton, attr_check, type_check
+from appendages.util.logger import Logger
 logger = Logger()
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode"
 
 
+@singleton
+@attr_check
 class Generator:
-    def __init__(self, appendage_dict):
+    appendage_dict = dict
+    parsed_templates = list
+
+    def __new__(cls, appendage_dict: dict):
+        return object.__new__(cls)
+
+    @type_check
+    def __init__(self, appendage_dict: dict):
         self.appendage_dict = appendage_dict
         self.parsed_templates = []
 
     def load_templates(self):
-        for i, device_type, device_list in enumerate(self.appendage_dict.items()):
+        tp = TemplateParser()
+        for i, (device_type, device_list) in enumerate(self.appendage_dict.items()):
             percent = i / len(self.appendage_dict)
-            logger.write("\tLoading templates... [{0:s}] {1:d}/{2:d}".format('=' * int(percent * 20) + ' ' * (20 - int(percent * 20)), i +1, len(self.device_dict)), repeated=True)
-            parsed_template = TemplateParser.parse_template('appendages/arduino_gen/{0:s}.template'.format(device_type), device_list)
+            print(device_list)
+            logger.info("\tLoading templates... [{0:s}] {1:d}/{2:d}".format('=' * int(percent * 20) + ' ' * (20 - int(percent * 20)), i + 1, len(self.appendage_dict)), extra={'repeated': True})
+            parsed_template = tp.parse_template('appendages/arduino_gen/{0:s}.template'.format(device_type),
+                                                device_list)
             parsed_template.tier = device_list[0].TIER
             self.parsed_templates.append(parsed_template)
         self.parsed_templates.sort(key=lambda i: i.tier)
@@ -26,32 +40,31 @@ class Generator:
         with open('arduino.template') as f:
             template = f.read()
 
-        logger.info("\tWriting file... [{0:s}] 1/10".format('=' * 1 + ' ' * 9), repeated=True)
-        template.replace('!{includes}', get_includes())
-        logger.info("\tWriting file... [{0:s}] 2/10".format('=' * 2 + ' ' * 8), repeated=True)
-        template.replace('!{pins}', get_pins())
-        logger.info("\tWriting file... [{0:s}] 3/10".format('=' * 3 + ' ' * 7), repeated=True)
-        template.replace('!{constructors}', get_constructors())
-        logger.info("\tWriting file... [{0:s}] 4/10".format('=' * 4 + ' ' * 6), repeated=True)
-        template.replace('!{setup}', get_setup())
-        logger.info("\tWriting file... [{0:s}] 5/10".format('=' * 5 + ' ' * 5), repeated=True)
-        template.replace('!{loop}', get_loop())
-        logger.info("\tWriting file... [{0:s}] 6/10".format('=' * 6 + ' ' * 4), repeated=True)
-        template.replace('!{commands}', get_commands())
-        logger.info("\tWriting file... [{0:s}] 7/10".format('=' * 7 + ' ' * 3), repeated=True)
-        template.replace('!{command_attaches}', get_command_attaches())
-        logger.info("\tWriting file... [{0:s}] 8/10".format('=' * 8 + ' ' * 2), repeated=True)
-        template.replace('!{command_functions}', get_command_functions())
-        logger.info("\tWriting file... [{0:s}] 9/10".format('=' * 9 + ' ' * 1), repeated=True)
-        template.replace('!{extra_functions}', get_extra_functions())
-        logger.info("\tWriting file... [{0:s}] 10/10".format('=' * 10), repeated=True)
+        logger.info("\tWriting file... [{0:s}] 1/10".format('=' * 1 + ' ' * 9), extra={'repeated': True})
+        template.replace('!{includes}', self.get_includes())
+        logger.info("\tWriting file... [{0:s}] 2/10".format('=' * 2 + ' ' * 8), extra={'repeated': True})
+        template.replace('!{pins}', self.get_pins())
+        logger.info("\tWriting file... [{0:s}] 3/10".format('=' * 3 + ' ' * 7), extra={'repeated': True})
+        template.replace('!{constructors}', self.get_constructors())
+        logger.info("\tWriting file... [{0:s}] 4/10".format('=' * 4 + ' ' * 6), extra={'repeated': True})
+        template.replace('!{setup}', self.get_setup())
+        logger.info("\tWriting file... [{0:s}] 5/10".format('=' * 5 + ' ' * 5), extra={'repeated': True})
+        template.replace('!{loop}', self.get_loop())
+        logger.info("\tWriting file... [{0:s}] 6/10".format('=' * 6 + ' ' * 4), extra={'repeated': True})
+        template.replace('!{commands}', self.get_commands())
+        logger.info("\tWriting file... [{0:s}] 7/10".format('=' * 7 + ' ' * 3), extra={'repeated': True})
+        template.replace('!{command_attaches}', self.get_command_attaches())
+        logger.info("\tWriting file... [{0:s}] 8/10".format('=' * 8 + ' ' * 2), extra={'repeated': True})
+        template.replace('!{command_functions}', self.get_command_functions())
+        logger.info("\tWriting file... [{0:s}] 9/10".format('=' * 9 + ' ' * 1), extra={'repeated': True})
+        template.replace('!{extra_functions}', self.get_extra_functions())
+        logger.info("\tWriting file... [{0:s}] 10/10".format('=' * 10), extra={'repeated': True})
 
         file.write(template)
         file.flush()
 
     def get_includes(self):
-
-        includes = []        
+        includes = []
         for parsed_template in self.parsed_templates:
             for temp_include in parsed_template.get_includes():
                 if temp_include not in includes:

@@ -1,0 +1,17 @@
+[
+	{
+		"label": "encoder",
+		"type": "Encoder",
+		"pin_a": 4,
+		"pin_b": 5,
+		"ticks_per_revolution": 400
+	},
+	{
+		"label": "encoder2",
+		"type": "Encoder",
+		"pin_a": 7,
+		"pin_b": 8,
+		"ticks_per_revolution": 400
+	}
+]
+
