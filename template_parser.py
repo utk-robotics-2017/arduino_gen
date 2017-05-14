@@ -1,6 +1,7 @@
 from appendages.util.decorators import attr_check, type_check, singleton
 import re
 from parsed_template import ParsedTemplate
+from appendages.arduino_gen.component import Component
 
 
 @singleton
@@ -22,7 +23,6 @@ class TemplateParser:
 
     @type_check
     def parse_template(self, template_filename: str, list_: list) -> ParsedTemplate:
-        print(template_filename)
         self.list_ = list_
         self.setup_globals()
         self.lines = []
@@ -128,11 +128,13 @@ class TemplateParser:
 
         return pt
 
-    def setup_globals(self):
+    @type_check
+    def setup_globals(self) -> str:
         self.global_vars = {}
         self.global_vars['length'] = len(self.list_)
 
-    def apply_globals(self, line):
+    @type_check
+    def apply_globals(self, line: str) -> str:
         for global_var in self.global_vars:
             if "%%%{0:s}%%%".format(global_var) in line:
                 try:
@@ -141,7 +143,8 @@ class TemplateParser:
                     raise Exception("Error could not convert global {0:s} value {} to string".format(global_var, self.global_vars[global_var]))
         return line
 
-    def grab_section(self):
+    @type_check
+    def grab_section(self) -> type(None):
         section_contents = []
         section_head = ""
         has_section_head = False
@@ -181,7 +184,8 @@ class TemplateParser:
             self.line_number += 1
         raise Exception("Error finished file while still in section {0:s}".format(section_head))
 
-    def handle_section(self, section, appendage=None):
+    @type_check
+    def handle_section(self, section: list, appendage: (Component, type(None))=None) -> str:
         rv = ""
         if_list =[]
         for line in section:
@@ -218,7 +222,8 @@ class TemplateParser:
                     raise Exception("Unknown header type")
         return rv
 
-    def handle_loop(self, section):
+    @type_check
+    def handle_loop(self, section: list) -> str:
         rv = ""
         if_list = []
         for appendage in self.list_:
@@ -250,7 +255,8 @@ class TemplateParser:
                 if_list = []
         return rv
 
-    def handle_loop_separated_by(self, section_head, section_body):
+    @type_check
+    def handle_loop_separated_by(self, section_head: str, section_body: list) -> str:
         #TODO: add if handling 
 
         rv = ""
@@ -273,7 +279,8 @@ class TemplateParser:
                 rv = rv[:-(len(matches[0]) + 1)] + '\n' # Remove the last separator
         return rv
 
-    def handle_if(self, if_list, appendage=None):
+    @type_check
+    def handle_if(self, if_list: list, appendage: (Component, type(None))=None) -> str:
         for i in if_list:
             m = self.if_pattern.match(i[0])
             # m is None only for the else
@@ -297,8 +304,8 @@ class TemplateParser:
                 return self.handle_section(i[1], appendage)
         return ""
 
-
-    def apply_locals(self, line, appendage):
+    @type_check
+    def apply_locals(self, line: str, appendage: Component) -> str:
         matches = self.local_pattern.findall(line)
         locals_ = []
         if matches is not None and len(matches) > 0:
