@@ -17,9 +17,12 @@ class TemplateParser:
         self.local_pattern = re.compile(r'<<<([\w.]*)>>>')
         self.loop_separated_by_pattern = re.compile(r'loop_separated_by\([\'|\"](.+)[\'|\"]\)')
         self.core_values_pattern = re.compile(r'(.+)\s*=\s*(.+)')
+        self.if_pattern = re.compile(r'\s*if\s*\((.*)\)')
+        self.else_pattern = re.compile(r'else')
 
     @type_check
     def parse_template(self, template_filename: str, list_: list) -> ParsedTemplate:
+        print(template_filename)
         self.list_ = list_
         self.setup_globals()
         self.lines = []
@@ -51,107 +54,47 @@ class TemplateParser:
                         # if list then replace the below line with:
                         # pt.include += matches
                         pt.includes += [matches[0]]
-        pt.pins = ""
+        
         if 'pins' in template_heirachy:
-            for line in template_heirachy['pins']:
-                if isinstance(line, str):
-                    line = line.strip()  # Remove leading and trailing whitespace
-                    if line == "":
-                        continue
-                    pt.pins += self.apply_globals(line) + "\n"
-                # inner section
-                elif isinstance(line, tuple):
-                    pt.pins += self.inner_section(line)
+            pt.pins = self.handle_section(template_heirachy['pins'])
+        else:
+            pt.pins = ""
 
-        pt.constructors = ""
         if 'constructors' in template_heirachy:
-            for line in template_heirachy['constructors']:
-                if isinstance(line, str):
-                    line = line.strip()  # Remove leading and trailing whitespace
-                    if line == "":
-                        continue
-                    pt.constructors += self.apply_globals(line) + "\n"
-                # inner section
-                elif isinstance(line, tuple):
-                    pt.constructors += self.inner_section(line)
+            pt.constructors = self.handle_section(template_heirachy['constructors'])
+        else:
+            pt.constructors = ""
 
-        pt.setup = ""
         if 'setup' in template_heirachy:
-            for line in template_heirachy['setup']:
-                if isinstance(line, str):
-                    line = line.strip()  # Remove leading and trailing whitespace
-                    if line == "":
-                        continue
-                    pt.setup += self.apply_globals(line) + "\n"
-                # inner section
-                elif isinstance(line, tuple):
-                    pt.setup += self.inner_section(line)
-
-        pt.loop_functions = ""
+            pt.setup = self.handle_section(template_heirachy['setup'])
+        else:
+            pt.setup = ""
+ 
         if 'loop_functions' in template_heirachy:
-            for line in template_heirachy['loop_functions']:
-                if isinstance(line, str):
-                    line = line.strip()  # Remove leading and trailing whitespace
-                    if line == "":
-                        continue
-                    pt.loop_functions += self.apply_globals(line) + "\n"
-                # inner section
-                elif isinstance(line, tuple):
-                    pt.loop_functions += self.inner_section(line)
+            pt.loop_functions = self.handle_section(template_heirachy['loop_functions'])
+        else:
+            pt.loop_functions = ""
 
-        pt.commands = ""
         if 'commands' in template_heirachy:
-            for line in template_heirachy['commands']:
-                if isinstance(line, str):
-                    line = line.strip()  # Remove leading and trailing whitespace
-                    if line == "":
-                        continue
-                    pt.commands += self.apply_globals(line) + "\n"
-                # inner section
-                elif isinstance(line, tuple):
-                    pt.commands += self.inner_section(line)
+            pt.commands = self.handle_section(template_heirachy['commands'])
         else:
             raise Exception("commands section not in template")
 
-        pt.command_attaches = ""
         if 'command_attaches' in template_heirachy:
-            for line in template_heirachy['command_attaches']:
-                if isinstance(line, str):
-                    line = line.strip()  # Remove leading and trailing whitespace
-                    if line == "":
-                        continue
-                    pt.command_attaches += self.apply_globals(line) + "\n"
-                # inner section
-                elif isinstance(line, tuple):
-                    pt.command_attaches += self.inner_section(line)
+            pt.command_attaches = self.handle_section(template_heirachy['command_attaches'])
         else:
             raise Exception("command attaches section not in template")
 
-        pt.command_functions = ""
         if 'command_functions' in template_heirachy:
-            for line in template_heirachy['command_functions']:
-                if isinstance(line, str):
-                    line = line.strip()  # Remove leading and trailing whitespace
-                    if line == "":
-                        continue
-                    pt.command_functions += self.apply_globals(line) + "\n"
-                # inner section
-                elif isinstance(line, tuple):
-                    pt.command_functions += self.inner_section(line)
+            pt.command_functions = self.handle_section(template_heirachy['command_functions'])
         else:
             raise Exception("command functions section not in template")
 
-        pt.extra_functions = ""
+        
         if 'extra_functions' in template_heirachy:
-            for line in template_heirachy['extra_functions']:
-                if isinstance(line, str):
-                    line = line.strip()  # Remove leading and trailing whitespace
-                    if line == "":
-                        continue
-                    pt.extra_functions += self.apply_globals(line) + "\n"
-                # inner section
-                elif isinstance(line, tuple):
-                    pt.extra_functions += self.inner_section(line)
+            pt.extra_functions = self.handle_section(template_heirachy['extra_functions'])
+        else:
+            pt.extra_functions = "" 
 
         pt.core_values = []
         if 'core_values' in template_heirachy:
@@ -175,7 +118,12 @@ class TemplateParser:
                             raise Exception("core values format not correct")
                 pt.core_values.append(d)
         else:
-            raise Exception("core values section not in template")
+            for index, appendage in enumerate(list_):
+                d = {}
+                d['label'] = appendage.label
+                d['index'] = index
+                d['type'] = appendage.__class__.__name__
+                pt.core_values.append(d)
 
 
         return pt
@@ -223,6 +171,7 @@ class TemplateParser:
                     self.line_number = end_line_number
             elif '}}}' in line:
                 if not has_section_head:
+                    # in a format string }} => } and {{ => {
                     raise Exception("Error closing '}}}}}}' without opening '{{{{{{' on line number {0:d}".format(self.line_number))
                 else:
                     # print("\tFOUND END OF SECTION")
@@ -232,40 +181,122 @@ class TemplateParser:
             self.line_number += 1
         raise Exception("Error finished file while still in section {0:s}".format(section_head))
 
-    def inner_section(self, section):
-        section_head = section[0]
+    def handle_section(self, section, appendage=None):
         rv = ""
-        if section_head == 'loop':
-            for appendage in self.list_:
-                for line in section[1]:
-                    if isinstance(line, str):
-                        line = line.strip()  # Remove leading and trailing whitespace
-                        if line == "":
-                            continue
-                        temp = self.apply_globals(line)
-                        rv += self.apply_locals(temp, appendage) + '\n'
-                    # inner section
-                    elif isinstance(line, tuple):
-                        rv += self.inner_section(line)
-        if 'loop_separated_by' in section_head:
-            m = self.loop_separated_by_pattern.match(section_head)
+        if_list =[]
+        for line in section:
+            if isinstance(line, str):
+                # Handle previous conditional
+                if len(if_list) > 0:
+                    rv += self.handle_if(if_list, appendage)
+                    if_list = []
+                line = line.strip()  # Remove leading and trailing whitespace
+                if line == "":
+                    continue
+                temp = self.apply_globals(line)
+                if appendage is not None:
+                    temp = self.apply_locals(line, appendage)
+                rv += temp + "\n"
+            # inner section
+            elif isinstance(line, tuple):
+                if line[0] == 'loop':
+                    # Handle previous conditional
+                    if len(if_list) > 0:
+                        rv += self.handle_if(if_list, appendage)
+                        if_list = []
+                    rv += self.handle_loop(line[1])
+                elif 'loop_separated_by' in line[0]:
+                    # Handle previous conditional
+                    if len(if_list) > 0:
+                        rv += self.handle_if(if_list, appendage)
+                        if_list = []
+                    rv += self.handle_loop_separated_by(line[0], line[1])
+                # Accumulate the conditional
+                elif 'if' in line[0] or 'else' in line[0]:
+                    if_list.append(line)
+                else:
+                    raise Exception("Unknown header type")
+        return rv
+
+    def handle_loop(self, section):
+        rv = ""
+        if_list = []
+        for appendage in self.list_:
+            for line in section:
+                if isinstance(line, str):
+                    # Handle previous conditional
+                    if len(if_list) > 0:
+                        rv += self.handle_if(if_list, appendage)
+                        if_list = []
+                    line = line.strip()  # Remove leading and trailing whitespace
+                    if line == "":
+                        continue
+                    temp = self.apply_globals(line)
+                    rv += self.apply_locals(temp, appendage) + '\n'
+                # inner section
+                elif isinstance(line, tuple):
+                    # Accumulate the conditional
+                    if 'if' in line[0] or 'else' in line[0]:
+                        if_list.append(line)
+                    else:
+                        # Handle previous conditional
+                        if len(if_list) > 0:
+                            rv += self.handle_if(if_list, appendage)
+                            if_list = []
+                        rv += self.handle_section(line, appendage)
+            # Handle previous conditional
+            if len(if_list) > 0:
+                rv += self.handle_if(if_list, appendage)
+                if_list = []
+        return rv
+
+    def handle_loop_separated_by(self, section_head, section_body):
+        #TODO: add if handling 
+
+        rv = ""
+        m = self.loop_separated_by_pattern.match(section_head)
+        if m is not None:
+            matches = m.groups()
+            if len(matches) == 1:
+                for appendage in self.list_:
+                    for line in section_body:
+                        if isinstance(line, str):
+                            line = line.strip()  # Remove leading and trailing whitespace
+                            if line == "":
+                                continue
+                            temp = self.apply_globals(line)
+                            rv += self.apply_locals(temp, appendage) + matches[0] +'\n'
+                            # inner section
+                        elif isinstance(line, tuple):
+                            rv += self.handle_section(line)
+
+                rv = rv[:-(len(matches[0]) + 1)] + '\n' # Remove the last separator
+        return rv
+
+    def handle_if(self, if_list, appendage=None):
+        for i in if_list:
+            m = self.if_pattern.match(i[0])
+            # m is None only for the else
             if m is not None:
                 matches = m.groups()
+                # matches should be a list of a single element that is the conditional
                 if len(matches) == 1:
-                    for appendage in self.list_:
-                        for line in section[1]:
-                            if isinstance(line, str):
-                                line = line.strip()  # Remove leading and trailing whitespace
-                                if line == "":
-                                    continue
-                                temp = self.apply_globals(line)
-                                rv += self.apply_locals(temp, appendage) + matches[0] +'\n'
-                                # inner section
-                            elif isinstance(line, tuple):
-                                rv += self.inner_section(line)
-                    #rv = rv[:-(len(matches[0]) + 1)] + '\n' # Remove the last separator
+                    condition = matches[0]
+                    condition = self.apply_globals(condition)
+                    if appendage is not None:
+                        condition = self.apply_locals(condition, appendage)
 
-        return rv
+                    # if the condition holds then use this section
+                    if eval(condition):
+                        return self.handle_section(i[1], appendage)
+
+            # fullmatch is used so that else if doesn't trigger
+            m = self.else_pattern.fullmatch(i[0])
+            if m is not None:
+                # use this section (the else)
+                return self.handle_section(i[1], appendage)
+        return ""
+
 
     def apply_locals(self, line, appendage):
         matches = self.local_pattern.findall(line)

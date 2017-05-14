@@ -65,7 +65,7 @@ class ArduinoGen:
             class_dict[class_name] = class_
 
         for json_item in json_data:
-            if json_item['type'].lower() in ['limit_switch', 'button']:
+            if json_item['type'].lower() in ['switch', 'limit_switch', 'button']:
                 json_item['type'] = 'DigitalInput'
 
             if json_item['type'].lower() in ['led']:

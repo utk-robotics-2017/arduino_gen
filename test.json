@@ -12,6 +12,18 @@
 		"pin_a": 7,
 		"pin_b": 8,
 		"ticks_per_revolution": 400
+	},
+	{
+		"label": "switch",
+		"type": "Switch",
+		"pin": 1,
+		"pullup": false
+	},
+	{
+		"label": "switch_pullup",
+		"type": "Switch",
+		"pin": 2,
+		"pullup": true
 	}
 ]
 

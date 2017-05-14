@@ -11,6 +11,16 @@
             "index": 1,
             "type": "Encoder",
             "ticks_per_revolution ": "400"
+        },
+        {
+            "label": "switch",
+            "index": 0,
+            "type": "DigitalInput"
+        },
+        {
+            "label": "switch_pullup",
+            "index": 1,
+            "type": "DigitalInput"
         }
     ],
     "commands": {
@@ -23,6 +33,8 @@
         "kPong": 6,
         "kReadEncoder": 7,
         "kReadEncoderResult": 8,
-        "kZeroEncoder": 9
+        "kZeroEncoder": 9,
+        "kReadDigitalInput": 10,
+        "kReadDigitalInputResult": 11
     }
 }

@@ -3,8 +3,6 @@
 // Includes
 #include "CmdMessenger.h"
 #include "Encoder.h"
-#include "test"
-#include <test2>
 
 
 // Globals
@@ -17,6 +15,9 @@ const char encoder_pin_b = 5;
 const char encoder2_pin_a = 7;
 const char encoder2_pin_b = 8;
 
+const char switch_pin = 1;
+const char switch_pullup_pin = 2;
+
 
 
 // Constructors
@@ -25,7 +26,12 @@ CmdMessenger cmdMessenger = CmdMessenger(Serial);
 Encoder encoders[2] =
 {
     Encoder(encoder_pin_a, encoder_pin_b),
-    Encoder(encoder2_pin_a, encoder2_pin_b),
+    Encoder(encoder2_pin_a, encoder2_pin_b)
+};
+char digital_inputs[2] =
+{
+    switch_pin,
+    switch_pullup_pin
 };
 
 
@@ -42,7 +48,9 @@ enum
     kPong,
     kReadEncoder,
     kReadEncoderResult,
-    kZeroEncoder
+    kZeroEncoder,
+    kReadDigitalInput,
+    kReadDigitalInputResult
 };
 
 void setup()
@@ -54,6 +62,8 @@ void setup()
     pinMode(encoder_pin_b, INPUT);
     pinMode(encoder2_pin_a, INPUT);
     pinMode(encoder2_pin_b, INPUT);
+    pinMode(switch_pin, INPUT);
+    pinMode(switch_pullup_pin, INPUT_PULLUP);
 
 
     // Initialize Serial Communication
@@ -90,6 +100,7 @@ void attachCommandCallbacks()
     cmdMessenger.attach(kSetLed, setLed);
     cmdMessenger.attach(kReadEncoder, readEncoder);
     cmdMessenger.attach(kZeroEncoder, zeroEncoder);
+    cmdMessenger.attach(kReadDigitalInput, readDigitalInput);
 
 }
 
@@ -137,6 +148,17 @@ void zeroEncoder()
     }
     encoders[indexNum].write(0);
     cmdMessenger.sendBinCmd(kAcknowledge, kZeroEncoder);
+}
+void readDigitalInput()
+{
+    int indexNum = cmdMessenger.readBinArg<int>();
+    if(!cmdMessenger.isArgOk() || indexNum < 0 || indexNum > 2)
+    {
+        cmdMessenger.sendBinCmd(kError, kReadDigitalInput);
+        return;
+    }
+    cmdMessenger.sendBinCmd(kAcknowledge, kReadDigitalInput);
+    cmdMessenger.sendBinCmd(kReadDigitalInputResult, digitalRead(digital_inputs[indexNum]));
 }
 
 

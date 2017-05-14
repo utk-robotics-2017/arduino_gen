@@ -30,9 +30,18 @@ class Generator:
         tp = TemplateParser()
         for i, (device_type, device_list) in enumerate(self.appendage_dict.items()):
             percent = i / len(self.appendage_dict)
-            print(device_list)
+
+            # Untitle
+            device_type_file = ""
+            for c in device_type:
+                if c.isupper():
+                    device_type_file += "_" + c.lower()
+                else:
+                    device_type_file += c
+            device_type_file = device_type_file[1:]
+            
             logger.info("\tLoading templates... [{0:s}] {1:d}/{2:d}".format('=' * int(percent * 20) + ' ' * (20 - int(percent * 20)), i + 1, len(self.appendage_dict)), extra={'repeated': True})
-            parsed_template = tp.parse_template('appendages/arduino_gen/{0:s}.template'.format(device_type),
+            parsed_template = tp.parse_template('appendages/arduino_gen/{0:s}.template'.format(device_type_file),
                                                 device_list)
             parsed_template.tier = device_list[0].TIER
             self.parsed_templates.append(parsed_template)
