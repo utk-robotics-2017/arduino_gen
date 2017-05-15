@@ -24,6 +24,11 @@
 		"type": "Switch",
 		"pin": 2,
 		"pullup": true
+	},
+	{
+		"label": "led",
+		"type": "Led",
+		"pin": 6
 	}
 ]
 
