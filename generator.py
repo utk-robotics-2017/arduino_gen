@@ -32,13 +32,7 @@ class Generator:
             percent = i / len(self.appendage_dict)
 
             # Untitle
-            device_type_file = ""
-            for c in device_type:
-                if c.isupper():
-                    device_type_file += "_" + c.lower()
-                else:
-                    device_type_file += c
-            device_type_file = device_type_file[1:]
+            device_type_file = device_type.lower().replace(" ", "_")
             
             logger.info("\tLoading templates... [{0:s}] {1:d}/{2:d}".format('=' * int(percent * 20) + ' ' * (20 - int(percent * 20)), i + 1, len(self.appendage_dict)), extra={'repeated': True})
             parsed_template = tp.parse_template('appendages/arduino_gen/{0:s}.template'.format(device_type_file),
@@ -103,26 +97,26 @@ class Generator:
     def get_pins(self):
         rv = ""
         for parsed_template in self.parsed_templates:
-            rv += "{0:s}\n".format(parsed_template.pins)
-        return rv
+            rv += parsed_template.pins + "\n"
+        return rv[:-2]
 
     def get_constructors(self):
         rv = ""
         for parsed_template in self.parsed_templates:
-            rv += parsed_template.constructors
-        return rv
+            rv += parsed_template.constructors + "\n"
+        return rv[:-2]
 
     def get_setup(self):
         rv = ""
         for parsed_template in self.parsed_templates:
-            rv += parsed_template.setup
-        return rv
+            rv += parsed_template.setup + "\n"
+        return rv[:-2]
 
     def get_loop(self):
         rv = ""
         for parsed_template in self.parsed_templates:
-            rv += parsed_template.loop_functions
-        return rv
+            rv += parsed_template.loop_functions + "\n"
+        return rv[:-2]
 
     def get_commands(self):
         rv = ""
@@ -151,19 +145,19 @@ class Generator:
         rv = ""
         for parsed_template in self.parsed_templates:
             rv += parsed_template.command_attaches
-        return rv
+        return rv[:-1]
 
     def get_command_functions(self):
         rv = "// Command Functions\n"
         for parsed_template in self.parsed_templates:
-            rv += parsed_template.command_functions
-        return rv
+            rv += parsed_template.command_functions + "\n"
+        return rv[:-2]
 
     def get_extra_functions(self):
         rv = "// Extra Functions"
         for parsed_template in self.parsed_templates:
-            rv += parsed_template.extra_functions
-        return rv
+            rv += parsed_template.extra_functions + "\n"
+        return rv[:-2]
 
     def write_shell_scripts(self, folder, arduino):
         with open("{0:s}/upload.sh".format(folder), 'w') as upload_fo:

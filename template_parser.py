@@ -1,4 +1,4 @@
-from appendages.util.decorators import attr_check, type_check, singleton
+from appendages.util.decorators import attr_check, type_check, singleton, void
 import re
 from parsed_template import ParsedTemplate
 from appendages.arduino_gen.component import Component
@@ -13,12 +13,13 @@ class TemplateParser:
         return object.__new__(cls)
 
     def __init__(self):
-        self.section_head_pattern = re.compile(r'\s*(.*)\s*{{{')
-        self.include_pattern = re.compile(r'(["|<][\w.]*["|>])')
-        self.local_pattern = re.compile(r'<<<([\w.]*)>>>')
+        self.section_head_pattern = re.compile(r'\s*(.+)\s*{{{')
+        self.include_pattern = re.compile(r'(["|<][\w.]+["|>])')
+        self.local_pattern = re.compile(r'<<<([\w.]+)>>>')
         self.loop_separated_by_pattern = re.compile(r'loop_separated_by\([\'|\"](.+)[\'|\"]\)')
+        self.loop_with_index_pattern = re.compile(r'loop_with_index\([\'|\"](.+)[\'|\"]\)')
         self.core_values_pattern = re.compile(r'(.+)\s*=\s*(.+)')
-        self.if_pattern = re.compile(r'\s*if\s*\((.*)\)')
+        self.if_pattern = re.compile(r'\s*if\s*\((.+)\)')
         self.else_pattern = re.compile(r'else')
 
     @type_check
@@ -129,7 +130,7 @@ class TemplateParser:
         return pt
 
     @type_check
-    def setup_globals(self) -> str:
+    def setup_globals(self) -> void:
         self.global_vars = {}
         self.global_vars['length'] = len(self.list_)
 
@@ -144,7 +145,7 @@ class TemplateParser:
         return line
 
     @type_check
-    def grab_section(self) -> type(None):
+    def grab_section(self) -> (tuple, void):
         section_contents = []
         section_head = ""
         has_section_head = False
@@ -185,7 +186,7 @@ class TemplateParser:
         raise Exception("Error finished file while still in section {0:s}".format(section_head))
 
     @type_check
-    def handle_section(self, section: list, appendage: (Component, type(None))=None) -> str:
+    def handle_section(self, section: list, appendage: (Component, void)=None) -> str:
         rv = ""
         if_list =[]
         for line in section:
@@ -215,11 +216,17 @@ class TemplateParser:
                         rv += self.handle_if(if_list, appendage)
                         if_list = []
                     rv += self.handle_loop_separated_by(line[0], line[1])
+                elif 'loop_with_index' in line[0]:
+                    # Handle previous conditional
+                    if len(if_list) > 0:
+                        rv += self.handle_if(if_list, appendage)
+                        if_list = []
+                    rv += self.handle_loop_with_index(line[0], line[1])
                 # Accumulate the conditional
                 elif 'if' in line[0] or 'else' in line[0]:
                     if_list.append(line)
                 else:
-                    raise Exception("Unknown header type")
+                    raise Exception("Unknown header type: {0:s}".format(line[0]))
         return rv
 
     @type_check
@@ -280,7 +287,30 @@ class TemplateParser:
         return rv
 
     @type_check
-    def handle_if(self, if_list: list, appendage: (Component, type(None))=None) -> str:
+    def handle_loop_with_index(self, section_head: str, section_body: list) -> str:
+        #TODO: add if handling
+
+        rv = ""
+        m = self.loop_with_index_pattern.match(section_head)
+        if m is not None:
+            matches = m.groups()
+            if len(matches) == 1:
+                for index, appendage in enumerate(self.list_):
+                    for line in section_body:
+                        if isinstance(line, str):
+                            line = line.strip()  # Remove leading and trailing whitespace
+                            if line == "":
+                                continue
+                            temp = self.apply_globals(line)
+                            temp = temp.replace("<<<{0:s}>>>".format(matches[0]), str(index))
+                            rv += self.apply_locals(temp, appendage) + '\n'
+                            # inner section
+                        elif isinstance(line, tuple):
+                            rv += self.handle_section(line)
+        return rv
+
+    @type_check
+    def handle_if(self, if_list: list, appendage: (Component, void)=None) -> str:
         for i in if_list:
             m = self.if_pattern.match(i[0])
             # m is None only for the else

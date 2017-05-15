@@ -59,17 +59,18 @@ class ArduinoGen:
         for f in file_list:
             logger.info("Module: {0:s}.{1:s}".format(current_import_path, f[:-3]))
             module = importlib.import_module("{0:s}.{1:s}".format(current_import_path, f[:-3]))
-            class_name = f[:-3].replace('_', ' ').title().replace(' ', '')
+            type_name = f[:-3].replace('_', ' ').title()
+            class_name = type_name.replace(' ', '')
             logger.info("Class: {0:s}".format(class_name))
             class_ = getattr(module, class_name)
-            class_dict[class_name] = class_
+            class_dict[type_name] = class_
 
         for json_item in json_data:
-            if json_item['type'].lower() in ['switch', 'limit_switch', 'button']:
-                json_item['type'] = 'DigitalInput'
+            if json_item['type'].lower() in ['switch', 'limit switch', 'button']:
+                json_item['type'] = 'Digital Input'
 
             if json_item['type'].lower() in ['led']:
-                json_item['type'] = 'DigitalOutput'
+                json_item['type'] = 'Digital Output'
 
             if json_item['type'] not in self.device_dict:
                 self.device_dict[json_item['type']] = []

@@ -24,6 +24,43 @@
 		"type": "Switch",
 		"pin": 2,
 		"pullup": true
+	},
+	{
+		"label": "led",
+		"type": "Led",
+		"pin": 6
+	},
+	{
+		"label": "lcd",
+		"type": "Lcd",
+		"rs": 4,
+		"enable": 5,
+		"d4": 6,
+		"d5": 6,
+		"d6": 6,
+		"d7": 6,
+		"cols": 20,
+		"rows": 2
+	},
+	{
+		"label": "servo",
+		"type": "Servo",
+		"pin": 11
+	},
+	{
+		"label": "a_out",
+		"type": "Analog Output",
+		"pin": 12
+	},
+	{
+		"label": "ultrasonic",
+		"type": "Ultrasonic",
+		"echo": 13,
+		"trigger": 14
+	},
+	{
+		"label": "magnetometer",
+		"type": "Magnetometer"
 	}
 ]
 

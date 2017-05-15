@@ -9,6 +9,7 @@ int ledState = HIGH;
 
 // Pin definitions
 const char LED = 13;
+
 <<<pins>>>
 
 // Constructors
@@ -54,7 +55,6 @@ void setup() {
 void loop() {
     // Process incoming serial data, and perform callbacks
     cmdMessenger.feedinSerialData();
-
     <<<loop_functions>>>
 }
 
