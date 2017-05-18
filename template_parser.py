@@ -55,6 +55,8 @@ class TemplateParser:
                         # if list then replace the below line with:
                         # pt.include += matches
                         pt.includes += [matches[0]]
+                else:
+                    raise Exception("Include not formatted properly: {0:s}".format(include.strip()))
         
         if 'pins' in template_heirachy:
             pt.pins = self.handle_section(template_heirachy['pins'])
@@ -116,7 +118,7 @@ class TemplateParser:
                         if len(matches) == 2:
                             d[matches[0]] = matches[1]
                         else:
-                            raise Exception("core values format not correct")
+                            raise Exception("core values not formatted correctly")
                 pt.core_values.append(d)
         else:
             for index, appendage in enumerate(list_):
@@ -282,8 +284,12 @@ class TemplateParser:
                             # inner section
                         elif isinstance(line, tuple):
                             rv += self.handle_section(line)
+            else:
+                raise Exception("loop_separated_by section header not formatted correctly: {}".format(section_head))
 
                 rv = rv[:-(len(matches[0]) + 1)] + '\n' # Remove the last separator
+        else:
+            raise Exception("loop_separated_by section header not formatted correctly: {}".format(section_head))
         return rv
 
     @type_check
@@ -307,6 +313,10 @@ class TemplateParser:
                             # inner section
                         elif isinstance(line, tuple):
                             rv += self.handle_section(line)
+            else:
+                raise Exception("loop_with_index section header not formatted correctly: {}".format(section_head))
+        else:
+            raise Exception("loop_with_index section header not formatted correctly: {}".format(section_head))
         return rv
 
     @type_check
@@ -326,6 +336,8 @@ class TemplateParser:
                     # if the condition holds then use this section
                     if eval(condition):
                         return self.handle_section(i[1], appendage)
+                else:
+                    raise Exception("conditional not formatted correctly: {}".format(i[0]))
 
             # fullmatch is used so that else if doesn't trigger
             m = self.else_pattern.fullmatch(i[0])
