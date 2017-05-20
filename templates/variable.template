@@ -1,0 +1,5 @@
+%%%type%%% %%%name%%% = cmdMessenger.readBinArg<%%%type%%%>();
+if(!cmdMessenger.isArgOk()) {
+    cmdMessenger.sendBinCmd(kError, %%%command%%%);
+    return;
+}

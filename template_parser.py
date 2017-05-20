@@ -4,15 +4,16 @@ from parsed_template import ParsedTemplate
 from appendages.arduino_gen.component import Component
 
 
-@singleton
 @attr_check
 class TemplateParser:
-    '''
+    ''' Merges an list of objects of an individual appendage type with its template
+
+        Attributes
+        ----------
+        list_ : list
+            A list of objects of an individual appendage type 
     '''
     list_ = list
-
-    def __new__(cls):
-        return object.__new__(cls)
 
     def __init__(self):
         self.section_head_pattern = re.compile(r'\s*(.+)\s*{{{')
@@ -23,13 +24,21 @@ class TemplateParser:
         self.core_values_pattern = re.compile(r'(.+)\s*=\s*(.+)')
         self.if_pattern = re.compile(r'\s*if\s*\((.+)\)')
         self.else_pattern = re.compile(r'else')
+        self.index_num_pattern = re.compile(r'%%%index_num\((.+)\)%%%')
+        self.variable_pattern = re.compile(r'%%%variable\((.+),\s*(.+),\s*(.+)\)%%%')
 
     @type_check
     def parse_template(self, template_filename: str, list_: list) -> ParsedTemplate:
-        '''
+        ''' Merges an list of objects of an individual appendage type with its template
+
+            Parameters
+            ----------
+            template_filename : str
+                The filepath of the template file
+            list_ : list
+                A list of objects of an individual appendage type
         '''
         self.list_ = list_
-        self.setup_globals()
         self.lines = []
         # Pull file into memory
         with open(template_filename) as f:
@@ -136,28 +145,40 @@ class TemplateParser:
         return pt
 
     @type_check
-    def setup_globals(self) -> void:
-        '''
-        '''
-        self.global_vars = {}
-        self.global_vars['length'] = len(self.list_)
-
-    @type_check
     def apply_globals(self, line: str) -> str:
+        ''' Replace variables that are not specific to an individual appendages
+
+            Parameters
+            ----------
+            line : str
+                Individual line from the template
         '''
-        '''
-        for global_var in self.global_vars:
-            if "%%%{0:s}%%%".format(global_var) in line:
-                try:
-                    line = line.replace("%%%{0:s}%%%".format(global_var), str(self.global_vars[global_var]))
-                except:
-                    raise Exception("Error could not convert global {0:s} value {} to string".format(global_var, self.global_vars[global_var]))
+        if "%%%length%%%" in line:
+            return line.replace('%%%length%%%', str(len(self.list_)))
+
+        m = self.index_num_pattern.match(line)
+        if m is not None:
+            matches = m.groups()
+            if len(matches) == 1:
+                with open('templates/index_num.template') as f:
+                    line = f.read()
+
+                return line.replace('%%%command%%%', matches[0]).replace('%%%length%%%', str(len(self.list_)))
+
+        m = self.variable_pattern.match(line)
+        if m is not None:
+            matches = m.groups()
+            if len(matches) == 3:
+                with open('templates/variable.template') as f:
+                    line = f.read()
+
+                return line.replace('%%%name%%%').replace('%%%type%%%', matches[1]).replace('%%%command%%%', matches[2])
+
         return line
 
     @type_check
     def grab_section(self) -> (tuple, void):
-        ''' Recursively grab sections based on '{{{' and '}}}'
-        '''
+        ''' Recursively grab sections based on '{{{' and '}}}' '''
         section_contents = []
         section_head = ""
         has_section_head = False
@@ -199,6 +220,20 @@ class TemplateParser:
 
     @type_check
     def handle_section(self, section: list, appendage: (Component, void)=None) -> str:
+        ''' Processes a section
+
+            Parameters
+            ----------
+            section : list
+                A list that contains the lines from a section of the template as strings or a tuple if there is an interior section
+            appendage : Component
+                If this section is part of a local section the appendage corresponding to the local section 
+
+            Returns
+            -------
+            str
+                Text for the section after it is processed
+        '''
         rv = ""
         if_list =[]
         for line in section:
@@ -243,6 +278,18 @@ class TemplateParser:
 
     @type_check
     def handle_loop(self, section: list) -> str:
+        ''' Processes a loop section by repeating it with each element from the list of appendages of this type
+
+            Parameters
+            ----------
+            section : list
+                The content of this template section line/inner section by line/inner section
+
+            Returns
+            -------
+            str
+                The text for this section processed
+        '''
         rv = ""
         if_list = []
         for appendage in self.list_:
@@ -276,6 +323,21 @@ class TemplateParser:
 
     @type_check
     def handle_loop_separated_by(self, section_head: str, section_body: list) -> str:
+        ''' Processes a loop section by repeating it with each element from the list of appendages of this type and separating
+            with a parameter in the template
+
+            Parameters
+            ----------
+            section_head : str
+                The title of the section which is used to pull the char or string used as a seperator
+            section_body : list
+                The contents of the section
+
+            Returns
+            -------
+            str
+                The text for this section processed 
+        '''
         #TODO: add if handling 
 
         rv = ""
@@ -304,6 +366,21 @@ class TemplateParser:
 
     @type_check
     def handle_loop_with_index(self, section_head: str, section_body: list) -> str:
+        ''' Processes a loop section by repeating it with each element from the list of appendages of this type 
+            and adds the index parameter as a local variable
+
+            Parameters
+            ----------
+            section_head : str
+                The title of the section which is used to pull the name of the index variable
+            section_body : list
+                The contents of the section
+
+            Returns
+            -------
+            str
+                The text for this section processed 
+        '''
         #TODO: add if handling
 
         rv = ""
@@ -331,6 +408,20 @@ class TemplateParser:
 
     @type_check
     def handle_if(self, if_list: list, appendage: (Component, void)=None) -> str:
+        ''' Processes conditional sections
+
+            Parameters
+            ----------
+            if_list : list
+                A list of tuples with the condition and section that get used upon the condition being true
+            appendage : Component
+                If this section is part of a local section the appendage corresponding to the local section 
+
+            Returns
+            -------
+            str
+                The text for this section processed 
+        '''
         for i in if_list:
             m = self.if_pattern.match(i[0])
             # m is None only for the else
@@ -358,6 +449,20 @@ class TemplateParser:
 
     @type_check
     def apply_locals(self, line: str, appendage: Component) -> str:
+        ''' Processes a line from the template for a single appendage
+
+            Parameters
+            ----------
+            line : str
+                A line from the template
+            appendage : Component
+                The appendage used to fill the templated line
+
+            Returns
+            -------
+            str
+                The line processed with the appendage
+        '''
         matches = self.local_pattern.findall(line)
         locals_ = []
         if matches is not None and len(matches) > 0:

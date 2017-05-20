@@ -12,7 +12,6 @@ CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode"
 
 
-@singleton
 @attr_check
 class Generator:
     ''' Code generator that passes the appendages to the TemplateParser
@@ -26,9 +25,6 @@ class Generator:
     '''
     appendage_dict = dict
     parsed_templates = list
-
-    def __new__(cls, appendage_dict: dict):
-        return object.__new__(cls)
 
     @type_check
     def __init__(self, appendage_dict: dict):
@@ -61,7 +57,7 @@ class Generator:
             filename : str
                 The filepath of the file to be written to
         '''
-        with open('{0:s}/arduino.template'.format(CURRENT_DIR)) as f:
+        with open('{0:s}/templates/arduino.template'.format(CURRENT_DIR)) as f:
             template = f.read()
 
         logger.info("\tWriting file... [{0:s}] 1/10".format('=' * 1 + ' ' * 9), extra={'repeated': True})
@@ -219,6 +215,7 @@ class Generator:
             rv += parsed_template.command_attaches
         return rv[:-1]
 
+    @type_check
     def get_command_functions(self):
         ''' Returns all the callback functions for the commands
 
@@ -232,6 +229,7 @@ class Generator:
             rv += parsed_template.command_functions + "\n"
         return rv[:-2]
 
+    @type_check
     def get_extra_functions(self):
         ''' Returns any extra functions needed in the main ino
 

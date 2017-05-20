@@ -24,7 +24,7 @@ class ParsedTemplate:
         command_functions : str
             A string containing the callback functions for the appendages type for which this object represents
         core_values : list
-            A list of `dict`s containing the config information used by RIP's core
+            A list of dict containing the config information used by RIP's core
     '''
     includes = list
     pins = str

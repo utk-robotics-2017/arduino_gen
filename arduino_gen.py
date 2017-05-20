@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.6
+
 import argparse
 import json
 import os
@@ -17,7 +19,7 @@ CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode"
 
 @attr_check
 class ArduinoGen:
-    ''' Arduion Code Generator that work with the RIP platform
+    ''' Arduino Code Generator that work with the RIP platform
 
         Attributes
         ----------
@@ -35,12 +37,23 @@ class ArduinoGen:
     device_dict = dict
 
     @type_check
-    def __init__(self, arduino):
+    def __init__(self, arduino: str):
+        '''
+            Parameters
+            ----------
+            arduino : str
+                The name of the arduino to be programmed
+        '''
         self.arduino = arduino
 
     @type_check
     def set_parent_folder(self, parent_folder: str) -> void:
         ''' Sets the folder that the output folder will be created in
+
+            Parameters
+            ----------
+            parent_folder : str
+                The filepath to folder that the output folder will be created in
         '''
         self.folder = "{0:s}/{1:s}".format(parent_folder, self.arduino)
 
@@ -150,8 +163,7 @@ class ArduinoGen:
 
     @type_check
     def upload(self) -> void:
-        ''' Compile and upload generated Arduino code on to the Arduino
-        '''
+        ''' Compile and upload generated Arduino code on to the Arduino '''
         if not hasattr(self, 'folder'):
             logger.error("Parent folder has not been set")
             sys.exit()

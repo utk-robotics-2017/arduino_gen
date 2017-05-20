@@ -5,4 +5,7 @@ Welcome to ArduinoGen's documentation!
    :maxdepth: 2
    :glob:
 
-    generated/*
+   generated/*
+
+
+.. _Github: https://github.com/utk-robotics-2017/arduino_gen.git

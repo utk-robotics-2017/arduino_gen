@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.6
 
 import sys
 import random
@@ -13,6 +13,7 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 
 from arduino_gen import ArduinoGen
+from appendages.util.decorators import type_check, void
 from appendages.util.logger import Logger
 logger = Logger()
 
@@ -48,7 +49,8 @@ class Server(WebSocketHandler):
 
         WebSocketHandler.__init__(self, *args, **kwargs)
 
-    def setup_folders(self):
+    @type_check
+    def setup_folders(self) -> void:
         if not os.path.isdir(self.current_arduino_code_filepath):
             os.mkdir(self.current_arduino_code_filepath)
 
@@ -58,13 +60,16 @@ class Server(WebSocketHandler):
         if not os.path.isdir(self.lock_folder_filepath):
             os.mkdir(self.lock_folder_filepath)
 
-    def log(self, message):
+    @type_check
+    def log(self, message: str) -> void:
         logger.info("{}\tClient {:2d}\t{}".format(time.strftime("%H:%M:%S", time.localtime()), self.id, message))
 
-    def check_origin(self, origin):
+    @type_check
+    def check_origin(self, origin) -> bool:
         return True
 
-    def open(self):
+    @type_check
+    def open(self) -> void:
         self.id = self.client_id
         self.client_id += 1
         self.clients.add(self)
@@ -73,7 +78,8 @@ class Server(WebSocketHandler):
 
         self.log("connected with ip: {0:s}".format(self.request.remote_ip))
 
-    def on_message(self, message):
+    @type_check
+    def on_message(self, message: str) -> void:
         if not self.verified:
             try:
                 client_pin = int(message)
@@ -100,7 +106,8 @@ class Server(WebSocketHandler):
             logger.error("{0:s}\tClient {1:2d}\tUnknown command: {2:s}"
                          .format(time.strftime("%H:%M:%S", time.localtime()), self.id, message))
 
-    def lock(self, message):
+    @type_check
+    def lock(self, message: str) -> void:
         if hasattr(self, 'device'):
             self.write_message("ClientHasLock")
             self.log(id, "tried to lock, but already has a device lock")
@@ -134,7 +141,8 @@ class Server(WebSocketHandler):
             self.write_message("LockedDevice" + device_name)
             self.log("locked " + device_name)
 
-    def unlock(self, message):
+    @type_check
+    def unlock(self, message: str) -> void:
         if not hasattr(self, 'device'):
             self.write_message("ClientNoLock")
             self.log("Tried to unlock device but the device isn't locked")
@@ -150,7 +158,8 @@ class Server(WebSocketHandler):
             client.write_message("DeviceList" + json.dumps(self.arduinos))
         self.log("updated devices")
 
-    def get_components(self, message):
+    @type_check
+    def get_components(self, message: str) -> void:
         if not hasattr(self, 'device'):
             self.write_message("ClientNoLock")
             self.log("tried to get components, but doesn't have a device lock")
@@ -166,7 +175,8 @@ class Server(WebSocketHandler):
                     self.write_message("ComponentList" + json_data)
                     self.log("requested {0:s}'s components".format(self.device["name"]))
 
-    def post_components(self, message):
+    @type_check
+    def post_components(self, message: str) -> void:
         if not hasattr(self, 'device'):
             self.write_message("ClientNoLock")
             self.log("tried to post components, but doesn't have a device lock")
@@ -177,7 +187,8 @@ class Server(WebSocketHandler):
             self.write_message("PostedComponents")
             self.log("posted {0:s}'s components".format(self.device['name']))
 
-    def generate_code(self, message):
+    @type_check
+    def generate_code(self, message: str) -> void:
         if not hasattr(self, 'device'):
             self.write_message("ClientNoLock")
             self.log("tried to generate arduino code, but doesn't have a device lock")
@@ -198,7 +209,8 @@ class Server(WebSocketHandler):
             self.log("generated arduino code for {0:s}".format(self.device["name"]))
             self.write_message("GeneratedArduinoCode")
 
-    def write_components(self, message):
+    @type_check
+    def write_components(self, message: str) -> void:
         if not hasattr(self, 'device'):
             self.write_message("ClientNoLock")
             self.log("tried to write components, but doesn't have a device lock")
@@ -221,12 +233,13 @@ class Server(WebSocketHandler):
             self.write_message("WrittenComponents")
 
     @classmethod
-    def stop(cls):
+    def stop(cls) -> void:
         for client in cls.clients:
             client.close(Reason="Server closing")
             client.on_close()
 
-    def on_close(self):
+    @type_check
+    def on_close(self) -> void:
         if hasattr(self, 'device'):
             self.device["locked"] = False
             lock = "{0:s}/{1:s}.lck".format(self.lock_folder_filepath,  self.device["name"])
@@ -245,11 +258,13 @@ class Server(WebSocketHandler):
 
 
 class SetupTLS(RequestHandler):
-    def get(self):
+    @type_check
+    def get(self) -> void:
         self.write("Please accept the TLS certificate to use websockets from this device.")
 
 
-def sigInt_handler(signum, frame):
+@type_check
+def sigInt_handler(signum, frame) -> void:
     logger.info("Closing Server")
 
     Server.stop()
