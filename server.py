@@ -13,6 +13,8 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 
 from arduino_gen import ArduinoGen
+from appendages.util.logger import Logger
+logger = Logger()
 
 
 class Server(WebSocketHandler):
@@ -23,8 +25,9 @@ class Server(WebSocketHandler):
     config_folder_filepath = os.path.abspath("./config")
     lock_folder_filepath = "/var/lock"
 
-    arduinos = [{"name": d, "locked": os.path.exists("{0:s}/{1:s}.lck".format(self.lock_folder_filepath,d)}
-                for d in os.listdir(current_arduino_code_filepath) if os.path.isdir(current_arduino_code_filepath + "/" + d) and not d == ".git"]
+    arduinos = [{"name": d, "locked": os.path.exists("{0:s}/{1:s}.lck".format(lock_folder_filepath, d))}
+                for d in os.listdir(current_arduino_code_filepath)
+                if os.path.isdir("{0:s}/{1:s}".format(current_arduino_code_filepath, d)) and not d == ".git"]
 
     pin = random.randint(0, 99999)
 
@@ -33,16 +36,15 @@ class Server(WebSocketHandler):
 
         self.commands = {"Lock": self.Lock,
                          "Unlock": self.unlock,
-                         "GetComponents", self.get_components,
-                         "PostCompoents", self.post_components,
-                         "GenCode", self.generate_code,
-                         "WriteComponents", seld.write_components}
+                         "GetComponents": self.get_components,
+                         "PostCompoents": self.post_components,
+                         "GenCode": self.generate_code,
+                         "WriteComponents": self.write_components}
 
         WebSocketHandler.__init__(self, *args, **kwargs)
 
-
     def setup_folders(self):
-        if not os.path.isdir(current_arduino_code_filepath):
+        if not os.path.isdir(self.current_arduino_code_filepath):
             os.mkdir(self.current_arduino_code_filepath)
 
         if not os.path.isdir(self.config_folder_filepath):
@@ -64,7 +66,7 @@ class Server(WebSocketHandler):
 
         self.verified = False
 
-        log(self.id, "connected with ip: " + self.request.remote_ip)
+        self.log("connected with ip: {0:s}".format(self.request.remote_ip))
 
     def on_message(self, message):
         if not self.verified:
@@ -83,15 +85,15 @@ class Server(WebSocketHandler):
                 self.write_message("WrongPin")
                 self.log("entered wrong pin")
 
-            self.write_message("DeviceList" + json.dumps(arduinos))
+            self.write_message("DeviceList" + json.dumps(self.arduinos))
 
         else:
             for command_key in self.commands:
                 if message[:len(command_key)] == command_key:
                     self.commands[command_key](message[len(command_key):])
                     return
-            logger.error("{0:s}\tClient {1:2d}\tUnknown command: {2:s}".format(time.strftime("%H:%M:%S", time.localtime()), self.id, message))
-
+            logger.error("{0:s}\tClient {1:2d}\tUnknown command: {2:s}"
+                         .format(time.strftime("%H:%M:%S", time.localtime()), self.id, message))
 
     def lock(self, message):
         if hasattr(self, 'device'):
@@ -100,7 +102,7 @@ class Server(WebSocketHandler):
         else:
             device_name = message
             device = None
-            for arduino in arduinos:
+            for arduino in self.arduinos:
                 if arduino['name'] == device_name:
                     device = arduino
                     break
@@ -122,7 +124,7 @@ class Server(WebSocketHandler):
             os.chmod(lock, 0o777)
             for client in self.clients:
                 client.write_message("DeviceList" + json.dumps(self.arduinos))
-            log(self.id, "updated devices")
+            self.log("updated devices")
 
             self.write_message("LockedDevice" + device_name)
             self.log("locked " + device_name)
@@ -140,7 +142,7 @@ class Server(WebSocketHandler):
         self.log("unlocked " + self.device["name"])
         del self.device
         for client in self.clients:
-            client.write_message("DeviceList" + json.dumps(arduinos))
+            client.write_message("DeviceList" + json.dumps(self.arduinos))
         self.log("updated devices")
 
     def get_components(self, message):
@@ -162,7 +164,7 @@ class Server(WebSocketHandler):
     def post_components(self, message):
         if not hasattr(self, 'device'):
             self.write_message("ClientNoLock")
-            log(self.id, "tried to post components, but doesn't have a device lock")
+            self.log("tried to post components, but doesn't have a device lock")
         else:
             device_file = "{0:s}/{1:s}.json".format(self.config_folder_filepath, self.device["name"])
             with open(device_file, 'w') as json_file:
@@ -191,14 +193,14 @@ class Server(WebSocketHandler):
             self.log("generated arduino code for {0:s}".format(self.device["name"]))
             self.write_message("GeneratedArduinoCode")
 
-    def write_components(self, message)
+    def write_components(self, message):
         if not hasattr(self, 'device'):
             self.write_message("ClientNoLock")
             self.log("tried to write components, but doesn't have a device lock")
         else:
-            device_file = confFolderAbsPath + "/" + self.device["name"] + ".json"
+            device_file = "{0:s}/{1:s}.json".format(self.config_folder_filepath, self.device["name"])
             with open(device_file, 'w') as jsonFile:
-                jsonFile.write(message[len(cmd):])
+                jsonFile.write(message)
             self.write_message("PostedComponents")
             self.log("posted {0:s}'s components".format(self.device["name"]))
 
@@ -229,7 +231,7 @@ class Server(WebSocketHandler):
             self.clients.remove(self)
 
             for client in self.clients:
-                client.write_message("DeviceList" + json.dumps(arduinos))
+                client.write_message("DeviceList" + json.dumps(self.arduinos))
             self.log("updated devices")
         else:
             self.clients.remove(self)
@@ -240,10 +242,6 @@ class Server(WebSocketHandler):
 class SetupTLS(RequestHandler):
     def get(self):
         self.write("Please accept the TLS certificate to use websockets from this device.")
-
-
-def make_app():
-    return 
 
 
 def sigInt_handler(signum, frame):
@@ -258,8 +256,8 @@ def sigInt_handler(signum, frame):
 
 if __name__ == "__main__":
     app = HTTPServer(Application([(r"/", Server), (r"/setuptls", SetupTLS)]),
-        ssl_options={"certfile": "/etc/ssl/certs/tornado.crt", "keyfile": "/etc/ssl/certs/tornado.key"})
+                     ssl_options={"certfile": "/etc/ssl/certs/tornado.crt", "keyfile": "/etc/ssl/certs/tornado.key"})
     app.listen(9000)
     signal.signal(signal.SIGINT, sigInt_handler)
     print(("Pin: {:05d}".format(Server.pin)))
-    tornado.ioloop.IOLoop.current().start()
+    IOLoop.current().start()
