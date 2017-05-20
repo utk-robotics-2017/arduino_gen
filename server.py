@@ -25,14 +25,19 @@ class Server(WebSocketHandler):
     config_folder_filepath = os.path.abspath("./config")
     lock_folder_filepath = "/var/lock"
 
-    arduinos = [{"name": d, "locked": os.path.exists("{0:s}/{1:s}.lck".format(lock_folder_filepath, d))}
-                for d in os.listdir(current_arduino_code_filepath)
-                if os.path.isdir("{0:s}/{1:s}".format(current_arduino_code_filepath, d)) and not d == ".git"]
+    arduinos = None
 
     pin = random.randint(0, 99999)
 
     def __init__(self, *args, **kwargs):
         self.setup_folders()
+
+        if self.arduinos is None:
+            self.arduinos = [{"name": d,
+                              "locked": os.path.exists("{0:s}/{1:s}.lck".format(self.lock_folder_filepath, d))}
+                             for d in os.listdir(self.current_arduino_code_filepath)
+                             if os.path.isdir("{0:s}/{1:s}".format(self.current_arduino_code_filepath, d))
+                             and not d == ".git"]
 
         self.commands = {"Lock": self.Lock,
                          "Unlock": self.unlock,

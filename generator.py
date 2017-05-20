@@ -4,7 +4,7 @@ import platform
 from subprocess import call
 
 from template_parser import TemplateParser
-from appendages.util.decorators import singleton, attr_check, type_check
+from appendages.util.decorators import singleton, attr_check, type_check, void
 from appendages.util.logger import Logger
 logger = Logger()
 
@@ -42,9 +42,7 @@ class Generator:
         '''
         tp = TemplateParser()
         for i, (device_type, device_list) in enumerate(self.appendage_dict.items()):
-            percent = i / len(self.appendage_dict)
-
-            device_type_file = device_type.lower().replace(" ", "_")            
+            device_type_file = device_type.lower().replace(" ", "_")
             parsed_template = tp.parse_template('appendages/arduino_gen/{0:s}.template'.format(device_type_file),
                                                 device_list)
             parsed_template.tier = device_list[0].TIER
@@ -90,15 +88,14 @@ class Generator:
             f.flush()
 
         # Beatify the Arduino Code
-        if platform.system() == "Linux":
-            #TODO
-            #call([CURRENT_DIR + ?, "--style=allman", "-n",filename])
+        if platform.system().lower() == "linux":
+            call([CURRENT_DIR + "/astyle/linux/build/gcc/bin/astyle", "--style=allman", "-n", filename])
             pass
-        elif platform.system() == "Darwin": # Mac
-            call([CURRENT_DIR + "/astyle/mac/build/mac/bin/Astyle", "--style=allman", "-n",filename])
+        elif platform.system().lower() == "darwin":  # Mac
+            call([CURRENT_DIR + "/astyle/mac/build/mac/bin/Astyle", "--style=allman", "-n", filename])
         elif platform.system() == "Windows":
-            #TODO: Anthony?
-            #call([CURRENT_DIR + ?, "--style=allman", "-n",filename])
+            # TODO: Anthony?
+            # call([CURRENT_DIR + ?, "--style=allman", "-n",filename])
             pass
 
     @type_check
@@ -206,8 +203,7 @@ class Generator:
                 if cmd != "":
                     self.commands[cmd] = cmd_idx
                     cmd_idx += 1
-        rv = rv[:-2] # remove last comma
-        return rv
+        return rv[:-2]  # remove last comma
 
     @type_check
     def get_command_attaches(self) -> str:
@@ -246,7 +242,7 @@ class Generator:
             Returns
             -------
             str
-                A string containing all the code for any functions that need to be in the .ino file, 
+                A string containing all the code for any functions that need to be in the .ino file,
                 but are not  callbacks
         '''
         rv = "// Extra Functions\n"
