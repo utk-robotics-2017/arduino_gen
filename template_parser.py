@@ -7,6 +7,8 @@ from appendages.arduino_gen.component import Component
 @singleton
 @attr_check
 class TemplateParser:
+    '''
+    '''
     list_ = list
 
     def __new__(cls):
@@ -24,6 +26,8 @@ class TemplateParser:
 
     @type_check
     def parse_template(self, template_filename: str, list_: list) -> ParsedTemplate:
+        '''
+        '''
         self.list_ = list_
         self.setup_globals()
         self.lines = []
@@ -133,11 +137,15 @@ class TemplateParser:
 
     @type_check
     def setup_globals(self) -> void:
+        '''
+        '''
         self.global_vars = {}
         self.global_vars['length'] = len(self.list_)
 
     @type_check
     def apply_globals(self, line: str) -> str:
+        '''
+        '''
         for global_var in self.global_vars:
             if "%%%{0:s}%%%".format(global_var) in line:
                 try:
@@ -148,6 +156,8 @@ class TemplateParser:
 
     @type_check
     def grab_section(self) -> (tuple, void):
+        ''' Recursively grab sections based on '{{{' and '}}}'
+        '''
         section_contents = []
         section_head = ""
         has_section_head = False

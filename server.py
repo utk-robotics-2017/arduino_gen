@@ -6,59 +6,61 @@ import time
 import json
 import signal
 import os
-import os.path
 
-import tornado.ioloop
-import tornado.websocket
-import tornado.httpserver
+from tornado.websocket import WebSocketHandler
+from tornado.httpserver import HTTPServer
+from tornado.ioloop import IOLoop
+from tornado.web import Application, RequestHandler
 
 from arduino_gen import ArduinoGen
 
-clients = set()
-clientId = 0
 
-port = 9000
-currentArduinoCodeFolder = "/Robot/CurrentArduinoCode"
-confFolder = "./conf"
-lockFolder = "/var/lock"
-pin = random.randint(0, 99999)
+class Server(WebSocketHandler):
+    clients = set()
+    client_id = 0
 
-currentArduinoCodeFolderAbsPath = os.path.abspath(currentArduinoCodeFolder)
-if not os.path.isdir(currentArduinoCodeFolderAbsPath):
-    os.mkdir(currentArduinoCodeFolderAbsPath)
+    current_arduino_code_filepath = "/Robot/CurrentArduinoCode"
+    config_folder_filepath = os.path.abspath("./config")
+    lock_folder_filepath = "/var/lock"
 
-confFolderAbsPath = os.path.abspath(confFolder)
-if not os.path.isdir(confFolderAbsPath):
-    os.mkdir(confFolderAbsPath)
+    arduinos = [{"name": d, "locked": os.path.exists("{0:s}/{1:s}.lck".format(self.lock_folder_filepath,d)}
+                for d in os.listdir(current_arduino_code_filepath) if os.path.isdir(current_arduino_code_filepath + "/" + d) and not d == ".git"]
 
-lockFolderAbsPath = os.path.abspath(lockFolder)
-if not os.path.isdir(lockFolderAbsPath):
-    os.mkdir(lockFolderAbsPath)
+    pin = random.randint(0, 99999)
 
+    def __init__(self, *args, **kwargs):
+        self.setup_folders()
 
-arduinos = [{"name": d} for d in os.listdir(currentArduinoCodeFolder)
-            if os.path.isdir(currentArduinoCodeFolder + "/" + d) and not d == ".git"]
+        self.commands = {"Lock": self.Lock,
+                         "Unlock": self.unlock,
+                         "GetComponents", self.get_components,
+                         "PostCompoents", self.post_components,
+                         "GenCode", self.generate_code,
+                         "WriteComponents", seld.write_components}
 
-for arduino in arduinos:
-    arduino["locked"] = os.path.exists(lockFolderAbsPath + "/" + arduino["name"] + ".lck")
+        WebSocketHandler.__init__(self, *args, **kwargs)
 
 
-def log(wsId, message):
-    print(("{}\tClient {:2d}\t{}".format(
-        time.strftime("%H:%M:%S", time.localtime()), wsId, message
-    )))
+    def setup_folders(self):
+        if not os.path.isdir(current_arduino_code_filepath):
+            os.mkdir(self.current_arduino_code_filepath)
 
+        if not os.path.isdir(self.config_folder_filepath):
+            os.mkdir(self.config_folder_filepath)
 
-class Server(tornado.websocket.WebSocketHandler):
+        if not os.path.isdir(self.lock_folder_filepath):
+            os.mkdir(self.lock_folder_filepath)
+
+    def log(self, message):
+        logger.info("{}\tClient {:2d}\t{}".format(time.strftime("%H:%M:%S", time.localtime()), self.id, message))
+
     def check_origin(self, origin):
         return True
 
     def open(self):
-        global clients, clientId
-
-        self.id = clientId
-        clientId += 1
-        clients.add(self)
+        self.id = self.client_id
+        self.client_id += 1
+        self.clients.add(self)
 
         self.verified = False
 
@@ -67,203 +69,197 @@ class Server(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         if not self.verified:
             try:
-                clientPin = int(message)
+                client_pin = int(message)
             except ValueError:
                 self.write_message("Invalid Pin")
-                log(self.id, "entered an invalid pin: " + message)
+                self.log("entered an invalid pin: " + message)
                 return
 
-            if clientPin == pin:
+            if client_pin == self.pin:
                 self.verified = True
                 self.write_message("Verified")
-                log(self.id, "entered correct pin")
+                self.log("entered correct pin")
             else:
                 self.write_message("WrongPin")
-                log(self.id, "entered wrong pin")
+                self.log("entered wrong pin")
 
             self.write_message("DeviceList" + json.dumps(arduinos))
 
         else:
-            cmd = "Lock"
-            if message[:len(cmd)] == cmd:
-                if hasattr(self, 'device'):
-                    self.write_message("ClientHasLock")
-                    log(self.id, "tried to lock, but already has a device lock")
-                else:
-                    devName = message[len(cmd):]
+            for command_key in self.commands:
+                if message[:len(command_key)] == command_key:
+                    self.commands[command_key](message[len(command_key):])
+                    return
+            logger.error("{0:s}\tClient {1:2d}\tUnknown command: {2:s}".format(time.strftime("%H:%M:%S", time.localtime()), self.id, message))
 
-                    dev = list([x for x in arduinos if x["name"] == devName])
-                    if len(dev):
-                        dev = dev[0]
-                    else:
-                        self.write_message("DeviceNotRegistered")
-                        log(self.id, devName + " device not registered")
-                        return
 
-                    if dev["locked"]:
-                        self.write_message("DeviceInUse")
-                        log(self.id, devName + " device is in use")
-                    else:
-                        dev["locked"] = True
-                        self.device = dev
-                        lockFileName = lockFolderAbsPath + "/" + self.device["name"] + ".lck"
-                        with open(lockFileName, "w") as f:
-                            f.write("Locked by ArduinoGenServer")
-                        os.chmod(lockFileName, 0o777)
-                        for client in clients:
-                            client.write_message("DeviceList" + json.dumps(arduinos))
-                        log(self.id, "updated devices")
-
-                        self.write_message("LockedDevice" + devName)
-                        log(self.id, "locked " + devName)
+    def lock(self, message):
+        if hasattr(self, 'device'):
+            self.write_message("ClientHasLock")
+            self.log(id, "tried to lock, but already has a device lock")
+        else:
+            device_name = message
+            device = None
+            for arduino in arduinos:
+                if arduino['name'] == device_name:
+                    device = arduino
+                    break
+            if device is None:
+                self.write_message("DeviceNotRegistered")
+                self.log("{0:s} device not registered".format(device_name))
                 return
 
-            cmd = "Unlock"
-            if message[:len(cmd)] == cmd:
-                if not hasattr(self, 'device'):
-                    self.write_message("ClientNoLock")
-                    log(self.id, "tried to unlock, but doesn't have a device lock")
-                else:
-                    lockFileName = lockFolderAbsPath + "/" + self.device["name"] + ".lck"
-                    os.remove(lockFileName)
-                    self.device["locked"] = False
-                    self.write_message("UnlockedDevice" + self.device["name"])
-                    log(self.id, "unlocked " + self.device["name"])
-                    del self.device
-
-                    for client in clients:
-                        client.write_message("DeviceList" + json.dumps(arduinos))
-                    log(self.id, "updated devices")
+            if device['locked']:
+                self.write_message("DeviceInUse")
+                self.log("{0:s} device is in use".format(device_name))
                 return
 
-            cmd = "GetComponents"
-            if message[:len(cmd)] == cmd:
-                if not hasattr(self, 'device'):
-                    self.write_message("ClientNoLock")
-                    log(self.id, "tried to get components, but doesn't have a device lock")
-                else:
-                    deviceJsonFile = currentArduinoCodeFolder + "/" + self.device["name"] + "/" + \
-                        self.device["name"] + ".json"
-                    if not os.path.exists(deviceJsonFile):
-                        self.write_message("[]")
-                        log(self.id, "no file, sending empy list")
-                    else:
-                        with open(deviceJsonFile, 'r') as jsonFile:
-                            jsonData = jsonFile.read().replace('\n', '')
-                            self.write_message("ComponentList" + jsonData)
-                            log(self.id, "requested " + self.device["name"] + "'s components")
-                return
+            device["locked"] = True
+            self.device = device
+            lock = "{0:s}/{1:s}.lck".format(self.lock_folder_filepath, self.device['name'])
+            with open(lock, "w") as f:
+                f.write("Locked by ArduinoGenServer")
+            os.chmod(lock, 0o777)
+            for client in self.clients:
+                client.write_message("DeviceList" + json.dumps(self.arduinos))
+            log(self.id, "updated devices")
 
-            cmd = "PostComponents"
-            if message[:len(cmd)] == cmd:
-                if not hasattr(self, 'device'):
-                    self.write_message("ClientNoLock")
-                    log(self.id, "tried to post components, but doesn't have a device lock")
-                else:
-                    deviceJsonFile = confFolderAbsPath + "/" + self.device["name"] + ".json"
-                    with open(deviceJsonFile, 'w') as jsonFile:
-                        jsonFile.write(message[len(cmd):])
-                        self.write_message("PostedComponents")
-                        log(self.id, "posted " + self.device["name"] + "'s components")
-                return
+            self.write_message("LockedDevice" + device_name)
+            self.log("locked " + device_name)
 
-            cmd = "GenCode"
-            if message[:len(cmd)] == cmd:
-                if not hasattr(self, 'device'):
-                    self.write_message("ClientNoLock")
-                    log(self.id, "tried to generate arduino code, but doesn't have a device lock")
-                else:
-                    deviceJsonFile = confFolderAbsPath + "/" + self.device["name"] + ".json"
-                    with open(deviceJsonFile, 'w') as jsonFile:
-                        jsonFile.write(message[len(cmd):])
-                        self.write_message("PostedComponents")
-                        log(self.id, "posted " + self.device["name"] + "'s components")
+    def unlock(self, message):
+        if not hasattr(self, 'device'):
+            self.write_message("ClientNoLock")
+            self.log("Tried to unlock device but the device isn't locked")
+            return
 
-                    log(self.id, "generating arduino code for " + self.device["name"])
+        lock = "{0:s}/{1:s}.lck".format(self.lock_folder_filepath, self.device['name'])
+        os.remove(lock)
+        self.device['locked'] = False
+        self.write_message("UnlockedDevice" + self.device["name"])
+        self.log("unlocked " + self.device["name"])
+        del self.device
+        for client in self.clients:
+            client.write_message("DeviceList" + json.dumps(arduinos))
+        self.log("updated devices")
 
-                    ag = ArduinoGen(arduino=self.device["name"])
-                    ag.setParentFolder(os.path.dirname(os.path.realpath(__file__)))
-                    ag.setupFolder()
-                    ag.readConfig(deviceJsonFile)
-                    ag.generateOutput()
-                    log(self.id, "generated arduino code for " + self.device["name"])
-                    self.write_message("GeneratedArduinoCode")
-                return
+    def get_components(self, message):
+        if not hasattr(self, 'device'):
+            self.write_message("ClientNoLock")
+            self.log("tried to get components, but doesn't have a device lock")
+        else:
+            device_file = "{0:s}/{1:s}/{1:s}.json".format(self.current_arduino_code_filepath,
+                                                          self.device["name"])
+            if not os.path.exists(device_file):
+                self.write_message("[]")
+                self.log("no file, sending empy list")
+            else:
+                with open(device_file, 'r') as json_file:
+                    json_data = json_file.read().replace('\n', '')
+                    self.write_message("ComponentList" + json_data)
+                    self.log("requested {0:s}'s components".format(self.device["name"]))
 
-            cmd = "WriteComponents"
-            if message[:len(cmd)] == cmd:
-                if not hasattr(self, 'device'):
-                    self.write_message("ClientNoLock")
-                    log(self.id, "tried to write components, but doesn't have a device lock")
-                else:
-                    deviceJsonFile = confFolderAbsPath + "/" + self.device["name"] + ".json"
-                    with open(deviceJsonFile, 'w') as jsonFile:
-                        jsonFile.write(message[len(cmd):])
-                        self.write_message("PostedComponents")
-                        log(self.id, "posted " + self.device["name"] + "'s components")
+    def post_components(self, message):
+        if not hasattr(self, 'device'):
+            self.write_message("ClientNoLock")
+            log(self.id, "tried to post components, but doesn't have a device lock")
+        else:
+            device_file = "{0:s}/{1:s}.json".format(self.config_folder_filepath, self.device["name"])
+            with open(device_file, 'w') as json_file:
+                json_file.write(message)
+            self.write_message("PostedComponents")
+            self.log("posted {0:s}'s components".format(self.device['name']))
 
-                    log(self.id, "writing components to " + self.device["name"])
+    def generate_code(self, message):
+        if not hasattr(self, 'device'):
+            self.write_message("ClientNoLock")
+            self.log("tried to generate arduino code, but doesn't have a device lock")
+        else:
+            device_file = "{0:s}/{1:s}.json".format(self.config_folder_filepathself.device["name"])
+            with open(device_file, 'w') as json_file:
+                json_file.write(message)
+            self.write_message("PostedComponents")
+            self.log("posted {0:s}'s components".format(self.device["name"]))
 
-                    ag = ArduinoGen(arduino=self.device["name"])
-                    ag.setParentFolder(os.path.dirname(os.path.realpath(__file__)))
-                    ag.setupFolder()
-                    ag.readConfig(deviceJsonFile)
-                    ag.generateOutput()
-                    ag.upload()
-                    log(self.id, "written components to " + self.device["name"])
-                    self.write_message("WrittenComponents")
-                return
+            self.log("generating arduino code for {0:s}".format(self.device["name"]))
+
+            arduino_gen = ArduinoGen(arduino=self.device["name"])
+            arduino_gen.set_parent_folder(os.path.dirname(os.path.realpath(__file__)))
+            arduino_gen.setup_folder()
+            arduino_gen.read_config(device_file)
+            arduino_gen.generate_output()
+            self.log("generated arduino code for {0:s}".format(self.device["name"]))
+            self.write_message("GeneratedArduinoCode")
+
+    def write_components(self, message)
+        if not hasattr(self, 'device'):
+            self.write_message("ClientNoLock")
+            self.log("tried to write components, but doesn't have a device lock")
+        else:
+            device_file = confFolderAbsPath + "/" + self.device["name"] + ".json"
+            with open(device_file, 'w') as jsonFile:
+                jsonFile.write(message[len(cmd):])
+            self.write_message("PostedComponents")
+            self.log("posted {0:s}'s components".format(self.device["name"]))
+
+            self.log("writing components to {0:s}".format(self.device["name"]))
+
+            arduino_gen = ArduinoGen(arduino=self.device["name"])
+            arduino_gen.set_parent_folder(os.path.dirname(os.path.realpath(__file__)))
+            arduino_gen.setup_folder()
+            arduino_gen.read_config(device_file)
+            arduino_gen.generate_output()
+            arduino_gen.upload()
+            self.log("written components to {0:s}".format(self.device["name"]))
+            self.write_message("WrittenComponents")
+
+    @classmethod
+    def stop(cls):
+        for client in cls.clients:
+            client.close(Reason="Server closing")
+            client.on_close()
 
     def on_close(self):
         if hasattr(self, 'device'):
-            dev = self.device
-            dev["locked"] = False
-            lockFileName = lockFolderAbsPath + "/" + dev["name"] + ".lck"
-            os.remove(lockFileName)
-            log(self.id, "unlocked " + dev["name"])
+            self.device["locked"] = False
+            lock = "{0:s}/{1:s}.lck".format(self.lock_folder_filepath,  self.device["name"])
+            os.remove(lock)
+            self.log("unlocked {0:s}".format(self.device["name"]))
 
-            clients.remove(self)
+            self.clients.remove(self)
 
-            for client in clients:
+            for client in self.clients:
                 client.write_message("DeviceList" + json.dumps(arduinos))
-            log(self.id, "updated devices")
+            self.log("updated devices")
         else:
-            clients.remove(self)
+            self.clients.remove(self)
 
-        log(self.id, "disconnected")
+        self.log("disconnected")
 
 
-class SetupTLS(tornado.web.RequestHandler):
+class SetupTLS(RequestHandler):
     def get(self):
         self.write("Please accept the TLS certificate to use websockets from this device.")
 
 
 def make_app():
-    return tornado.httpserver.HTTPServer(tornado.web.Application([
-        (r"/", Server),
-        (r"/setuptls", SetupTLS)
-    ]), ssl_options={
-        "certfile": "/etc/ssl/certs/tornado.crt",
-        "keyfile": "/etc/ssl/certs/tornado.key"
-    })
+    return 
 
 
 def sigInt_handler(signum, frame):
-    print("Closing Server")
+    logger.info("Closing Server")
 
-    while clients:
-        client = next(iter(clients))
-        client.close(reason="Server Closing")
-        client.on_close()
+    Server.stop()
 
-    tornado.ioloop.IOLoop.current().stop()
-    print("Server is closed")
+    IOLoop.current().stop()
+    logger.info("Server is closed")
     sys.exit(0)
 
 
 if __name__ == "__main__":
-    app = make_app()
-    app.listen(port)
+    app = HTTPServer(Application([(r"/", Server), (r"/setuptls", SetupTLS)]),
+        ssl_options={"certfile": "/etc/ssl/certs/tornado.crt", "keyfile": "/etc/ssl/certs/tornado.key"})
+    app.listen(9000)
     signal.signal(signal.SIGINT, sigInt_handler)
-    print(("Pin: {:05d}".format(pin)))
+    print(("Pin: {:05d}".format(Server.pin)))
     tornado.ioloop.IOLoop.current().start()

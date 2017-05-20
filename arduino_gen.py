@@ -14,17 +14,42 @@ logger = Logger()
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 CURRENT_ARDUINO_CODE_DIR = "/Robot/CurrentArduinoCode"
 
-
+@attr_check
 class ArduinoGen:
+    ''' Arduion Code Generator that work with the RIP platform
+
+        Attributes
+        ----------
+        arduino : str
+            The name of the arduino that code is being generated for
+        folder : str
+            Folder where the output folder should be created
+        device_dict : dict
+            Dictionary holding lists of each appendage type
+
+    '''
+
+    arduino = str
+    folder = str
+    device_dict = dict
+
+    @type_check
     def __init__(self, arduino):
         self.arduino = arduino
 
-    def set_parent_folder(self, parent_folder):
+    @type_check
+    def set_parent_folder(self, parent_folder: str) -> void:
+        ''' Sets the folder that the output folder will be created in
+        '''
         self.folder = "{0:s}/{1:s}".format(parent_folder, self.arduino)
 
-    def setup_folder(self):
+    @type_check
+    def setup_folder(self) -> void:
+        ''' If a folder for the arduino exists then remove it. Create a folder
+            for the arduino.
+        '''
         if not hasattr(self, 'folder'):
-            print("Folder has not been set")
+            logger.error("Folder has not been set")
             sys.exit()
         logger.info("Making directory...")
         if os.path.exists(self.folder):
@@ -35,13 +60,25 @@ class ArduinoGen:
         os.chmod("{0:s}/src".format(self.folder), 0o777)
         logger.info("Done")
 
-    def read_config(self, f, copy=True):
+    @type_check
+    def read_config(self, filepath: str, copy: bool=True) -> void:
+        ''' Read in the config file containing what appendages are attached
+            to the Arduino. Convert this information into a dict holding lists
+            of appendages.
+
+            Parameters
+            ----------
+            filepath : str
+                The filepath of the config file
+            copy : bool
+                Whether or not to copy the config file into the output folder
+        '''
         if copy:
-            shutil.copyfile(f, "{0:s}/{1:s}.json".format(self.folder, self.arduino))
+            shutil.copyfile(filepath, "{0:s}/{1:s}.json".format(self.folder, self.arduino))
             os.chmod("{0:s}/{1:s}.json".format(self.folder, self.arduino), 0o777)
 
         logger.info("Reading config file...")
-        with open(f) as fi:
+        with open(filepath) as fi:
             file_text = fi.read()
         json_data = json.loads(file_text)
 
@@ -81,7 +118,11 @@ class ArduinoGen:
 
         logger.info("Done")
 
-    def generate_output(self):
+    @type_check
+    def generate_output(self) -> void:
+        ''' Pass the appendages through the templates and generate the Arduino Code
+            as well as the config file for RIP's spine
+        '''
         if not hasattr(self, 'folder'):
             logger.error("Parent folder has not been set")
             sys.exit()
@@ -106,16 +147,10 @@ class ArduinoGen:
         logger.info("Done")
         logger.info("Your output can be found at {0:s}".format(self.folder))
 
-    def build(self):
-        if not hasattr(self, 'folder'):
-            logger.error("Parent folder has not been set")
-            sys.exit()
-        logger.info("Building...")
-        os.chdir("{0:s}/{1:s}".format(self.folder, self.arduino))
-        os.system("ino build")
-        logger.info("Done")
-
-    def upload(self):
+    @type_check
+    def upload(self) -> void:
+        ''' Compile and upload generated Arduino code on to the Arduino
+        '''
         if not hasattr(self, 'folder'):
             logger.error("Parent folder has not been set")
             sys.exit()
@@ -136,7 +171,7 @@ class ArduinoGen:
         logger.info(os.getcwd())
         os.system("sh upload.sh")
         # os.system("pio run -t upload")
-        print("Done")
+        logger.info("Done")
 
 
 if __name__ == "__main__":
@@ -161,5 +196,3 @@ if __name__ == "__main__":
 
     if args['upload']:
         ag.upload()
-    elif args['build']:
-        ag.build()
