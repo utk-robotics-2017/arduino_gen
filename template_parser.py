@@ -172,7 +172,7 @@ class TemplateParser:
                 with open('templates/variable.template') as f:
                     line = f.read()
 
-                return line.replace('%%%name%%%').replace('%%%type%%%', matches[1]).replace('%%%command%%%', matches[2])
+                return line.replace('%%%name%%%', matches[0]).replace('%%%type%%%', matches[1]).replace('%%%command%%%', matches[2])
 
         return line
 

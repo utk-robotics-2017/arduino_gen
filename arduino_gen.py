@@ -162,8 +162,8 @@ class ArduinoGen:
         logger.info("\tWriting indices file")
         generator.write_core_config_file(self.folder, self.arduino)
 
-        logger.info("\tWriting build, serial, and upload shell scripts")
-        generator.write_shell_scripts(self.folder, self.arduino)
+        logger.info("\tWriting tje upload shell script")
+        generator.write_upload_script(self.folder, self.arduino)
         logger.info("Done")
         logger.info("Your output can be found at {0:s}".format(self.folder))
 

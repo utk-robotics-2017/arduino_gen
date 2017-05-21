@@ -249,7 +249,7 @@ class Generator:
         return rv[:-2]
 
     @type_check
-    def write_upload_scripts(self, folder: str, arduino: str) -> void:
+    def write_upload_script(self, folder: str, arduino: str) -> void:
         ''' Writes the shell script to upload the code
 
             Note
