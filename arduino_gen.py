@@ -123,6 +123,12 @@ class ArduinoGen:
             if json_item['type'].lower() in ['led']:
                 json_item['type'] = 'Digital Output'
 
+            if json_item['type'].lower() in ['potentiometer']:
+                json_item['type'] = 'Analog Input'
+
+            # if json_item['type'].lower() in ['']:
+            #     json_item['type'] = 'Analog Output'
+
             if json_item['type'] not in self.device_dict:
                 self.device_dict[json_item['type']] = []
 
